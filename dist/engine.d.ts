@@ -23,6 +23,7 @@ export declare class TourEngine {
     isValid(): boolean;
     hasSeen(): boolean;
     resetSeen(): void;
+    resetProgress(): void;
     setContext(patch: Record<string, unknown>): void;
     setGlobalTheme(theme: ThemeOverrides): void;
     start(stepId?: string): Promise<void>;

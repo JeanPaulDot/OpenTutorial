@@ -1,4 +1,4 @@
-import { TourProvider } from '../../core/adapters/react';
+import { TourProvider } from '@opentutorial/core/adapters/react';
 import { welcomeSpec } from '../demo/specs/welcome';
 import { exportReportSpec } from '../demo/specs/export-report';
 import { customizeSpec } from '../demo/specs/customize';

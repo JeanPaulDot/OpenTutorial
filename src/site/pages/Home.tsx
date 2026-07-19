@@ -1,12 +1,16 @@
 import { useNavigate } from 'react-router';
+import { lazy, Suspense } from 'react';
 import { Button } from '../components/ui/button';
 import SiteNav from '../components/SiteNav';
 import SiteFooter from '../components/SiteFooter';
 import FeatureGrid from '../components/FeatureGrid';
 import ModeShowcase from '../components/ModeShowcase';
-import SpecPlayground from '../components/SpecPlayground';
 import Comparison from '../components/Comparison';
 import '../home.css';
+
+const SpecPlayground = lazy(() =>
+  import('../components/SpecPlayground').then((m) => ({ default: m.default })),
+);
 
 const STATS = [
   { n: '0', l: 'runtime dependencies' },
@@ -217,7 +221,9 @@ export default function Home() {
           </p>
         </div>
         <div className="mt-10">
-          <SpecPlayground />
+          <Suspense fallback={<div className="h-64 animate-pulse rounded-2xl border border-slate-100 bg-slate-50" />}>
+            <SpecPlayground />
+          </Suspense>
         </div>
       </section>
 

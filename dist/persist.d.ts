@@ -11,6 +11,7 @@ export declare class TourPersistence {
     hasSeen(tourId: string, version?: string): boolean;
     getStatus(tourId: string): TourStatus | null;
     reset(tourId?: string): void;
+    clearAllProgress(): void;
     saveProgress(tourId: string, lastStepId: string, stepIndex: number): void;
     getProgress(tourId: string): ProgressRecord | null;
     getProgressIfValid(tourId: string, ttl: number): ProgressRecord | null;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useTour } from '../../core/adapters/react';
-import type { ThemeOverrides } from '../../core';
+import { useTour } from '@opentutorial/core/adapters/react';
+import type { ThemeOverrides } from '@opentutorial/core';
 
 const PRESETS: Array<{ name: string; swatch: string; theme: ThemeOverrides }> = [
   { name: 'Violet', swatch: '#6d5cff', theme: { accent: '#6d5cff', bg: '#ffffff', fg: '#181822', muted: '#67677c', backdrop: 'rgba(12,12,22,0.55)' } },

@@ -1,4 +1,4 @@
-import { defineSpec } from '../../../core';
+import { defineSpec } from '@opentutorial/core';
 
 export const i18nSpec = defineSpec({
   specVersion: 1,

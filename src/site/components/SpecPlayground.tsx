@@ -5,8 +5,8 @@ import {
   type SpecError,
   type TourEngine,
   type TutorialSpec,
-} from '../../core';
-import '../../core/styles.css';
+} from '@opentutorial/core';
+import '@opentutorial/core/styles.css';
 
 const VALID_EXAMPLE = JSON.stringify(
   {

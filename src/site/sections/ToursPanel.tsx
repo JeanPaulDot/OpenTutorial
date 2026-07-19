@@ -1,5 +1,5 @@
-import { useTour } from '../../core/adapters/react';
-import { TourChecklist } from '../../core/components';
+import { useTour } from '@opentutorial/core/adapters/react';
+import { TourChecklist } from '@opentutorial/core/components';
 
 const TOUR_BADGES: Record<string, { tag: string; tagClass: string }> = {
   welcome: { tag: 'spotlight', tagClass: 'bg-indigo-50 text-indigo-600' },
@@ -10,7 +10,7 @@ const TOUR_BADGES: Record<string, { tag: string; tagClass: string }> = {
 };
 
 export default function ToursPanel() {
-  const { specs, start, activeId, hasSeen, resetTours } = useTour();
+  const { specs, start, activeId, hasSeen, resetTours, resetProgress } = useTour();
 
   return (
     <section data-tour="tours-panel" className="rounded-xl border border-slate-200/70 bg-white p-5 shadow-sm">
@@ -19,7 +19,7 @@ export default function ToursPanel() {
         <button
           onClick={() => resetTours()}
           className="text-[11px] font-medium text-slate-400 transition hover:text-[#6d5cff]"
-          title="Clear localStorage seen-state"
+          title="Clear seen-state and saved progress"
         >
           Reset state
         </button>
@@ -68,6 +68,15 @@ export default function ToursPanel() {
               >
                 {running ? 'Running…' : `Start (${s.steps.length} steps)`}
               </button>
+              {hasSeen(s.id) && !running && (
+                <button
+                  onClick={() => { resetProgress(); start(s.id); }}
+                  className="mt-2 ml-1.5 rounded-md border border-slate-200 px-2.5 py-1 text-[11.5px] font-semibold text-slate-500 transition hover:border-[#6d5cff] hover:text-[#6d5cff]"
+                  title="Clear saved progress and replay from the first step"
+                >
+                  Replay
+                </button>
+              )}
             </div>
           );
         })}

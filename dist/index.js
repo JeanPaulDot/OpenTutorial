@@ -1,5 +1,5 @@
-import { jsx as E, jsxs as C } from "react/jsx-runtime";
-import { createContext as Y, isValidElement as J, cloneElement as U, useState as M, useRef as R, useEffect as P, useMemo as X, useContext as Q } from "react";
+import { jsx as E, jsxs as I } from "react/jsx-runtime";
+import { createContext as J, isValidElement as Y, cloneElement as U, useState as B, useRef as R, useEffect as M, useMemo as X, useContext as Q } from "react";
 let V = 0;
 class Z {
   root;
@@ -111,7 +111,7 @@ class rt {
       return;
     }
     this.el.classList.remove("ot-modal"), this.arrow.style.display = "";
-    const { side: l, align: h } = nt(e), f = it + s, x = {
+    const { side: l, align: c } = nt(e), f = it + s, x = {
       top: t.y,
       bottom: n - (t.y + t.height),
       left: t.x,
@@ -124,14 +124,14 @@ class rt {
       T(p) ? m = p : T(m) || (m = Object.keys(x).reduce((b, y) => x[b] >= x[y] ? b : y));
     }
     let k = 0, w = 0;
-    const N = (p, b, y) => h === "start" ? p : h === "end" ? p + b - y : p + b / 2 - y / 2;
+    const N = (p, b, y) => c === "start" ? p : c === "end" ? p + b - y : p + b / 2 - y / 2;
     m === "top" || m === "bottom" ? (k = N(t.x, t.width, a), w = m === "top" ? t.y - r - f : t.y + t.height + f) : (w = N(t.y, t.height, r), k = m === "left" ? t.x - a - f : t.x + t.width + f), k = Math.min(Math.max(k, S), Math.max(S, i - a - S)), w = Math.min(Math.max(w, S), Math.max(S, n - r - S)), this.el.style.left = `${k}px`, this.el.style.top = `${w}px`, this.lastSide = m, this.positionArrow(m, t, k, w, a, r);
   }
   positionArrow(t, e, s, i, n, a) {
     const r = this.arrow.style;
     r.top = "", r.bottom = "", r.left = "", r.right = "", this.arrow.dataset.side = t;
-    const l = e.x + e.width / 2, h = e.y + e.height / 2;
-    t === "top" ? (r.bottom = "-5px", r.left = `${Math.min(Math.max(l - s, 16), n - 16)}px`) : t === "bottom" ? (r.top = "-5px", r.left = `${Math.min(Math.max(l - s, 16), n - 16)}px`) : t === "left" ? (r.right = "-5px", r.top = `${Math.min(Math.max(h - i, 16), a - 16)}px`) : (r.left = "-5px", r.top = `${Math.min(Math.max(h - i, 16), a - 16)}px`);
+    const l = e.x + e.width / 2, c = e.y + e.height / 2;
+    t === "top" ? (r.bottom = "-5px", r.left = `${Math.min(Math.max(l - s, 16), n - 16)}px`) : t === "bottom" ? (r.top = "-5px", r.left = `${Math.min(Math.max(l - s, 16), n - 16)}px`) : t === "left" ? (r.right = "-5px", r.top = `${Math.min(Math.max(c - i, 16), a - 16)}px`) : (r.left = "-5px", r.top = `${Math.min(Math.max(c - i, 16), a - 16)}px`);
   }
   getSide() {
     return this.lastSide;
@@ -194,8 +194,8 @@ function lt(o, t = {}) {
       n.preventDefault();
       return;
     }
-    const r = a[0], l = a[a.length - 1], h = document.activeElement;
-    n.shiftKey && (h === r || !o.contains(h)) ? (l.focus(), n.preventDefault()) : !n.shiftKey && h === l && (r.focus(), n.preventDefault());
+    const r = a[0], l = a[a.length - 1], c = document.activeElement;
+    n.shiftKey && (c === r || !o.contains(c)) ? (l.focus(), n.preventDefault()) : !n.shiftKey && c === l && (r.focus(), n.preventDefault());
   };
   return o.addEventListener("keydown", i), o.focus({ preventScroll: !0 }), () => {
     o.removeEventListener("keydown", i), e?.focus?.({ preventScroll: !0 });
@@ -203,26 +203,26 @@ function lt(o, t = {}) {
 }
 function ht(o, t = 5e3) {
   return new Promise((e) => {
-    const s = I(o);
+    const s = C(o);
     if (s) {
       e(s);
       return;
     }
     let i = !1;
-    const n = (h) => {
-      i || (i = !0, a.disconnect(), clearInterval(r), clearTimeout(l), e(h));
+    const n = (c) => {
+      i || (i = !0, a.disconnect(), clearInterval(r), clearTimeout(l), e(c));
     }, a = new MutationObserver(() => {
-      const h = I(o);
-      h && n(h);
+      const c = C(o);
+      c && n(c);
     });
     a.observe(document.documentElement, { childList: !0, subtree: !0 });
     const r = setInterval(() => {
-      const h = I(o);
-      h && n(h);
+      const c = C(o);
+      c && n(c);
     }, 100), l = setTimeout(() => n(null), t);
   });
 }
-function I(o) {
+function C(o) {
   try {
     return document.querySelector(o);
   } catch {
@@ -297,10 +297,21 @@ class pt {
         this.storage.removeItem(this.key());
       } catch {
       }
+      this.clearProgress(t ?? "");
       return;
     }
     const e = this.load();
     delete e.tours[t], this.save(e), this.clearProgress(t);
+  }
+  clearAllProgress() {
+    try {
+      const t = this.storage.getItem(this.key());
+      if (!t) return;
+      const e = JSON.parse(t);
+      if (!e || e.v !== 1) return;
+      for (const s of Object.keys(e.tours)) this.clearProgress(s);
+    } catch {
+    }
   }
   saveProgress(t, e, s) {
     const i = { tourId: t, lastStepId: e, stepIndex: s, timestamp: Date.now() };
@@ -430,15 +441,15 @@ function G(o) {
     typeof n.id != "string" || !n.id ? e(`${r}.id`, "required") : i.has(n.id) ? e(`${r}.id`, `duplicate step id "${n.id}"`) : i.add(n.id), n.display !== void 0 && !dt.has(n.display) && e(`${r}.display`, 'must be "spotlight" | "hotspot" | "beacon"'), n.target !== void 0 && ($(n.target) ? ((typeof n.target.selector != "string" || !n.target.selector.trim()) && e(`${r}.target.selector`, "required, non-empty CSS selector"), n.target.timeout !== void 0 && (typeof n.target.timeout != "number" || n.target.timeout < 0) && e(`${r}.target.timeout`, "must be a non-negative number (ms)"), n.target.padding !== void 0 && (typeof n.target.padding != "number" || n.target.padding < 0) && e(`${r}.target.padding`, "must be a non-negative number (px)")) : e(`${r}.target`, "must be an object")), n.placement !== void 0 && !z.has(n.placement) && e(`${r}.placement`, `must be one of: ${[...z].join(" | ")}`);
     const l = L(n.title);
     l ? l.length > 80 && e(`${r}.title`, `must be ≤ 80 chars (got ${l.length})`) : e(`${r}.title`, "required (string or i18n object with key)");
-    const h = L(n.content);
-    h ? h.length > 320 && e(`${r}.content`, `must be ≤ 320 chars (got ${h.length})`) : e(`${r}.content`, "required (string or i18n object with key)");
+    const c = L(n.content);
+    c ? c.length > 320 && e(`${r}.content`, `must be ≤ 320 chars (got ${c.length})`) : e(`${r}.content`, "required (string or i18n object with key)");
     const f = n.advanceOn ?? "button";
     ft.has(f) || e(`${r}.advanceOn`, 'must be "button" | "target-click" | "event" | "auto"'), f === "event" && typeof n.event != "string" && e(`${r}.event`, 'required when advanceOn === "event"'), f === "auto" && (typeof n.duration != "number" || n.duration <= 0) && e(`${r}.duration`, 'required positive number (ms) when advanceOn === "auto"'), f === "target-click" && n.target === void 0 && e(`${r}.target`, 'required when advanceOn === "target-click"'), n.next !== void 0 && typeof n.next != "string" && e(`${r}.next`, "must be a step id string"), n.showIf !== void 0 && (typeof n.showIf != "string" || n.showIf.length > 200) && e(`${r}.showIf`, "must be a string expression ≤ 200 chars"), H(n.theme, `${r}.theme`, t), F(n.onEnter, `${r}.onEnter`, t), F(n.onExit, `${r}.onExit`, t);
   }), o.steps.forEach((n, a) => {
     $(n) && typeof n.next == "string" && !i.has(n.next) && e(`$.steps[${a}].next`, `points to unknown step id "${n.next}"`);
   }), t.length ? { ok: !1, errors: t } : { ok: !0 };
 }
-function Mt(o) {
+function Bt(o) {
   const t = G(o);
   if (!t.ok) {
     const e = t.errors.map((s) => `  • ${s.path}: ${s.message}`).join(`
@@ -599,7 +610,7 @@ function $t(o, t, e) {
   }
   return String(o);
 }
-function Pt(o) {
+function Mt(o) {
   return (t) => o[t];
 }
 const At = {
@@ -614,8 +625,8 @@ const At = {
   z: "--ot-z",
   spotlightRing: "--ot-spotlight-ring",
   popoverWidth: "--ot-popover-width"
-}, Tt = /* @__PURE__ */ new Set(["radius", "popoverWidth"]), Ct = 100;
-function It(o, t, e) {
+}, Tt = /* @__PURE__ */ new Set(["radius", "popoverWidth"]), It = 100;
+function Ct(o, t, e) {
   return $t(o, t, e);
 }
 class D {
@@ -664,7 +675,10 @@ ${i}`), this.emit("error", { message: `invalid spec: ${s.errors.length} violatio
     return this.persistence.hasSeen(this.spec.id, this.spec.version);
   }
   resetSeen() {
-    this.persistence.reset();
+    this.persistence.reset(), this.persistence.clearAllProgress();
+  }
+  resetProgress() {
+    this.persistence.clearAllProgress();
   }
   setContext(t) {
     Object.assign(this.context, t);
@@ -687,8 +701,10 @@ ${i}`), this.emit("error", { message: `invalid spec: ${s.errors.length} violatio
   resolveResumeStep() {
     if (!this.opts.resume) return;
     const t = this.opts.progressTtl ?? 1440 * 60 * 1e3, e = this.persistence.getProgressIfValid(this.spec.id, t);
-    if (e && e.lastStepId && this.spec.steps.some((i) => i.id === e.lastStepId))
-      return e.lastStepId;
+    if (e && e.lastStepId) {
+      const s = this.visibleSteps(), i = s.findIndex((n) => n.id === e.lastStepId);
+      if (i >= 0 && i < s.length) return e.lastStepId;
+    }
   }
   next() {
     if (this.status !== "running") return;
@@ -731,7 +747,7 @@ ${i}`), this.emit("error", { message: `invalid spec: ${s.errors.length} violatio
     return this.spec.steps.find((t) => t.id === this.currentId) ?? null;
   }
   resolveText(t) {
-    return It(t, this.opts.locale ?? "en", this.opts.i18nResolver);
+    return Ct(t, this.opts.locale ?? "en", this.opts.i18nResolver);
   }
   buildDom() {
     const t = this.opts.zIndex ?? 9999;
@@ -750,7 +766,7 @@ ${i}`), this.emit("error", { message: `invalid spec: ${s.errors.length} violatio
   }
   async goToInternal(t, e) {
     if (this.status !== "running") return;
-    if (this.transitions += 1, this.transitions > Ct) {
+    if (this.transitions += 1, this.transitions > It) {
       this.emit("error", { message: "transition limit reached (possible next-loop)" }), this.complete();
       return;
     }
@@ -769,7 +785,7 @@ ${i}`), this.emit("error", { message: `invalid spec: ${s.errors.length} violatio
     const i = t.display ?? "spotlight", n = this.visibleSteps(), a = Math.max(0, n.findIndex((l) => l.id === t.id));
     let r = null;
     if (t.target) {
-      if (r = I(t.target.selector), !r && t.target.waitFor) {
+      if (r = C(t.target.selector), !r && t.target.waitFor) {
         if (i === "spotlight" && (this.popover.render(this.makeModel(t, a, n.length, "Looking for the interface element…")), this.popover.position(null, "auto", 0), this.layer.updateSpotlight(null)), r = await ht(t.target.selector, t.target.timeout ?? 5e3), !s()) return;
         if (!r) {
           this.emit("error", { stepId: t.id, message: `target not found: ${t.target.selector}` }), this.next();
@@ -803,9 +819,9 @@ ${i}`), this.emit("error", { message: `invalid spec: ${s.errors.length} violatio
           showDismiss: i === "hotspot" || t.advanceOn === "button",
           onDismiss: () => this.next()
         }, l), this.layer.root.appendChild(this.hotspot.el), i === "beacon") {
-          const h = window.setTimeout(() => this.next(), t.duration ?? 5e3), f = () => this.next();
+          const c = window.setTimeout(() => this.next(), t.duration ?? 5e3), f = () => this.next();
           document.addEventListener("click", f, { once: !0 }), this.cleanupAdvance = () => {
-            window.clearTimeout(h), document.removeEventListener("click", f);
+            window.clearTimeout(c), document.removeEventListener("click", f);
           };
         }
       }
@@ -833,7 +849,7 @@ ${i}`), this.emit("error", { message: `invalid spec: ${s.errors.length} violatio
     if (this.targetEl) {
       const s = this.targetEl.getBoundingClientRect();
       if (s.width === 0 && s.height === 0 && !document.contains(this.targetEl)) {
-        const n = t.target ? I(t.target.selector) : null;
+        const n = t.target ? C(t.target.selector) : null;
         n && (this.targetEl = n);
       }
       const i = { x: s.x, y: s.y, width: s.width, height: s.height };
@@ -936,7 +952,7 @@ function Lt(o, t = {}) {
 function Ot(o) {
   return o;
 }
-const K = Y(null);
+const K = J(null);
 function Rt({
   specs: o,
   context: t,
@@ -947,48 +963,48 @@ function Rt({
   deepLinkParam: a = "tour",
   locale: r,
   i18nResolver: l,
-  resume: h,
+  resume: c,
   progressTtl: f,
   children: x
 }) {
-  const [O, m] = M([]), [T, k] = M(null), [w, N] = M(null), [p, b] = M(t ?? {}), y = R(p), _ = R(e), B = R(null);
-  if (!B.current) {
-    const c = (u) => {
+  const [O, m] = B([]), [T, k] = B(null), [w, N] = B(null), [p, b] = B(t ?? {}), y = R(p), _ = R(e), P = R(null);
+  if (!P.current) {
+    const h = (u) => {
       m((d) => [...d.slice(-99), u]), n?.(u), u.type === "started" && k(u.tourId), (u.type === "completed" || u.type === "skipped") && k((d) => d === u.tourId ? null : d);
-      const g = B.current?.get(u.tourId);
-      g && N(g.getState());
+      const v = P.current?.get(u.tourId);
+      v && N(v.getState());
     };
-    B.current = new Map(
+    P.current = new Map(
       o.map((u) => [
         u.id,
         new D(u, {
           context: y.current,
           theme: _.current,
           zIndex: s,
-          onEvent: c,
+          onEvent: h,
           persistence: { storage: i },
           locale: r,
           i18nResolver: l,
-          resume: h,
+          resume: c,
           progressTtl: f
         })
       ])
     );
   }
-  const v = B.current;
-  P(() => {
-    y.current = p, v.forEach((c) => c.setContext(p));
-  }, [p, v]), P(() => {
-    const c = [], u = [];
-    return o.forEach((g) => {
-      const d = g.trigger;
+  const g = P.current;
+  M(() => {
+    y.current = p, g.forEach((h) => h.setContext(p));
+  }, [p, g]), M(() => {
+    const h = [], u = [];
+    return o.forEach((v) => {
+      const d = v.trigger;
       if (!d || d.type === "manual") return;
-      const A = v.get(g.id);
+      const A = g.get(v.id);
       if (!A || !A.isValid()) return;
       const j = d.once ?? !0;
       if (!(j && A.hasSeen())) {
         if (d.type === "auto")
-          c.push(window.setTimeout(() => {
+          h.push(window.setTimeout(() => {
             A.start();
           }, d.delay ?? 0));
         else if (d.type === "event" && d.event) {
@@ -999,51 +1015,52 @@ function Rt({
         }
       }
     }), () => {
-      c.forEach((g) => window.clearTimeout(g)), u.forEach((g) => g());
+      h.forEach((v) => window.clearTimeout(v)), u.forEach((v) => v());
     };
-  }, []), P(() => {
+  }, []), M(() => {
     if (a !== !1)
       try {
-        const c = new URLSearchParams(window.location.search).get(a);
-        if (!c) return;
-        const u = v.get(c);
+        const h = new URLSearchParams(window.location.search).get(a);
+        if (!h) return;
+        const u = g.get(h);
         if (u) {
-          const g = window.setTimeout(() => {
+          const v = window.setTimeout(() => {
             u.start();
           }, 400);
-          return () => window.clearTimeout(g);
+          return () => window.clearTimeout(v);
         }
       } catch {
       }
-  }, []), P(
-    () => () => v.forEach((c) => {
-      c.getState().status === "running" && c.skip();
+  }, []), M(
+    () => () => g.forEach((h) => {
+      h.getState().status === "running" && h.skip();
     }),
-    [v]
+    [g]
   );
   const W = X(() => ({
-    start: (c, u) => {
-      const g = v.get(c);
-      g && (v.forEach((d, A) => {
-        A !== c && d.getState().status === "running" && d.skip();
-      }), g.start(u));
+    start: (h, u) => {
+      const v = g.get(h);
+      v && (g.forEach((d, A) => {
+        A !== h && d.getState().status === "running" && d.skip();
+      }), v.start(u));
     },
-    stop: () => v.forEach((c) => {
-      c.getState().status === "running" && c.skip();
+    stop: () => g.forEach((h) => {
+      h.getState().status === "running" && h.skip();
     }),
     activeId: T,
     state: w,
     events: O,
     clearEvents: () => m([]),
     context: p,
-    setContext: (c) => b((u) => ({ ...u, ...c })),
-    setTheme: (c) => {
-      _.current = c, v.forEach((u) => u.setGlobalTheme(c));
+    setContext: (h) => b((u) => ({ ...u, ...h })),
+    setTheme: (h) => {
+      _.current = h, g.forEach((u) => u.setGlobalTheme(h));
     },
-    resetTours: () => v.forEach((c) => c.resetSeen()),
-    hasSeen: (c) => v.get(c)?.hasSeen() ?? !1,
+    resetTours: () => g.forEach((h) => h.resetSeen()),
+    resetProgress: () => g.forEach((h) => h.resetProgress()),
+    hasSeen: (h) => g.get(h)?.hasSeen() ?? !1,
     specs: o
-  }), [v, o, T, w, O, p]);
+  }), [g, o, T, w, O, p]);
   return /* @__PURE__ */ E(K.Provider, { value: W, children: x });
 }
 function Dt() {
@@ -1052,7 +1069,7 @@ function Dt() {
   return o;
 }
 function _t({ id: o, children: t }) {
-  return J(t) ? U(t, { "data-tour": o }) : /* @__PURE__ */ E("span", { "data-tour": o, children: t });
+  return Y(t) ? U(t, { "data-tour": o }) : /* @__PURE__ */ E("span", { "data-tour": o, children: t });
 }
 function jt(o) {
   const t = /* @__PURE__ */ new Map();
@@ -1117,10 +1134,10 @@ function qt({
   title: i = "Onboarding"
 }) {
   const n = o.filter((r) => t(r.id) === "completed").length, a = o.length > 0 ? Math.round(n / o.length * 100) : 0;
-  return /* @__PURE__ */ C("div", { className: `ot-checklist ${s}`, children: [
-    i && /* @__PURE__ */ C("div", { className: "ot-checklist-header", children: [
+  return /* @__PURE__ */ I("div", { className: `ot-checklist ${s}`, children: [
+    i && /* @__PURE__ */ I("div", { className: "ot-checklist-header", children: [
       /* @__PURE__ */ E("h3", { className: "ot-checklist-title", children: i }),
-      /* @__PURE__ */ C("span", { className: "ot-checklist-count", children: [
+      /* @__PURE__ */ I("span", { className: "ot-checklist-count", children: [
         n,
         "/",
         o.length
@@ -1128,10 +1145,10 @@ function qt({
     ] }),
     /* @__PURE__ */ E("div", { className: "ot-checklist-bar-track", children: /* @__PURE__ */ E("div", { className: "ot-checklist-bar-fill", style: { width: `${a}%` } }) }),
     /* @__PURE__ */ E("ul", { className: "ot-checklist-items", children: o.map((r) => {
-      const l = t(r.id), h = l === "completed" ? "✓" : l === "in_progress" ? "◌" : "○";
-      return /* @__PURE__ */ C("li", { className: `ot-checklist-item ot-checklist-item--${l}`, children: [
-        /* @__PURE__ */ E("span", { className: "ot-checklist-icon", children: h }),
-        /* @__PURE__ */ C("div", { className: "ot-checklist-info", children: [
+      const l = t(r.id), c = l === "completed" ? "✓" : l === "in_progress" ? "◌" : "○";
+      return /* @__PURE__ */ I("li", { className: `ot-checklist-item ot-checklist-item--${l}`, children: [
+        /* @__PURE__ */ E("span", { className: "ot-checklist-icon", children: c }),
+        /* @__PURE__ */ I("div", { className: "ot-checklist-info", children: [
           /* @__PURE__ */ E("span", { className: "ot-checklist-name", children: typeof r.title == "string" ? r.title : r.title.key }),
           r.description && /* @__PURE__ */ E("span", { className: "ot-checklist-desc", children: typeof r.description == "string" ? r.description : "" })
         ] }),
@@ -1193,10 +1210,10 @@ export {
   D as TourEngine,
   pt as TourPersistence,
   Rt as TourProvider,
-  Mt as assertValidSpec,
+  Bt as assertValidSpec,
   Ht as createAmplitudeAdapter,
   Ft as createGA4Adapter,
-  Pt as createKeyResolver,
+  Mt as createKeyResolver,
   zt as createMixpanelAdapter,
   Vt as createPostHogAdapter,
   Lt as createTour,

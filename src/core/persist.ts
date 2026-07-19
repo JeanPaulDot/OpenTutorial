@@ -79,12 +79,23 @@ export class TourPersistence {
   reset(tourId?: string): void {
     if (!tourId) {
       try { this.storage.removeItem(this.key()); } catch { /* noop */ }
+      this.clearProgress(tourId ?? '');
       return;
     }
     const root = this.load();
     delete root.tours[tourId];
     this.save(root);
     this.clearProgress(tourId);
+  }
+
+  clearAllProgress(): void {
+    try {
+      const raw = this.storage.getItem(this.key());
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as PersistedRoot;
+      if (!parsed || parsed.v !== 1) return;
+      for (const id of Object.keys(parsed.tours)) this.clearProgress(id);
+    } catch { /* noop */ }
   }
 
   saveProgress(tourId: string, lastStepId: string, stepIndex: number): void {

@@ -66,6 +66,10 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src/site"),
+        // In this monorepo the website consumes the library source directly.
+        // When moved to its own repo, replace this alias with a real
+        // `@opentutorial/core` dependency and the imports keep working.
+        "@opentutorial/core": path.resolve(__dirname, "./src/core"),
       },
     },
   }

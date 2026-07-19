@@ -11,6 +11,7 @@ export interface TourContextValue {
     setContext: (patch: Record<string, unknown>) => void;
     setTheme: (theme: ThemeOverrides) => void;
     resetTours: () => void;
+    resetProgress: () => void;
     hasSeen: (tourId: string) => boolean;
     specs: TutorialSpec[];
 }

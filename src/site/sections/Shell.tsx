@@ -1,4 +1,4 @@
-import { useTour } from '../../core/adapters/react';
+import { useTour } from '@opentutorial/core/adapters/react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import Banner from './Banner';

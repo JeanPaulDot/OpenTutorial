@@ -215,6 +215,12 @@ npm run build    # build library to dist/
 npm run build:site  # build the marketing site to dist-site/
 ```
 
+## Status
+
+`@opentutorial/core` is in **beta (0.1.x)**. The core API is stable enough for production use,
+but breaking changes may land before `1.0` — pin your version (e.g. `"@opentutorial/core": "0.1.x"`)
+and watch the changelog.
+
 ## License
 
 MIT

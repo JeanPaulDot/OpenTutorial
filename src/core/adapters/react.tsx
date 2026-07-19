@@ -31,6 +31,7 @@ export interface TourContextValue {
   setContext: (patch: Record<string, unknown>) => void;
   setTheme: (theme: ThemeOverrides) => void;
   resetTours: () => void;
+  resetProgress: () => void;
   hasSeen: (tourId: string) => boolean;
   specs: TutorialSpec[];
 }
@@ -173,6 +174,7 @@ export function TourProvider({
       engines.forEach((e) => e.setGlobalTheme(t));
     },
     resetTours: () => engines.forEach((e) => e.resetSeen()),
+    resetProgress: () => engines.forEach((e) => e.resetProgress()),
     hasSeen: (tourId) => engines.get(tourId)?.hasSeen() ?? false,
     specs,
   }), [engines, specs, activeId, state, events, context]);

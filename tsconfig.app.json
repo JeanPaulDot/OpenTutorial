@@ -12,6 +12,9 @@
     "paths": {
       "@/*": [
         "./src/site/*"
+      ],
+      "@opentutorial/core": [
+        "./src/core/index.ts"
       ]
     },
     /* Bundler mode */

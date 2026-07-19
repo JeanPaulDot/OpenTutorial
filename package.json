@@ -102,6 +102,9 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "repository": {
     "type": "git",
     "url": "git+github.com:JeanPaulDot/OpenTutorial.git"

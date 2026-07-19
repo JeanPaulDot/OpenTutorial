@@ -90,7 +90,12 @@ export class TourEngine {
     return this.persistence.hasSeen(this.spec.id, this.spec.version);
   }
 
-  resetSeen(): void { this.persistence.reset(); }
+  resetSeen(): void {
+    this.persistence.reset();
+    this.persistence.clearAllProgress();
+  }
+
+  resetProgress(): void { this.persistence.clearAllProgress(); }
 
   setContext(patch: Record<string, unknown>): void {
     Object.assign(this.context, patch);
@@ -122,8 +127,12 @@ export class TourEngine {
     const ttl = this.opts.progressTtl ?? 24 * 60 * 60 * 1000;
     const progress = this.persistence.getProgressIfValid(this.spec.id, ttl);
     if (progress && progress.lastStepId) {
-      const exists = this.spec.steps.some((s) => s.id === progress.lastStepId);
-      if (exists) return progress.lastStepId;
+      // Only resume into a step that is currently visible (passes showIf).
+      // A step hidden by context, or removed from the spec, is skipped so we
+      // never land the user on a step that isn't in the active flow.
+      const visible = this.visibleSteps();
+      const idx = visible.findIndex((s) => s.id === progress.lastStepId);
+      if (idx >= 0 && idx < visible.length) return progress.lastStepId;
     }
     return undefined;
   }
