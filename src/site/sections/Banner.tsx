@@ -1,4 +1,4 @@
-import { useTour } from '../core/adapters/react';
+import { useTour } from '../../core/adapters/react';
 
 export default function Banner() {
   const { start } = useTour();

@@ -1,4 +1,4 @@
-import { defineSpec } from '../../core';
+import { defineSpec } from '../../../core';
 
 export const hotspotSpec = defineSpec({
   specVersion: 1,

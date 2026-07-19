@@ -4,7 +4,7 @@
  * overrides, waitFor targets, and the spec playground.
  */
 
-import { defineSpec } from '../../core';
+import { defineSpec } from '../../../core';
 
 export const customizeSpec = defineSpec({
   specVersion: 1,

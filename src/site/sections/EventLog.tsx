@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { TourEvent } from '../core';
+import type { TourEvent } from '../../core';
 
 const CHIP: Record<string, string> = {
   started: 'bg-indigo-50 text-indigo-600',

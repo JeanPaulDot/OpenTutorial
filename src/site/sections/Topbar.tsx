@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
-import { useTour } from '../core/adapters/react';
-import { Switch } from '@/components/ui/switch';
+import { useTour } from '../../core/adapters/react';
+import { Switch } from '../components/ui/switch';
 
 export default function Topbar() {
   const navigate = useNavigate();

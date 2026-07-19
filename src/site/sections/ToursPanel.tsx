@@ -1,5 +1,5 @@
-import { useTour } from '../core/adapters/react';
-import { TourChecklist } from '../core/components';
+import { useTour } from '../../core/adapters/react';
+import { TourChecklist } from '../../core/components';
 
 const TOUR_BADGES: Record<string, { tag: string; tagClass: string }> = {
   welcome: { tag: 'spotlight', tagClass: 'bg-indigo-50 text-indigo-600' },

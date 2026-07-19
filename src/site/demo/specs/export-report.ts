@@ -4,7 +4,7 @@
  * interacting with the real UI) and a modal closing step.
  */
 
-import { defineSpec } from '../../core';
+import { defineSpec } from '../../../core';
 
 export const exportReportSpec = defineSpec({
   specVersion: 1,

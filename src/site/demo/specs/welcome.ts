@@ -4,7 +4,7 @@
  * copy is benefit-led, 6 steps.
  */
 
-import { defineSpec } from '../../core';
+import { defineSpec } from '../../../core';
 
 export const welcomeSpec = defineSpec({
   specVersion: 1,

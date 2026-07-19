@@ -3,7 +3,7 @@
 Spec-driven in-app tour engine. Zero runtime dependencies. React 19 + vanilla JS adapters.
 
 ```bash
-npm install git+https://github.com/jeanpaul/html-aau
+npm install git+https://github.com/JeanPaulDot/OpenTutorial.git
 ```
 
 ## Quick start (React)
@@ -179,13 +179,40 @@ TourProvider → TourEngine (framework-agnostic) → TourLayer (DOM)
                 TutorialSpec               TourPopover / TourHotspot
 ```
 
+## Project structure
+
+```
+src/
+  core/                 ← The library (published package) — framework-agnostic
+    __tests__/          ← 79 unit tests
+    adapters/           ← react.tsx, vanilla.ts
+    analytics/          ← posthog, mixpanel, amplitude, ga4
+    components/         ← TourChecklist
+    dom/                ← layer, popover, hotspot, focus, waitFor
+    i18n/               ← resolveText, createKeyResolver
+    engine.ts           ← TourEngine (state machine)
+    schema.ts           ← Spec validator (24+ checks)
+    safeEval.ts         ← showIf expression evaluator
+    persist.ts          ← Seen state + progress persistence
+    styles.css          ← All tour styles (--ot-* vars)
+    index.ts            ← Public API surface
+  site/                 ← The marketing site + live demo (not published)
+    pages/              ← Home.tsx (premium landing), Demo.tsx (interactive app)
+    sections/           ← Demo app sections (Shell, Sidebar, ThemeStudio, …)
+    components/         ← Site chrome (nav, footer) + shadcn/ui
+    demo/               ← Demo tour specs
+dist/                   ← Built library (ESM + CJS + CSS + .d.ts) — committed for git installers
+dist-site/              ← Built static site (gitignored)
+```
+
 ## Development
 
 ```bash
-npm install      # install demo + dev deps
-npm run dev      # start demo app on :3000
-npm test         # run 79+ unit tests
+npm install      # install site + dev deps
+npm run dev      # start the site + demo on :3000
+npm test         # run 79 unit tests
 npm run build    # build library to dist/
+npm run build:site  # build the marketing site to dist-site/
 ```
 
 ## License

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
-import { createTour, validateSpec, type SpecError, type TourEngine, type TutorialSpec } from '../core';
-import { useTour } from '../core/adapters/react';
+import { createTour, validateSpec, type SpecError, type TourEngine, type TutorialSpec } from '../../core';
+import { useTour } from '../../core/adapters/react';
 
 const VALID_EXAMPLE = JSON.stringify(
   {
