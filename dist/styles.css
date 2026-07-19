@@ -1,0 +1,414 @@
+/*
+ * Opentutorial styles. Everything is driven by --ot-* CSS custom properties
+ * set on .ot-root — override them from host CSS or via spec `theme` objects.
+ */
+
+.ot-root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--ot-z, 9999);
+  pointer-events: none;
+
+  --ot-accent: #6d5cff;
+  --ot-bg: #ffffff;
+  --ot-fg: #181822;
+  --ot-muted: #67677c;
+  --ot-backdrop: rgba(12, 12, 22, 0.55);
+  --ot-radius: 14px;
+  --ot-shadow: 0 24px 60px -12px rgba(10, 10, 25, 0.45), 0 4px 16px rgba(10, 10, 25, 0.12);
+  --ot-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --ot-spotlight-ring: var(--ot-accent);
+  --ot-popover-width: 340px;
+
+  font-family: var(--ot-font);
+}
+
+.ot-backdrop {
+  position: fixed;
+  inset: 0;
+  display: block;
+}
+
+.ot-dim {
+  fill: var(--ot-backdrop);
+  transition: fill 0.2s ease;
+}
+
+.ot-ring {
+  position: fixed;
+  pointer-events: none;
+  border: 2px solid var(--ot-spotlight-ring);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ot-spotlight-ring) 22%, transparent);
+  transition: left 0.18s ease, top 0.18s ease, width 0.18s ease, height 0.18s ease, opacity 0.18s ease;
+}
+
+.ot-popover {
+  position: fixed;
+  width: var(--ot-popover-width);
+  max-width: calc(100vw - 20px);
+  background: var(--ot-bg);
+  color: var(--ot-fg);
+  border-radius: var(--ot-radius);
+  box-shadow: var(--ot-shadow);
+  pointer-events: auto;
+  outline: none;
+  transition: left 0.18s ease, top 0.18s ease;
+}
+
+.ot-popover.ot-modal {
+  transition: left 0.18s ease, top 0.18s ease;
+}
+
+.ot-body {
+  position: relative;
+  padding: 16px 18px 14px;
+}
+
+.ot-title {
+  margin: 0 28px 6px 0;
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.ot-content {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ot-muted);
+}
+
+.ot-content strong { color: var(--ot-fg); font-weight: 650; }
+.ot-content a { color: var(--ot-accent); text-decoration: underline; text-underline-offset: 2px; }
+.ot-content code {
+  background: color-mix(in srgb, var(--ot-muted) 14%, transparent);
+  color: var(--ot-fg);
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.ot-skip {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--ot-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+
+.ot-skip:hover {
+  color: var(--ot-fg);
+  background: color-mix(in srgb, var(--ot-muted) 12%, transparent);
+}
+
+.ot-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ot-dots { display: flex; gap: 5px; align-items: center; }
+
+.ot-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ot-muted) 32%, transparent);
+  transition: all 0.15s ease;
+}
+
+.ot-dot-active { background: var(--ot-accent); width: 18px; }
+
+.ot-btns { display: flex; gap: 8px; }
+
+.ot-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: calc(var(--ot-radius) * 0.6);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: filter 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.ot-btn-primary { background: var(--ot-accent); color: #fff; }
+.ot-btn-primary:hover { filter: brightness(1.08); }
+
+.ot-btn-ghost {
+  background: transparent;
+  color: var(--ot-muted);
+  border-color: color-mix(in srgb, var(--ot-muted) 32%, transparent);
+}
+.ot-btn-ghost:hover { color: var(--ot-fg); }
+
+.ot-btn:focus-visible,
+.ot-skip:focus-visible,
+.ot-content a:focus-visible {
+  outline: 2px solid var(--ot-accent);
+  outline-offset: 2px;
+}
+
+.ot-arrow {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--ot-bg);
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+.ot-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Mobile: dock as a bottom sheet */
+@media (max-width: 480px) {
+  .ot-popover {
+    left: 10px !important;
+    right: 10px;
+    bottom: 10px;
+    top: auto !important;
+    width: auto;
+  }
+  .ot-arrow { display: none; }
+}
+
+@keyframes ot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.5); opacity: 0.3; }
+}
+
+@keyframes ot-beacon-pulse {
+  0% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.3); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 0.9; }
+}
+
+.ot-hotspot {
+  position: fixed;
+  pointer-events: none;
+  z-index: calc(var(--ot-z, 9999) + 1);
+  transform: translate(-50%, -50%);
+}
+
+.ot-beacon {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--ot-accent, #6d5cff);
+  cursor: pointer;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ot-accent, #6d5cff) 25%, transparent);
+}
+
+.ot-beacon--hotspot {
+  animation: tl-pulse 2s ease-in-out infinite;
+}
+
+.ot-beacon--beacon {
+  width: 8px;
+  height: 8px;
+  animation: tl-beacon-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--ot-accent, #6d5cff) 15%, transparent);
+}
+
+.ot-hotspot-tooltip {
+  position: absolute;
+  top: 16px;
+  left: 12px;
+  background: var(--ot-bg, #fff);
+  color: var(--ot-fg, #181822);
+  border-radius: var(--ot-radius, 10px);
+  box-shadow: var(--ot-shadow, 0 4px 20px rgba(0,0,0,0.15));
+  padding: 6px 10px;
+  font-family: var(--ot-font);
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 220px;
+  white-space: normal;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ot-hotspot-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ot-hotspot-dismiss {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--ot-accent, #6d5cff);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.12s ease;
+}
+
+.ot-hotspot-dismiss:hover {
+  filter: brightness(1.15);
+}
+
+/* TourChecklist */
+.ot-checklist {
+  font-family: var(--ot-font, ui-sans-serif, system-ui, sans-serif);
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--ot-bg, #fff);
+  border: 1px solid color-mix(in srgb, var(--ot-muted, #67677c) 20%, transparent);
+}
+
+.ot-checklist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ot-checklist-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ot-fg, #181822);
+  margin: 0;
+}
+
+.ot-checklist-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ot-muted, #67677c);
+}
+
+.ot-checklist-bar-track {
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ot-muted, #67677c) 16%, transparent);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.ot-checklist-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ot-accent, #6d5cff);
+  transition: width 0.4s ease;
+}
+
+.ot-checklist-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ot-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.ot-checklist-item:hover {
+  background: color-mix(in srgb, var(--ot-muted, #67677c) 6%, transparent);
+}
+
+.ot-checklist-item--completed {
+  opacity: 0.6;
+}
+
+.ot-checklist-icon {
+  font-size: 14px;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.ot-checklist-item--completed .ot-checklist-icon { color: #10b981; }
+.ot-checklist-item--in_progress .ot-checklist-icon { color: var(--ot-accent, #6d5cff); }
+.ot-checklist-item--pending .ot-checklist-icon { color: var(--ot-muted, #67677c); }
+
+.ot-checklist-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.ot-checklist-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ot-fg, #181822);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ot-checklist-desc {
+  font-size: 11px;
+  color: var(--ot-muted, #67677c);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ot-checklist-btn {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--ot-accent, #6d5cff) 40%, transparent);
+  background: transparent;
+  color: var(--ot-accent, #6d5cff);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s ease;
+}
+
+.ot-checklist-btn:hover {
+  background: color-mix(in srgb, var(--ot-accent, #6d5cff) 10%, transparent);
+}
+
+.ot-checklist-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ot-popover,
+  .ot-ring,
+  .ot-dim,
+  .ot-beacon,
+  .ot-checklist-bar-fill { transition: none; }
+  .ot-beacon--hotspot { animation: none; }
+  .ot-beacon--beacon { animation: none; }
+}

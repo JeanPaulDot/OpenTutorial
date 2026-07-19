@@ -1,0 +1,8 @@
+node_modules
+.git
+*.md
+dist
+dist-site
+src/__tests__
+src/core/__tests__
+.vite

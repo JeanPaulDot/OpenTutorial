@@ -1,0 +1,56 @@
+/* Landing page specific styles */
+.landing-gradient {
+  background: linear-gradient(180deg, #fafbff 0%, #f0f2ff 40%, #e8ebff 70%, #ffffff 100%);
+}
+
+.hero-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(109, 92, 255, 0.08) 0%, transparent 70%);
+  top: -200px;
+  right: -200px;
+  pointer-events: none;
+}
+
+.hero-glow-left {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(109, 92, 255, 0.05) 0%, transparent 70%);
+  bottom: -200px;
+  left: -200px;
+  pointer-events: none;
+}
+
+.feature-card {
+  transition: all 0.25s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px -8px rgba(109, 92, 255, 0.12);
+}
+
+.code-block {
+  background: #0f0f1a;
+  border-radius: 14px;
+  padding: 20px 24px;
+  font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #e4e4f0;
+  overflow-x: auto;
+}
+
+.code-keyword { color: #a78bfa; }
+.code-string { color: #6ee7b7; }
+.code-fn { color: #67e8f9; }
+.code-comment { color: #52526b; }
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
