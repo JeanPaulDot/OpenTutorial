@@ -20,57 +20,28 @@ function copyStyles(): Plugin {
   }
 }
 
-export default defineConfig(({ mode }) => {
-  if (mode === 'lib') {
-    return {
-      plugins: [react(), copyStyles()],
-      build: {
-        outDir: 'dist',
-        lib: {
-          entry: path.resolve(__dirname, 'src/core/index.ts'),
-          name: 'Opentutorial',
-          formats: ['es', 'cjs'],
-          fileName: (format) => format === 'es' ? 'index.js' : 'index.cjs',
-        },
-        rollupOptions: {
-          external: ['react', 'react-dom', 'react/jsx-runtime'],
-          output: {
-            globals: {
-              react: 'React',
-              'react-dom': 'ReactDOM',
-              'react/jsx-runtime': 'jsxRuntime',
-            },
-          },
-        },
-        cssCodeSplit: false,
-        sourcemap: true,
-        emptyOutDir: true,
-      },
-      resolve: {
-        alias: {
-          "@": path.resolve(__dirname, "./src/site"),
+export default defineConfig({
+  plugins: [react(), copyStyles()],
+  build: {
+    outDir: 'dist',
+    lib: {
+      entry: path.resolve(__dirname, 'src/core/index.ts'),
+      name: 'Opentutorial',
+      formats: ['es', 'cjs'],
+      fileName: (format) => format === 'es' ? 'index.js' : 'index.cjs',
+    },
+    rollupOptions: {
+      external: ['react', 'react-dom', 'react/jsx-runtime'],
+      output: {
+        globals: {
+          react: 'React',
+          'react-dom': 'ReactDOM',
+          'react/jsx-runtime': 'jsxRuntime',
         },
       },
-    }
-  }
-
-  return {
-    base: '/',
-    plugins: [react()],
-    server: {
-      port: 3000,
     },
-    build: {
-      outDir: 'dist-site',
-    },
-    resolve: {
-      alias: {
-        "@": path.resolve(__dirname, "./src/site"),
-        // In this monorepo the website consumes the library source directly.
-        // When moved to its own repo, replace this alias with a real
-        // `@opentutorial/core` dependency and the imports keep working.
-        "@opentutorial/core": path.resolve(__dirname, "./src/core"),
-      },
-    },
-  }
+    cssCodeSplit: false,
+    sourcemap: true,
+    emptyOutDir: true,
+  },
 })

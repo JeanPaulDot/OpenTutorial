@@ -3,7 +3,7 @@
 Spec-driven in-app tour engine. Zero runtime dependencies. React 19 + vanilla JS adapters.
 
 ```bash
-npm install git+https://github.com/JeanPaulDot/OpenTutorial.git
+npm install @opentutorial/core
 ```
 
 ## Quick start (React)
@@ -196,23 +196,17 @@ src/
     persist.ts          ← Seen state + progress persistence
     styles.css          ← All tour styles (--ot-* vars)
     index.ts            ← Public API surface
-  site/                 ← The marketing site + live demo (not published)
-    pages/              ← Home.tsx (premium landing), Demo.tsx (interactive app)
-    sections/           ← Demo app sections (Shell, Sidebar, ThemeStudio, …)
-    components/         ← Site chrome (nav, footer) + shadcn/ui
-    demo/               ← Demo tour specs
 dist/                   ← Built library (ESM + CJS + CSS + .d.ts) — committed for git installers
-dist-site/              ← Built static site (gitignored)
 ```
 
 ## Development
 
 ```bash
-npm install      # install site + dev deps
-npm run dev      # start the site + demo on :3000
+npm install      # install dev dependencies
 npm test         # run 79 unit tests
-npm run build    # build library to dist/
-npm run build:site  # build the marketing site to dist-site/
+npm run lint     # lint source with ESLint
+npm run build    # build library to dist/ (ESM + CJS + CSS)
+npm run build:types  # emit TypeScript declarations to dist/
 ```
 
 ## Status

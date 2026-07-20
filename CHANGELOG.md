@@ -3,6 +3,19 @@
 All notable changes to OpenTutorials are documented here. The format is based
 on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Changed
+- **Repository is now library-only.** The marketing site and live demo were moved
+  to a separate repository; this repo ships only `@opentutorial/core`.
+- Removed Docker, nginx and docker-compose setup (they served the demo site only).
+- Removed Tailwind/shadcn site tooling (`tailwind.config.js`, `postcss.config.js`,
+  `components.json`, `public/favicon.svg`).
+
+### Removed
+- `npm run dev`, `npm run build:site` and `npm run preview` scripts.
+- The `vite` site build mode; `vite build` now targets the library exclusively.
+
 ## [0.1.0] - 2024
 
 ### Added

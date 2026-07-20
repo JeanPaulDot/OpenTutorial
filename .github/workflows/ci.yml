@@ -28,6 +28,3 @@ jobs:
 
       - name: Build library
         run: npm run build && npm run build:types
-
-      - name: Build site
-        run: npm run build:site

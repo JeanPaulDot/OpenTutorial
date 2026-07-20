@@ -20,14 +20,11 @@ npm install
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start the demo app on `http://localhost:3000` |
 | `npm test` | Run the 79 unit tests (Vitest) |
 | `npm run test:watch` | Run tests in watch mode |
 | `npm run lint` | Lint all source with ESLint |
 | `npm run build` | Build the library to `dist/` (ESM + CJS) |
 | `npm run build:types` | Emit TypeScript declarations to `dist/` |
-| `npm run build:site` | Build the static demo site to `dist-site/` |
-| `npm run preview` | Preview the built demo site |
 
 ## Project structure
 
@@ -46,17 +43,11 @@ src/
     persist.ts        ← Seen state + progress persistence
     styles.css        ← All tour styles (--ot-* vars)
     index.ts          ← Public API surface
-  site/               ← The marketing site + live demo (not published)
-    pages/            ← Home.tsx (landing), Demo.tsx (interactive app)
-    sections/         ← Demo app sections (Shell, Sidebar, …)
-    components/       ← Site chrome (nav, footer) + shadcn/ui
-    demo/             ← Demo tour specs
 dist/                 ← Built library (ESM + CJS + CSS + .d.ts) — committed for git installers
-dist-site/            ← Built static site (gitignored)
 ```
 
-The `@` import alias points at `src/site` (site code only). Library code lives in
-`src/core` and must not depend on anything under `src/site`.
+Library code lives entirely under `src/core` and must stay framework-agnostic
+and dependency-free (React is a peer dependency only).
 
 ## Architecture
 

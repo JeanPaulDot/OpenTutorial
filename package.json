@@ -20,8 +20,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode lib",
-    "build:site": "vite build",
+    "build": "vite build",
     "build:types": "tsc -p tsconfig.lib.json --emitDeclarationOnly",
     "preview": "vite preview",
     "lint": "eslint .",
