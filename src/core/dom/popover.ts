@@ -1,21 +1,38 @@
 /**
- * The step popover: content, progress, navigation buttons, arrow, and a
+ * The step popover: block content, progress, navigation, arrow, and a
  * positioning engine with flip + shift + alignment. Viewport-fixed.
+ *
+ * Placement is resolved in physical terms but authored logically: under
+ * `dir="rtl"` a `left` placement is mirrored to `right` so specs do not need to
+ * be rewritten per locale.
  */
 
-import type { AdvanceOn, Placement } from '../types';
-import { renderInline } from '../markdown';
+import type { AdvanceOn, ContentBlock, Direction, Placement } from '../types';
+import { renderBlocks } from '../content';
+
+export interface PopoverLabels {
+  next: string;
+  back: string;
+  done: string;
+  skip: string;
+}
 
 export interface PopoverModel {
   stepId: string;
   title: string;
-  content: string;
+  blocks: ContentBlock[];
   index: number;      // 0-based within visible steps
   total: number;
   canGoBack: boolean;
   skippable: boolean;
   isLast: boolean;
   advanceOn: AdvanceOn;
+  labels: PopoverLabels;
+  showNext: boolean;
+  showBack: boolean;
+  /** Render centered with no arrow, regardless of target. */
+  modal: boolean;
+  allowHtml?: boolean;
 }
 
 export interface PopoverCallbacks {
@@ -33,8 +50,8 @@ const GAP = 14;
 const VIEWPORT_MARGIN = 10;
 
 function parsePlacement(p: Placement): { side: Side | 'auto'; align: Align } {
-  if (p === 'auto') return { side: 'auto', align: 'center' };
-  const [side, align] = p.split('-') as [Side, (Align | undefined)];
+  if (p === 'auto' || p === 'center') return { side: 'auto', align: 'center' };
+  const [side, align] = p.split('-') as [Side, Align | undefined];
   return { side, align: align ?? 'center' };
 }
 
@@ -42,25 +59,33 @@ function opposite(side: Side): Side {
   return { top: 'bottom', bottom: 'top', left: 'right', right: 'left' }[side] as Side;
 }
 
+function mirror(side: Side | 'auto'): Side | 'auto' {
+  if (side === 'left') return 'right';
+  if (side === 'right') return 'left';
+  return side;
+}
+
 export class TourPopover {
   readonly el: HTMLDivElement;
   private titleEl: HTMLHeadingElement;
-  private contentEl: HTMLParagraphElement;
+  private contentEl: HTMLDivElement;
   private progressEl: HTMLDivElement;
-  private a11yProgressEl: HTMLSpanElement;
+  private liveEl: HTMLSpanElement;
   private backBtn: HTMLButtonElement;
   private nextBtn: HTMLButtonElement;
   private skipBtn: HTMLButtonElement;
   private arrow: HTMLDivElement;
   private lastSide: Side | 'modal' | null = null;
   private cbs: PopoverCallbacks;
+  private dir: Direction;
 
-  constructor(cbs: PopoverCallbacks) {
+  constructor(cbs: PopoverCallbacks, dir: Direction = 'ltr') {
     this.cbs = cbs;
+    this.dir = dir;
+
     this.el = document.createElement('div');
     this.el.className = 'ot-popover';
     this.el.setAttribute('role', 'dialog');
-    this.el.setAttribute('aria-modal', 'true');
     this.el.tabIndex = -1;
 
     this.arrow = document.createElement('div');
@@ -72,29 +97,32 @@ export class TourPopover {
     this.skipBtn = document.createElement('button');
     this.skipBtn.type = 'button';
     this.skipBtn.className = 'ot-skip';
-    this.skipBtn.setAttribute('aria-label', 'Skip tour');
+    this.skipBtn.setAttribute('aria-label', 'Close tour');
     this.skipBtn.innerHTML = '&times;';
     this.skipBtn.addEventListener('click', () => this.cbs.onSkip());
 
-    this.titleEl = document.createElement('h3');
+    this.titleEl = document.createElement('h2');
     this.titleEl.className = 'ot-title';
     this.titleEl.id = `ot-title-${Math.random().toString(36).slice(2, 8)}`;
     this.el.setAttribute('aria-labelledby', this.titleEl.id);
 
-    this.contentEl = document.createElement('p');
-    this.contentEl.className = 'ot-content';
+    this.contentEl = document.createElement('div');
+    this.contentEl.className = 'ot-content-wrap';
 
     this.progressEl = document.createElement('div');
     this.progressEl.className = 'ot-dots';
     this.progressEl.setAttribute('aria-hidden', 'true');
 
-    this.a11yProgressEl = document.createElement('span');
-    this.a11yProgressEl.className = 'ot-sr-only';
+    // Step changes are announced here rather than by re-reading the dialog,
+    // which would interrupt a screen reader mid-sentence on every reposition.
+    this.liveEl = document.createElement('span');
+    this.liveEl.className = 'ot-sr-only';
+    this.liveEl.setAttribute('aria-live', 'polite');
+    this.liveEl.setAttribute('aria-atomic', 'true');
 
     this.backBtn = document.createElement('button');
     this.backBtn.type = 'button';
     this.backBtn.className = 'ot-btn ot-btn-ghost';
-    this.backBtn.textContent = 'Back';
     this.backBtn.addEventListener('click', () => this.cbs.onPrev());
 
     this.nextBtn = document.createElement('button');
@@ -114,29 +142,45 @@ export class TourPopover {
     body.appendChild(this.skipBtn);
     body.appendChild(this.titleEl);
     body.appendChild(this.contentEl);
-    body.appendChild(this.a11yProgressEl);
+    body.appendChild(this.liveEl);
     body.appendChild(footer);
 
     this.el.appendChild(this.arrow);
     this.el.appendChild(body);
   }
 
+  setDir(dir: Direction): void { this.dir = dir; }
+
   render(model: PopoverModel): void {
     this.titleEl.textContent = model.title;
-    this.contentEl.innerHTML = renderInline(model.content);
 
-    this.a11yProgressEl.textContent = `Step ${model.index + 1} of ${model.total}`;
-    this.progressEl.innerHTML = '';
+    this.contentEl.replaceChildren(
+      renderBlocks(model.blocks, { allowHtml: model.allowHtml }),
+    );
+
+    this.liveEl.textContent = `${model.title}. Step ${model.index + 1} of ${model.total}`;
+
+    this.progressEl.replaceChildren();
     for (let i = 0; i < model.total; i += 1) {
       const dot = document.createElement('span');
       dot.className = `ot-dot${i === model.index ? ' ot-dot-active' : ''}`;
       this.progressEl.appendChild(dot);
     }
 
-    this.backBtn.style.visibility = model.index === 0 || !model.canGoBack ? 'hidden' : 'visible';
-    this.nextBtn.textContent = model.isLast ? 'Done' : 'Next';
-    if (model.advanceOn !== 'button') this.nextBtn.textContent = model.isLast ? 'Done' : 'Skip step';
+    const showBack = model.showBack && model.canGoBack && model.index > 0;
+    this.backBtn.style.display = showBack ? '' : 'none';
+    this.backBtn.textContent = model.labels.back;
+
+    this.nextBtn.style.display = model.showNext ? '' : 'none';
+    this.nextBtn.textContent = model.isLast ? model.labels.done : model.labels.next;
+
     this.skipBtn.style.display = model.skippable ? '' : 'none';
+    this.skipBtn.setAttribute('aria-label', model.labels.skip);
+
+    // A modal step owns the screen; a tooltip alongside a still-usable page
+    // must not claim to be modal or screen readers will hide the rest of it.
+    this.el.setAttribute('aria-modal', model.modal ? 'true' : 'false');
+    this.el.classList.toggle('ot-popover--modal-step', model.modal);
   }
 
   /** Position relative to a target rect (viewport coords), or centered when null. */
@@ -146,7 +190,7 @@ export class TourPopover {
     const pw = this.el.offsetWidth;
     const ph = this.el.offsetHeight;
 
-    if (!target) {
+    if (!target || placement === 'center') {
       this.lastSide = 'modal';
       this.el.classList.add('ot-modal');
       this.arrow.style.display = 'none';
@@ -157,7 +201,9 @@ export class TourPopover {
     this.el.classList.remove('ot-modal');
     this.arrow.style.display = '';
 
-    const { side: wantedSide, align } = parsePlacement(placement);
+    const parsed = parsePlacement(placement);
+    const wantedSide = this.dir === 'rtl' ? mirror(parsed.side) : parsed.side;
+    const align = parsed.align;
     const gap = GAP + padding;
 
     const space: Record<Side, number> = {
@@ -180,18 +226,15 @@ export class TourPopover {
     if (!fits(side)) {
       const opp = opposite(side);
       if (fits(opp)) side = opp;
-      else if (!fits(side)) {
-        // pick the side with the most space as a last resort
-        side = (Object.keys(space) as Side[]).reduce((a, b) => (space[a] >= space[b] ? a : b));
-      }
+      else side = (Object.keys(space) as Side[]).reduce((a, b) => (space[a] >= space[b] ? a : b));
     }
 
     let left = 0;
     let top = 0;
 
     const alignAlong = (start: number, len: number, size: number): number => {
-      if (align === 'start') return start;
-      if (align === 'end') return start + len - size;
+      if (align === 'start') return this.dir === 'rtl' ? start + len - size : start;
+      if (align === 'end') return this.dir === 'rtl' ? start : start + len - size;
       return start + len / 2 - size / 2;
     };
 
@@ -203,7 +246,6 @@ export class TourPopover {
       left = side === 'left' ? target.x - pw - gap : target.x + target.width + gap;
     }
 
-    // shift into viewport
     left = Math.min(Math.max(left, VIEWPORT_MARGIN), Math.max(VIEWPORT_MARGIN, vw - pw - VIEWPORT_MARGIN));
     top = Math.min(Math.max(top, VIEWPORT_MARGIN), Math.max(VIEWPORT_MARGIN, vh - ph - VIEWPORT_MARGIN));
 
@@ -221,16 +263,16 @@ export class TourPopover {
     const cy = target.y + target.height / 2;
     if (side === 'top') {
       a.bottom = '-5px';
-      a.left = `${Math.min(Math.max(cx - left, 16), pw - 16)}px`;
+      a.left = `${Math.min(Math.max(cx - left, 16), Math.max(16, pw - 16))}px`;
     } else if (side === 'bottom') {
       a.top = '-5px';
-      a.left = `${Math.min(Math.max(cx - left, 16), pw - 16)}px`;
+      a.left = `${Math.min(Math.max(cx - left, 16), Math.max(16, pw - 16))}px`;
     } else if (side === 'left') {
       a.right = '-5px';
-      a.top = `${Math.min(Math.max(cy - top, 16), ph - 16)}px`;
+      a.top = `${Math.min(Math.max(cy - top, 16), Math.max(16, ph - 16))}px`;
     } else {
       a.left = '-5px';
-      a.top = `${Math.min(Math.max(cy - top, 16), ph - 16)}px`;
+      a.top = `${Math.min(Math.max(cy - top, 16), Math.max(16, ph - 16))}px`;
     }
   }
 

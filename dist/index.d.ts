@@ -1,15 +1,34 @@
+/**
+ * Core entry point — framework-agnostic and React-free.
+ *
+ * React lives at `@opentutorial/core/react`, Vue at `/vue`, Svelte at `/svelte`,
+ * the custom element at `/webcomponent`. Importing this module never pulls a UI
+ * framework into your bundle.
+ */
 export { TourEngine } from './engine';
-export { TourPersistence } from './persist';
-export { validateSpec, assertValidSpec } from './schema';
-export { evaluateShowIf } from './safeEval';
+export { TourOrchestrator } from './orchestrator';
+export type { OrchestratorOptions } from './orchestrator';
+export { installTrigger } from './triggers';
+export type { TriggerHandle } from './triggers';
+export { createTour, createTours, defineSpec, defineStep, extendSpec } from './factory';
+export type { SpecStepId } from './factory';
+export { validateSpec, validateSpecs, assertValidSpec } from './schema';
+export { evaluateShowIf, evaluateExpression, checkExpression } from './safeEval';
+export type { EvalOptions } from './safeEval';
 export { renderInline, escapeHtml } from './markdown';
-export { createTour, defineSpec } from './factory';
-export { TourProvider, useTour, TourAnchor } from './adapters/react';
+export { normalizeContent, renderBlocks, blocksToText } from './content';
+export type { RenderBlocksOptions } from './content';
+export { TourPersistence } from './persist';
+export type { PersistedRoot, PersistedTour, ActiveRecord } from './persist';
+export { MemoryStorage, createMemoryStorage, createCookieStorage, createIndexedDBStorage, createRemoteStorage, } from './storage';
+export type { RemoteStorageOptions } from './storage/remote';
+export { resolveTarget, waitForTarget, waitForElement, safeQuery, queryDeep, isVisible, describeTarget } from './dom/target';
+export type { ResolvedTarget } from './dom/target';
+export { currentPath, matchPath, onLocationChange } from './dom/navigation';
 export { createTutorialLayer } from './adapters/vanilla';
-export { TourChecklist } from './components';
-export { createPostHogAdapter, createMixpanelAdapter, createAmplitudeAdapter, createGA4Adapter, } from './analytics';
-export { resolveText, createKeyResolver } from './i18n';
-export type { AdvanceOn, CreateTourOptions, KeyValueStorage, Placement, DisplayMode, SpecError, StepAction, ThemeOverrides, TourEvent, TourEventType, TourState, TourStatus, TourStep, TourTarget, TourTrigger, TutorialSpec, ValidationResult, I18nContent, I18nResolver, AnalyticsAdapter, ProgressRecord, } from './types';
-export type { TourContextValue, TourProviderProps, TourAnchorProps } from './adapters/react';
-export type { TourChecklistProps, ChecklistStatus } from './components/TourChecklist';
-export type { VanillaTutorialLayer, VanillaOptions } from './adapters/vanilla';
+export type { VanillaTutorialLayer, VanillaOptions, VanillaEventName } from './adapters/vanilla';
+export { createPostHogAdapter, createMixpanelAdapter, createAmplitudeAdapter, createSegmentAdapter, createRudderStackAdapter, createHeapAdapter, createGA4Adapter, createDatadogAdapter, createDebugAdapter, createMultiAdapter, createHttpAdapter, createFunnelReport, createEventCollector, filterEvents, } from './analytics';
+export type { HttpAdapterOptions, FunnelReport, FunnelStep } from './analytics';
+export { resolveText, interpolate, createKeyResolver, createLocaleResolver, resolveLabel, DEFAULT_LABELS } from './i18n';
+export { CSS } from './styles';
+export type { AdvanceOn, AnalyticsAdapter, ContentBlock, CreateTourOptions, Direction, DisplayMode, FrequencyRule, I18nContent, I18nResolver, InteractionMode, IssueSeverity, KeyValueStorage, NextRule, NextSpec, Placement, ProgressRecord, SpecError, SpecIssue, StepAction, StepButtons, StepContent, StepRenderContext, ThemeOverrides, TourEvent, TourEventType, TourState, TourStatus, TourStep, TourTarget, TourTrigger, TutorialSpec, ValidationResult, } from './types';

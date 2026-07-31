@@ -1,3 +1,5 @@
-/** Wait for an element to appear in the DOM (MutationObserver + polling fallback). */
-export declare function waitForElement(selector: string, timeout?: number): Promise<Element | null>;
-export declare function safeQuery(selector: string): Element | null;
+/**
+ * Back-compat surface. Target resolution now lives in `./target`, which also
+ * handles selector fallbacks, text matching, shadow roots and iframes.
+ */
+export { waitForElement, waitForTarget, safeQuery, resolveTarget } from './target';

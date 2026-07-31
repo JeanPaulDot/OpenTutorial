@@ -1,4 +1,21 @@
-export { createPostHogAdapter } from './posthog';
-export { createMixpanelAdapter } from './mixpanel';
-export { createAmplitudeAdapter } from './amplitude';
-export { createGA4Adapter } from './ga4';
+export {
+  createPostHogAdapter,
+  createMixpanelAdapter,
+  createAmplitudeAdapter,
+  createSegmentAdapter,
+  createRudderStackAdapter,
+  createHeapAdapter,
+  createGA4Adapter,
+  createDatadogAdapter,
+  createDebugAdapter,
+  createMultiAdapter,
+  filterEvents,
+} from './vendors';
+
+export { createHttpAdapter } from './http';
+export type { HttpAdapterOptions } from './http';
+
+export { createFunnelReport, createEventCollector } from './funnel';
+export type { FunnelReport, FunnelStep } from './funnel';
+
+export { toProperties, eventName } from './common';
