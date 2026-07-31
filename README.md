@@ -1,12 +1,150 @@
-# Opentutorial
+<a id="readme-top"></a>
 
-Spec-driven in-app guidance engine. Zero runtime dependencies. Adapters for React, Vue 3, Svelte, a universal Web Component, and plain vanilla JS.
+<!-- PROJECT SHIELDS -->
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![npm version][npm-shield]][npm-url]
 
-```bash
-npm install @opentutorial/core
-```
 
-## Quick start (React)
+
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/JeanPaulDot/OpenTutorial">
+    <img src="images/logo.svg" alt="Logo" width="80" height="80">
+  </a>
+
+<h3 align="center">OpenTutorial</h3>
+
+  <p align="center">
+    Spec-driven in-app guidance engine. Zero runtime dependencies. Adapters for React, Vue 3, Svelte, a universal Web Component, and plain vanilla JS.
+    <br />
+    <a href="https://github.com/JeanPaulDot/OpenTutorial"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://www.npmjs.com/package/@opentutorial/core">npm package</a>
+    &middot;
+    <a href="https://github.com/JeanPaulDot/OpenTutorial/issues/new?labels=bug">Report Bug</a>
+    &middot;
+    <a href="https://github.com/JeanPaulDot/OpenTutorial/issues/new?labels=enhancement">Request Feature</a>
+  </p>
+</div>
+
+
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+        <li><a href="#features">Features</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
+
+
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+OpenTutorial is a spec-driven in-app tour and guidance engine. A `TutorialSpec` is a plain JSON object validated against a strict schema — editors get autocomplete from the published schema (`dist/spec.schema.json`), and a bad spec never crashes the host app.
+
+It ships with adapters for React, Vue 3, Svelte, a universal Web Component (works in Angular, Solid, Lit, Astro, Rails, Django, or a static page — no bundler needed), and plain vanilla JS. All from a single, React-free core with zero runtime dependencies.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+### Built With
+
+* [![TypeScript][TypeScript]][TypeScript-url]
+* [![React][React.js]][React-url]
+* [![Vue][Vue.js]][Vue-url]
+* [![Svelte][Svelte.dev]][Svelte-url]
+* [![Vite][Vite]][Vite-url]
+* [![Vitest][Vitest]][Vitest-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+### Features
+
+- **Tour orchestration** — one tour at a time, priority queue, audience rules, frequency capping, tour chaining
+- **Triggers** — `manual`, `auto`, `event`, `route`, `element`, `idle`, `scroll`
+- **Display modes** — `spotlight`, `hotspot`, and `beacon`
+- **Cross-page tours** — `autoResume` rehydrates a tour after full page navigations; `onNavigate` hooks SPA routers
+- **Rich content** — text, image, video, list, code and (opt-in) HTML blocks, not just inline markdown
+- **Resilient targeting** — fallback selector lists, text matching, shadow-DOM piercing, iframe support, visibility waits
+- **Advance conditions** — `button`, `target-click`, `event`, `auto`, `input-match`, `form-submit`, `element-appears`, `element-disappears`, `url-match`, plus a `beforeNext` guard
+- **Branching** — `next: [{ if: "plan === 'pro'", to: 'pro-step' }]` rule lists
+- **Custom rendering** — replace the built-in popover with your own component via `renderStep`
+- **Persistence** — sync or async storage; ships localStorage, cookie, IndexedDB and remote (REST) adapters, with per-user namespacing via `userId`
+- **Analytics** — PostHog, Mixpanel, Amplitude, Segment, RudderStack, Heap, GA4, Datadog RUM, a batched HTTP adapter, and `createFunnelReport` for drop-off analysis
+- **Guidance surfaces** — `Announcement`, `Banner`, `Survey`/NPS, `ResourceCenter`, `Hint`, and a self-managing `TourChecklist`
+- **Authoring** — point-and-click recorder with selector stability scoring, debug overlay, published JSON Schema
+- **i18n** — key-based localization with interpolation, RTL support
+- **Theming** — 20+ CSS custom properties, dark mode via `prefers-color-scheme` or `data-ot-theme`, reduced-motion support
+- **Validation** — fail-closed schema checks with error/warning severity
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- GETTING STARTED -->
+## Getting Started
+
+To get a local copy up and running follow these simple steps.
+
+### Prerequisites
+
+* Node.js >= 18 and npm
+
+### Installation
+
+1. Install the package
+   ```sh
+   npm install @opentutorial/core
+   ```
+2. Clone the repo (for contributing or running from source)
+   ```sh
+   git clone https://github.com/JeanPaulDot/OpenTutorial.git
+   cd OpenTutorial
+   npm install
+   ```
+3. Run the test suite
+   ```sh
+   npm test
+   ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+### React
 
 ```tsx
 import { TourProvider, useTour, defineSpec } from '@opentutorial/core/react';
@@ -46,7 +184,7 @@ function YourApp() {
 }
 ```
 
-## Quick start (Vanilla JS)
+### Vanilla JS
 
 ```ts
 import { createTutorialLayer, defineSpec } from '@opentutorial/core';
@@ -59,7 +197,7 @@ const tl = createTutorialLayer({
 tl.start('my-tour');
 ```
 
-## Quick start (Vue 3)
+### Vue 3
 
 ```ts
 import { createTourPlugin, TOUR_KEY } from '@opentutorial/core/vue';
@@ -71,7 +209,7 @@ const tour = inject(TOUR_KEY)!;
 tour.start('welcome');
 ```
 
-## Quick start (Svelte)
+### Svelte
 
 ```svelte
 <script>
@@ -84,7 +222,7 @@ tour.start('welcome');
 </button>
 ```
 
-## Quick start (Web Component / plain HTML)
+### Web Component / plain HTML
 
 Works in Angular, Solid, Lit, Astro, Rails, Django, or a static page — no bundler needed:
 
@@ -98,7 +236,7 @@ Works in Angular, Solid, Lit, Astro, Rails, Django, or a static page — no bund
 </open-tutorial>
 ```
 
-## Entry points
+### Entry points
 
 | Import | What you get |
 |---|---|
@@ -111,209 +249,93 @@ Works in Angular, Solid, Lit, Astro, Rails, Django, or a static page — no bund
 | `@opentutorial/core/authoring` | Tour recorder, debug overlay, selector scoring |
 | `@opentutorial/core/styles.css` | All styles (20+ `--ot-*` custom properties) |
 
-## Display modes
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-| Mode | Behavior |
-|------|----------|
-| `spotlight` (default) | Full backdrop + spotlight cutout + popover with navigation |
-| `hotspot` | Pulsing dot + tooltip, no backdrop, non-blocking |
-| `beacon` | Minimal pulsing indicator, no popover, low-friction |
 
-## Features
 
-- **Tour orchestration** — one tour at a time, priority queue, audience rules, frequency capping, tour chaining
-- **Triggers** — `manual`, `auto`, `event`, `route`, `element`, `idle`, `scroll`
-- **Cross-page tours** — `autoResume` rehydrates a tour after full page navigations; `onNavigate` hooks SPA routers
-- **Rich content** — text, image, video, list, code and (opt-in) HTML blocks, not just inline markdown
-- **Resilient targeting** — fallback selector lists, text matching, shadow-DOM piercing, iframe support, visibility waits
-- **Interaction gating** — `interaction: 'free' | 'target-only' | 'blocked'` controls what users can click
-- **Advance conditions** — `button`, `target-click`, `event`, `auto`, `input-match`, `form-submit`, `element-appears`, `element-disappears`, `url-match`, plus a `beforeNext` guard
-- **Branching** — `next: [{ if: "plan === 'pro'", to: 'pro-step' }]` rule lists
-- **Custom rendering** — replace the built-in popover with your own component via `renderStep`
-- **Pause / resume** — full `pause()` / `resume()` lifecycle on the engine and every adapter
-- **Persistence** — sync or async storage; ships localStorage, cookie, IndexedDB and remote (REST) adapters, with per-user namespacing via `userId`
-- **Analytics** — PostHog, Mixpanel, Amplitude, Segment, RudderStack, Heap, GA4, Datadog RUM, a batched HTTP adapter, and `createFunnelReport` for drop-off analysis
-- **Guidance surfaces** — `Announcement`, `Banner`, `Survey`/NPS, `ResourceCenter`, `Hint`, and a self-managing `TourChecklist`
-- **Authoring** — point-and-click recorder with selector stability scoring, debug overlay, published JSON Schema
-- **i18n** — key-based localization with interpolation, RTL support
-- **Theming** — 20+ CSS custom properties, dark mode via `prefers-color-scheme` or `data-ot-theme`, reduced-motion support
-- **Validation** — fail-closed schema checks with error/warning severity; a bad spec never crashes the host
+<!-- ROADMAP -->
+## Roadmap
 
-## Spec authoring
+See [ROADMAP.md](ROADMAP.md) and the [open issues](https://github.com/JeanPaulDot/OpenTutorial/issues) for a full list of proposed features (and known issues).
 
-A `TutorialSpec` is a plain JSON object validated against a strict schema. Editors get autocomplete from the published schema (`dist/spec.schema.json`):
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-```json
-{
-  "$schema": "./node_modules/@opentutorial/core/dist/spec.schema.json",
-  "specVersion": 1,
-  "id": "my-tour",
-  "title": "My Tour",
-  "priority": 10,
-  "trigger": { "type": "auto", "delay": 500 },
-  "audience": { "showIf": "plan !== 'free'" },
-  "frequency": { "max": 3, "cooldown": 604800000 },
-  "steps": [
-    {
-      "id": "step1",
-      "target": { "selector": ["[data-tour='target']", "#fallback"] },
-      "placement": "bottom",
-      "display": "spotlight",
-      "interaction": "target-only",
-      "title": "Step Title",
-      "content": {
-        "blocks": [
-          { "type": "text", "value": "Step **content** with `markdown`." },
-          { "type": "image", "src": "/help.png", "alt": "Where to click" }
-        ]
-      },
-      "advanceOn": "input-match",
-      "match": "/.+@.+/",
-      "next": [{ "if": "plan === 'pro'", "to": "pro-step" }]
-    }
-  ]
-}
-```
 
-### Step conditions
 
-```json
-{ "showIf": "plan === 'pro'" }
-{ "showIf": "user.plan !== 'free' && features.export" }
-{ "showIf": "(a || b) && !c" }
-```
+<!-- CONTRIBUTING -->
+## Contributing
 
-### Persistence, identity & resume
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-```tsx
-<TourProvider
-  specs={[mySpec]}
-  userId={user.id}               // per-user progress namespacing
-  storage={createIndexedDBStorage()}
-  resume={true}                  // resume across sessions
-  autoResume={true}              // resume across page navigations
-  progressTtl={86400000}
-/>
-```
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
 
-### i18n
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-```tsx
-<TourProvider
-  specs={[{ ...spec, title: { key: 'tour.welcome.title', fallback: 'Welcome' } }]}
-  locale="fr"
-  dir="rtl"
-  i18nResolver={(key) => messages[key]}
-/>
-```
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Analytics
+### Top contributors:
 
-```tsx
-import { createPostHogAdapter, createFunnelReport } from '@opentutorial/core/analytics';
+<a href="https://github.com/JeanPaulDot/OpenTutorial/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=JeanPaulDot/OpenTutorial" alt="contrib.rocks image" />
+</a>
 
-<TourProvider specs={[mySpec]} onEvent={createPostHogAdapter(posthog)} />
-```
 
-### Authoring tools
 
-```ts
-import { startRecorder, showDebugOverlay } from '@opentutorial/core/authoring';
-
-// Point-and-click spec recorder (dev only)
-if (import.meta.env.DEV) startRecorder({ tourId: 'my-tour' });
-
-// Live debug overlay: current step, resolved target, context, showIf results
-<TourProvider specs={[mySpec]} debug />
-```
-
-## API
-
-### `TourProvider`
-
-| Prop | Type | Default |
-|------|------|---------|
-| `specs` | `TutorialSpec[]` | required |
-| `context` | `object` | `{}` |
-| `theme` | `ThemeOverrides` | — |
-| `zIndex` | `number` | `9999` |
-| `storage` | `KeyValueStorage` (sync or async) | `localStorage` |
-| `userId` | `string` | — |
-| `onEvent` | `(TourEvent) => void` | — |
-| `deepLinkParam` | `string \| false` | `'tour'` |
-| `locale` | `string` | `'en'` |
-| `i18nResolver` | `(key, locale) => string \| undefined` | — |
-| `dir` | `'ltr' \| 'rtl' \| 'auto'` | `'auto'` |
-| `resume` | `boolean` | `false` |
-| `autoResume` | `boolean` | `false` |
-| `progressTtl` | `number` (ms) | `86400000` |
-| `interaction` | `'free' \| 'target-only' \| 'blocked'` | `'free'` |
-| `container` | `HTMLElement` | `document.body` |
-| `isolate` | `boolean` (shadow DOM) | `false` |
-| `allowHtml` | `boolean` | `false` |
-| `strict` | `boolean` | `false` |
-| `onNavigate` | `(path) => void` | hard reload |
-| `beforeNext` | `(ctx) => boolean \| Promise<boolean>` | — |
-| `renderStep` | `(ctx) => ReactNode` | built-in popover |
-| `dev` / `debug` | `boolean` | `false` |
-
-### `useTour()`
-
-Returns: `{ start, request, stop, pause, resume, next, prev, goTo, activeId, state, events, clearEvents, context, setContext, setTheme, setUser, resetTours, resetTour, resetProgress, hasSeen, whyBlocked, getEngine, specs }`
-
-## Architecture
-
-```
-TourProvider / createTutorialLayer / <open-tutorial>
-        ↓
-TourOrchestrator (queue, triggers, frequency, audience)
-        ↓
-TourEngine (framework-agnostic state machine) → TourLayer (DOM)
-        ↕                                          ↕
-   TutorialSpec                            TourPopover / TourHotspot
-```
-
-## Project structure
-
-```
-src/core/               ← The library (published package) — framework-agnostic
-  __tests__/            ← Unit tests (Vitest)
-  adapters/             ← react, vue, svelte, webcomponent, vanilla
-  analytics/            ← vendors, http batching, funnel reports
-  authoring/            ← recorder, debug overlay, selector scoring
-  components/           ← TourChecklist, Announcement, Banner, Survey, ResourceCenter, Hint
-  dom/                  ← layer, popover, hotspot, focus, target resolution, navigation
-  i18n/                 ← resolveText, interpolation, key resolvers
-  storage/              ← memory, cookie, IndexedDB, remote
-  engine.ts             ← TourEngine (state machine)
-  orchestrator.ts       ← TourOrchestrator (queue, triggers, eligibility)
-  triggers.ts           ← route/element/idle/scroll/event triggers
-  schema.ts             ← Spec validator (error/warning severity)
-  safeEval.ts           ← showIf expression evaluator (no eval, CSP-safe)
-  persist.ts            ← Seen state + progress + active-tour persistence
-  content.ts            ← Block content normalization and rendering
-  styles.ts             ← All tour styles (--ot-* vars), emitted as dist/styles.css
-schema/spec.schema.json ← Published JSON Schema for editor autocomplete
-dist/                   ← Built library (ESM + CJS + IIFE + CSS + .d.ts) — committed for git installers
-```
-
-## Development
-
-```bash
-npm install          # install dev dependencies
-npm test             # run unit tests
-npm run lint         # lint source with ESLint
-npm run build        # build library to dist/ (ESM + CJS + CSS)
-BUILD_TARGET=iife npm run build   # build the <script> global bundle
-npm run build:types  # emit TypeScript declarations to dist/
-```
-
-## Status
-
-`@opentutorial/core` is in **beta (0.x)**. The core API is stable enough for production use,
-but breaking changes may land before `1.0` — pin your version (e.g. `"@opentutorial/core": "0.2.x"`)
-and watch the changelog.
-
+<!-- LICENSE -->
 ## License
 
-MIT
+Distributed under the MIT License. See `LICENSE` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- CONTACT -->
+## Contact
+
+Project Link: [https://github.com/JeanPaulDot/OpenTutorial](https://github.com/JeanPaulDot/OpenTutorial)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+* [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
+* [Shields.io](https://shields.io/)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+[contributors-shield]: https://img.shields.io/github/contributors/JeanPaulDot/OpenTutorial.svg?style=for-the-badge
+[contributors-url]: https://github.com/JeanPaulDot/OpenTutorial/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/JeanPaulDot/OpenTutorial.svg?style=for-the-badge
+[forks-url]: https://github.com/JeanPaulDot/OpenTutorial/network/members
+[stars-shield]: https://img.shields.io/github/stars/JeanPaulDot/OpenTutorial.svg?style=for-the-badge
+[stars-url]: https://github.com/JeanPaulDot/OpenTutorial/stargazers
+[issues-shield]: https://img.shields.io/github/issues/JeanPaulDot/OpenTutorial.svg?style=for-the-badge
+[issues-url]: https://github.com/JeanPaulDot/OpenTutorial/issues
+[license-shield]: https://img.shields.io/github/license/JeanPaulDot/OpenTutorial.svg?style=for-the-badge
+[license-url]: https://github.com/JeanPaulDot/OpenTutorial/blob/main/LICENSE
+[npm-shield]: https://img.shields.io/npm/v/@opentutorial/core.svg?style=for-the-badge
+[npm-url]: https://www.npmjs.com/package/@opentutorial/core
+[TypeScript]: https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white
+[TypeScript-url]: https://www.typescriptlang.org/
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React-url]: https://reactjs.org/
+[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
+[Vue-url]: https://vuejs.org/
+[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
+[Svelte-url]: https://svelte.dev/
+[Vite]: https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white
+[Vite-url]: https://vitejs.dev/
+[Vitest]: https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white
+[Vitest-url]: https://vitest.dev/
