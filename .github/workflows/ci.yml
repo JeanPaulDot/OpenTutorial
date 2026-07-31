@@ -35,7 +35,7 @@ jobs:
       - name: Verify committed dist matches src
         run: |
           git status --porcelain --untracked-files=all -- dist/ > /tmp/dist-status.txt
-          grep -v '\.js\.\?map\?$' /tmp/dist-status.txt | grep -v 'dist/.*\.\(js\|cjs\)$' > /tmp/dist-real.txt || true
+          grep -v '\.map$' /tmp/dist-status.txt | grep -v 'dist/.*\.\(js\|cjs\)$' > /tmp/dist-real.txt || true
           if [ -s /tmp/dist-real.txt ]; then
             echo "dist drift (declarations, css, schema, or missing files):"
             cat /tmp/dist-real.txt
