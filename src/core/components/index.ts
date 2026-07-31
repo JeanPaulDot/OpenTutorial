@@ -1,2 +1,17 @@
 export { TourChecklist } from './TourChecklist';
 export type { TourChecklistProps, ChecklistStatus } from './TourChecklist';
+
+export { Banner } from './Banner';
+export type { BannerProps } from './Banner';
+
+export { Announcement } from './Announcement';
+export type { AnnouncementProps } from './Announcement';
+
+export { Survey } from './Survey';
+export type { SurveyProps, SurveyResponse, SurveyKind } from './Survey';
+
+export { ResourceCenter } from './ResourceCenter';
+export type { ResourceCenterProps, ResourceLink } from './ResourceCenter';
+
+export { Hint } from './Hint';
+export type { HintProps } from './Hint';

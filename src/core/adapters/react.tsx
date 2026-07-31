@@ -1,7 +1,10 @@
+'use client';
+
 import {
   createContext,
   isValidElement,
   cloneElement,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -10,19 +13,25 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
-import { TourEngine } from '../engine';
+import { createPortal } from 'react-dom';
+import { TourOrchestrator } from '../orchestrator';
+import type { TourEngine } from '../engine';
 import type {
-  KeyValueStorage,
-  ThemeOverrides,
-  TourEvent,
-  TourState,
-  TutorialSpec,
-  I18nResolver,
+  Direction, InteractionMode, KeyValueStorage, StepRenderContext, ThemeOverrides,
+  TourEvent, TourState, TutorialSpec, I18nResolver,
 } from '../types';
 
 export interface TourContextValue {
+  /** Start a tour, preempting anything already running. */
   start: (tourId: string, stepId?: string) => void;
+  /** Ask for a tour, honouring audience/frequency rules and the queue. */
+  request: (tourId: string, stepId?: string) => boolean;
   stop: () => void;
+  pause: () => void;
+  resume: () => void;
+  next: () => void;
+  prev: () => void;
+  goTo: (stepId: string) => void;
   activeId: string | null;
   state: TourState | null;
   events: TourEvent[];
@@ -30,9 +39,14 @@ export interface TourContextValue {
   context: Record<string, unknown>;
   setContext: (patch: Record<string, unknown>) => void;
   setTheme: (theme: ThemeOverrides) => void;
+  setUser: (userId: string | undefined) => Promise<void>;
   resetTours: () => void;
+  resetTour: (tourId: string) => void;
   resetProgress: () => void;
   hasSeen: (tourId: string) => boolean;
+  /** Null when the tour may start; otherwise the reason it may not. */
+  whyBlocked: (tourId: string) => string | null;
+  getEngine: (tourId: string) => TourEngine | undefined;
   specs: TutorialSpec[];
 }
 
@@ -44,14 +58,31 @@ export interface TourProviderProps {
   theme?: ThemeOverrides;
   zIndex?: number;
   storage?: KeyValueStorage;
+  keyPrefix?: string;
+  userId?: string;
   onEvent?: (e: TourEvent) => void;
   deepLinkParam?: string | false;
   locale?: string;
   i18nResolver?: I18nResolver;
+  dir?: Direction;
   resume?: boolean;
   progressTtl?: number;
+  autoResume?: boolean;
+  interaction?: InteractionMode;
+  container?: HTMLElement;
+  isolate?: boolean;
+  allowHtml?: boolean;
+  strict?: boolean;
+  onNavigate?: (path: string) => void;
+  beforeNext?: (ctx: { tourId: string; step: TutorialSpec['steps'][number]; index: number }) => boolean | Promise<boolean>;
+  /** Replace the built-in popover with your own component. */
+  renderStep?: (ctx: StepRenderContext) => ReactNode;
+  dev?: boolean;
+  debug?: boolean;
   children: ReactNode;
 }
+
+interface CustomRender { ctx: StepRenderContext; host: HTMLElement }
 
 export function TourProvider({
   specs,
@@ -59,127 +90,157 @@ export function TourProvider({
   theme,
   zIndex,
   storage,
+  keyPrefix,
+  userId,
   onEvent,
   deepLinkParam = 'tour',
   locale,
   i18nResolver,
+  dir,
   resume,
   progressTtl,
+  autoResume,
+  interaction,
+  container,
+  isolate,
+  allowHtml,
+  strict,
+  onNavigate,
+  beforeNext,
+  renderStep,
+  dev,
+  debug,
   children,
 }: TourProviderProps) {
   const [events, setEvents] = useState<TourEvent[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [state, setState] = useState<TourState | null>(null);
   const [context, setContextState] = useState<Record<string, unknown>>(initialContext ?? {});
-  const contextRef = useRef(context);
-  const themeRef = useRef(theme);
-  const enginesRef = useRef<Map<string, TourEngine> | null>(null);
+  const [custom, setCustom] = useState<CustomRender | null>(null);
 
-  if (!enginesRef.current) {
-    const handleEvent = (e: TourEvent) => {
-      setEvents((prev) => [...prev.slice(-99), e]);
-      onEvent?.(e);
-      if (e.type === 'started') setActiveId(e.tourId);
-      if (e.type === 'completed' || e.type === 'skipped') setActiveId((cur) => (cur === e.tourId ? null : cur));
-      const eng = enginesRef.current?.get(e.tourId);
-      if (eng) setState(eng.getState());
-    };
-    enginesRef.current = new Map(
-      specs.map((s) => [
-        s.id,
-        new TourEngine(s, {
-          context: contextRef.current,
-          theme: themeRef.current,
-          zIndex,
-          onEvent: handleEvent,
-          persistence: { storage },
-          locale,
-          i18nResolver,
-          resume,
-          progressTtl,
-        }),
-      ]),
-    );
-  }
-  const engines = enginesRef.current;
+  // Callbacks are read through refs so changing a handler never rebuilds the
+  // orchestrator — which would tear down a running tour mid-step.
+  const onEventRef = useRef(onEvent);
+  const beforeNextRef = useRef(beforeNext);
+  const onNavigateRef = useRef(onNavigate);
+  const renderStepRef = useRef(renderStep);
+  onEventRef.current = onEvent;
+  beforeNextRef.current = beforeNext;
+  onNavigateRef.current = onNavigate;
+  renderStepRef.current = renderStep;
 
-  useEffect(() => {
-    contextRef.current = context;
-    engines.forEach((e) => e.setContext(context));
-  }, [context, engines]);
+  const orchestratorRef = useRef<TourOrchestrator | null>(null);
 
-  useEffect(() => {
-    const timers: number[] = [];
-    const listeners: Array<() => void> = [];
-    specs.forEach((s) => {
-      const t = s.trigger;
-      if (!t || t.type === 'manual') return;
-      const engine = engines.get(s.id);
-      if (!engine || !engine.isValid()) return;
-      const once = t.once ?? true;
-      if (once && engine.hasSeen()) return;
-
-      if (t.type === 'auto') {
-        timers.push(window.setTimeout(() => void engine.start(), t.delay ?? 0));
-      } else if (t.type === 'event' && t.event) {
-        const handler = () => void engine.start();
-        window.addEventListener(t.event, handler, { once });
-        listeners.push(() => window.removeEventListener(t.event as string, handler));
-      }
+  if (!orchestratorRef.current) {
+    orchestratorRef.current = new TourOrchestrator(specs, {
+      context: initialContext,
+      theme,
+      zIndex,
+      persistence: { storage, keyPrefix },
+      userId,
+      locale,
+      i18nResolver,
+      dir,
+      resume,
+      progressTtl,
+      autoResume,
+      interaction,
+      container,
+      isolate,
+      allowHtml,
+      strict,
+      deepLinkParam,
+      dev,
+      debug,
+      onNavigate: (path) => onNavigateRef.current?.(path),
+      beforeNext: beforeNextRef.current
+        ? (ctx) => beforeNextRef.current!(ctx)
+        : undefined,
+      renderStep: renderStepRef.current
+        ? (ctx, host) => {
+            setCustom({ ctx, host });
+            return () => setCustom(null);
+          }
+        : undefined,
+      onEvent: (e) => {
+        setEvents((prev) => [...prev.slice(-99), e]);
+        onEventRef.current?.(e);
+      },
+      onStateChange: (id, s) => {
+        setActiveId(id);
+        setState(s);
+      },
     });
-    return () => {
-      timers.forEach((t) => window.clearTimeout(t));
-      listeners.forEach((off) => off());
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }
+
+  const orchestrator = orchestratorRef.current;
 
   useEffect(() => {
-    if (deepLinkParam === false) return;
-    try {
-      const id = new URLSearchParams(window.location.search).get(deepLinkParam);
-      if (!id) return;
-      const engine = engines.get(id);
-      if (engine) {
-        const t = window.setTimeout(() => void engine.start(), 400);
-        return () => window.clearTimeout(t);
-      }
-    } catch { /* noop */ }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    orchestrator.mount();
+    return () => {
+      orchestrator.destroy();
+      orchestratorRef.current = null;
+    };
+  }, [orchestrator]);
 
-  useEffect(
-    () => () => engines.forEach((e) => { if (e.getState().status === 'running') e.skip(); }),
-    [engines],
+  useEffect(() => {
+    orchestrator.setContext(context);
+  }, [context, orchestrator]);
+
+  useEffect(() => {
+    if (theme) orchestrator.setTheme(theme);
+  }, [theme, orchestrator]);
+
+  useEffect(() => {
+    if (locale) orchestrator.setLocale(locale);
+  }, [locale, orchestrator]);
+
+  useEffect(() => {
+    void orchestrator.setUser(userId);
+  }, [userId, orchestrator]);
+
+  const runOnActive = useCallback(
+    (fn: (engine: TourEngine) => void) => {
+      const id = orchestrator.getActiveId();
+      if (!id) return;
+      const engine = orchestrator.getEngine(id);
+      if (engine) fn(engine);
+    },
+    [orchestrator],
   );
 
   const value = useMemo<TourContextValue>(() => ({
-    start: (tourId, stepId) => {
-      const engine = engines.get(tourId);
-      if (!engine) return;
-      engines.forEach((e, id) => {
-        if (id !== tourId && e.getState().status === 'running') e.skip();
-      });
-      void engine.start(stepId);
-    },
-    stop: () => engines.forEach((e) => { if (e.getState().status === 'running') e.skip(); }),
+    start: (tourId, stepId) => orchestrator.start(tourId, stepId),
+    request: (tourId, stepId) => orchestrator.request(tourId, stepId),
+    stop: () => orchestrator.stop('api'),
+    pause: () => orchestrator.pause(),
+    resume: () => orchestrator.resume(),
+    next: () => runOnActive((e) => void e.next()),
+    prev: () => runOnActive((e) => e.prev()),
+    goTo: (stepId) => runOnActive((e) => e.goTo(stepId)),
     activeId,
     state,
     events,
     clearEvents: () => setEvents([]),
     context,
     setContext: (patch) => setContextState((prev) => ({ ...prev, ...patch })),
-    setTheme: (t) => {
-      themeRef.current = t;
-      engines.forEach((e) => e.setGlobalTheme(t));
-    },
-    resetTours: () => engines.forEach((e) => e.resetSeen()),
-    resetProgress: () => engines.forEach((e) => e.resetProgress()),
-    hasSeen: (tourId) => engines.get(tourId)?.hasSeen() ?? false,
+    setTheme: (t) => orchestrator.setTheme(t),
+    setUser: (id) => orchestrator.setUser(id),
+    resetTours: () => orchestrator.reset(),
+    resetTour: (tourId) => orchestrator.resetTour(tourId),
+    resetProgress: () => orchestrator.resetProgress(),
+    hasSeen: (tourId) => orchestrator.hasSeen(tourId),
+    whyBlocked: (tourId) => orchestrator.checkEligibility(tourId),
+    getEngine: (tourId) => orchestrator.getEngine(tourId),
     specs,
-  }), [engines, specs, activeId, state, events, context]);
+  }), [orchestrator, specs, activeId, state, events, context, runOnActive]);
 
-  return <TourContext.Provider value={value}>{children}</TourContext.Provider>;
+  return (
+    <TourContext.Provider value={value}>
+      {children}
+      {custom && renderStep ? createPortal(renderStep(custom.ctx), custom.host) : null}
+    </TourContext.Provider>
+  );
 }
 
 export function useTour(): TourContextValue {
@@ -188,11 +249,26 @@ export function useTour(): TourContextValue {
   return ctx;
 }
 
+/** Subscribe to tour events without re-rendering on every state change. */
+export function useTourEvents(handler: (e: TourEvent) => void): void {
+  const ref = useRef(handler);
+  ref.current = handler;
+  useEffect(() => {
+    const listener = (e: Event): void => {
+      const detail = (e as CustomEvent<TourEvent>).detail;
+      if (detail) ref.current(detail);
+    };
+    window.addEventListener('opentutorial', listener);
+    return () => window.removeEventListener('opentutorial', listener);
+  }, []);
+}
+
 export interface TourAnchorProps {
   id: string;
   children: ReactElement;
 }
 
+/** Tags a child with `data-tour="<id>"` so specs can target it stably. */
 export function TourAnchor({ id, children }: TourAnchorProps) {
   if (isValidElement(children)) {
     return cloneElement(children, { 'data-tour': id } as Record<string, unknown>);

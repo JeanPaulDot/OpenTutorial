@@ -1,6 +1,6 @@
 /*
- * Opentutorial styles. Everything is driven by --ot-* CSS custom properties
- * set on .ot-root — override them from host CSS or via spec `theme` objects.
+ * Opentutorial styles. Everything is driven by --ot-* custom properties set on
+ * .ot-root — override them from host CSS or via spec `theme` objects.
  */
 
 .ot-root {
@@ -13,25 +13,55 @@
   --ot-bg: #ffffff;
   --ot-fg: #181822;
   --ot-muted: #67677c;
+  --ot-border: color-mix(in srgb, var(--ot-muted) 22%, transparent);
+  --ot-success: #10b981;
+  --ot-danger: #ef4444;
   --ot-backdrop: rgba(12, 12, 22, 0.55);
   --ot-radius: 14px;
   --ot-shadow: 0 24px 60px -12px rgba(10, 10, 25, 0.45), 0 4px 16px rgba(10, 10, 25, 0.12);
   --ot-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --ot-font-size: 13.5px;
+  --ot-spacing: 16px;
+  --ot-arrow-size: 10px;
+  --ot-overlay-blur: 0px;
+  --ot-anim-ms: 180ms;
   --ot-spotlight-ring: var(--ot-accent);
   --ot-popover-width: 340px;
 
   font-family: var(--ot-font);
 }
 
+/* Dark mode: opt in with [data-ot-theme="dark"], or follow the OS. */
+@media (prefers-color-scheme: dark) {
+  .ot-root:not([data-ot-theme="light"]) {
+    --ot-bg: #17171f;
+    --ot-fg: #f2f2f7;
+    --ot-muted: #a1a1b5;
+    --ot-border: color-mix(in srgb, var(--ot-muted) 28%, transparent);
+    --ot-backdrop: rgba(4, 4, 10, 0.68);
+    --ot-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.ot-root[data-ot-theme="dark"] {
+  --ot-bg: #17171f;
+  --ot-fg: #f2f2f7;
+  --ot-muted: #a1a1b5;
+  --ot-border: color-mix(in srgb, var(--ot-muted) 28%, transparent);
+  --ot-backdrop: rgba(4, 4, 10, 0.68);
+  --ot-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
 .ot-backdrop {
   position: fixed;
   inset: 0;
   display: block;
+  backdrop-filter: blur(var(--ot-overlay-blur));
 }
 
 .ot-dim {
   fill: var(--ot-backdrop);
-  transition: fill 0.2s ease;
+  transition: fill var(--ot-anim-ms) ease;
 }
 
 .ot-ring {
@@ -39,8 +69,19 @@
   pointer-events: none;
   border: 2px solid var(--ot-spotlight-ring);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--ot-spotlight-ring) 22%, transparent);
-  transition: left 0.18s ease, top 0.18s ease, width 0.18s ease, height 0.18s ease, opacity 0.18s ease;
+  transition:
+    left var(--ot-anim-ms) ease, top var(--ot-anim-ms) ease,
+    width var(--ot-anim-ms) ease, height var(--ot-anim-ms) ease,
+    opacity var(--ot-anim-ms) ease;
 }
+
+/* Interaction shield: four panels that leave the target reachable. */
+.ot-shield { position: fixed; inset: 0; pointer-events: none; }
+.ot-shield-panel { position: fixed; pointer-events: auto; background: transparent; }
+
+/* --------------------------------------------------------------------- */
+/* Popover                                                                */
+/* --------------------------------------------------------------------- */
 
 .ot-popover {
   position: fixed;
@@ -52,47 +93,96 @@
   box-shadow: var(--ot-shadow);
   pointer-events: auto;
   outline: none;
-  transition: left 0.18s ease, top 0.18s ease;
+  transition: left var(--ot-anim-ms) ease, top var(--ot-anim-ms) ease, opacity var(--ot-anim-ms) ease;
+  animation: ot-pop-in var(--ot-anim-ms) ease-out;
 }
 
-.ot-popover.ot-modal {
-  transition: left 0.18s ease, top 0.18s ease;
+.ot-popover--modal-step { --ot-popover-width: 420px; }
+
+@keyframes ot-pop-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
 }
 
 .ot-body {
   position: relative;
-  padding: 16px 18px 14px;
+  padding: var(--ot-spacing) calc(var(--ot-spacing) + 2px) calc(var(--ot-spacing) - 2px);
 }
 
 .ot-title {
   margin: 0 28px 6px 0;
-  font-size: 15px;
+  font-size: calc(var(--ot-font-size) + 1.5px);
   font-weight: 650;
   line-height: 1.35;
   letter-spacing: -0.01em;
 }
 
+[dir="rtl"] .ot-title { margin: 0 0 6px 28px; }
+
+.ot-content-wrap { margin-bottom: 14px; }
+.ot-content-wrap > *:last-child { margin-bottom: 0; }
+
 .ot-content {
-  margin: 0 0 14px;
-  font-size: 13.5px;
+  margin: 0 0 8px;
+  font-size: var(--ot-font-size);
   line-height: 1.55;
   color: var(--ot-muted);
 }
 
 .ot-content strong { color: var(--ot-fg); font-weight: 650; }
 .ot-content a { color: var(--ot-accent); text-decoration: underline; text-underline-offset: 2px; }
-.ot-content code {
+.ot-content code,
+.ot-list code {
   background: color-mix(in srgb, var(--ot-muted) 14%, transparent);
   color: var(--ot-fg);
   padding: 1px 5px;
   border-radius: 5px;
-  font-size: 12px;
+  font-size: calc(var(--ot-font-size) - 1.5px);
 }
+
+.ot-media {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: calc(var(--ot-radius) * 0.7);
+  margin: 0 0 10px;
+  background: color-mix(in srgb, var(--ot-muted) 10%, transparent);
+}
+
+.ot-list {
+  margin: 0 0 10px;
+  padding-inline-start: 20px;
+  font-size: var(--ot-font-size);
+  line-height: 1.55;
+  color: var(--ot-muted);
+}
+
+.ot-list li { margin-bottom: 3px; }
+
+.ot-code {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: calc(var(--ot-radius) * 0.6);
+  background: color-mix(in srgb, var(--ot-muted) 12%, transparent);
+  overflow-x: auto;
+  font-size: calc(var(--ot-font-size) - 1.5px);
+  line-height: 1.5;
+}
+
+.ot-code code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--ot-fg); }
+
+.ot-divider {
+  border: 0;
+  border-top: 1px solid var(--ot-border);
+  margin: 12px 0;
+}
+
+.ot-html { font-size: var(--ot-font-size); line-height: 1.55; color: var(--ot-muted); margin-bottom: 10px; }
 
 .ot-skip {
   position: absolute;
   top: 8px;
-  right: 10px;
+  inset-inline-end: 10px;
   border: 0;
   background: transparent;
   color: var(--ot-muted);
@@ -131,7 +221,7 @@
 
 .ot-btn {
   font-family: inherit;
-  font-size: 13px;
+  font-size: calc(var(--ot-font-size) - 0.5px);
   font-weight: 600;
   padding: 7px 14px;
   border-radius: calc(var(--ot-radius) * 0.6);
@@ -146,12 +236,13 @@
 .ot-btn-ghost {
   background: transparent;
   color: var(--ot-muted);
-  border-color: color-mix(in srgb, var(--ot-muted) 32%, transparent);
+  border-color: var(--ot-border);
 }
 .ot-btn-ghost:hover { color: var(--ot-fg); }
 
 .ot-btn:focus-visible,
 .ot-skip:focus-visible,
+.ot-beacon:focus-visible,
 .ot-content a:focus-visible {
   outline: 2px solid var(--ot-accent);
   outline-offset: 2px;
@@ -159,8 +250,8 @@
 
 .ot-arrow {
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: var(--ot-arrow-size);
+  height: var(--ot-arrow-size);
   background: var(--ot-bg);
   transform: rotate(45deg);
   border-radius: 2px;
@@ -173,10 +264,12 @@
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
 }
+
+.ot-custom-host { pointer-events: auto; }
 
 /* Mobile: dock as a bottom sheet */
 @media (max-width: 480px) {
@@ -188,7 +281,13 @@
     width: auto;
   }
   .ot-arrow { display: none; }
+  .ot-btn { padding: 10px 16px; min-height: 44px; }
+  .ot-skip { min-width: 44px; min-height: 44px; }
 }
+
+/* --------------------------------------------------------------------- */
+/* Hotspot + beacon                                                       */
+/* --------------------------------------------------------------------- */
 
 @keyframes ot-pulse {
   0%, 100% { transform: scale(1); opacity: 0.8; }
@@ -211,34 +310,34 @@
 .ot-beacon {
   width: 12px;
   height: 12px;
+  padding: 0;
+  border: 0;
   border-radius: 999px;
-  background: var(--ot-accent, #6d5cff);
+  background: var(--ot-accent);
   cursor: pointer;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ot-accent, #6d5cff) 25%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ot-accent) 25%, transparent);
 }
 
-.ot-beacon--hotspot {
-  animation: tl-pulse 2s ease-in-out infinite;
-}
+.ot-beacon--hotspot { animation: ot-pulse 2s ease-in-out infinite; }
 
 .ot-beacon--beacon {
   width: 8px;
   height: 8px;
-  animation: tl-beacon-pulse 2s ease-in-out infinite;
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--ot-accent, #6d5cff) 15%, transparent);
+  animation: ot-beacon-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--ot-accent) 15%, transparent);
 }
 
 .ot-hotspot-tooltip {
   position: absolute;
   top: 16px;
-  left: 12px;
-  background: var(--ot-bg, #fff);
-  color: var(--ot-fg, #181822);
-  border-radius: var(--ot-radius, 10px);
-  box-shadow: var(--ot-shadow, 0 4px 20px rgba(0,0,0,0.15));
+  inset-inline-start: 12px;
+  background: var(--ot-bg);
+  color: var(--ot-fg);
+  border-radius: var(--ot-radius);
+  box-shadow: var(--ot-shadow);
   padding: 6px 10px;
   font-family: var(--ot-font);
-  font-size: 12px;
+  font-size: calc(var(--ot-font-size) - 1.5px);
   line-height: 1.4;
   max-width: 220px;
   white-space: normal;
@@ -248,10 +347,7 @@
   gap: 6px;
 }
 
-.ot-hotspot-text {
-  flex: 1;
-  min-width: 0;
-}
+.ot-hotspot-text { flex: 1; min-width: 0; }
 
 .ot-hotspot-dismiss {
   flex-shrink: 0;
@@ -259,7 +355,7 @@
   height: 20px;
   border: none;
   border-radius: 999px;
-  background: var(--ot-accent, #6d5cff);
+  background: var(--ot-accent);
   color: #fff;
   font-size: 11px;
   line-height: 1;
@@ -270,17 +366,19 @@
   transition: filter 0.12s ease;
 }
 
-.ot-hotspot-dismiss:hover {
-  filter: brightness(1.15);
-}
+.ot-hotspot-dismiss:hover { filter: brightness(1.15); }
 
-/* TourChecklist */
+/* --------------------------------------------------------------------- */
+/* Checklist                                                              */
+/* --------------------------------------------------------------------- */
+
 .ot-checklist {
   font-family: var(--ot-font, ui-sans-serif, system-ui, sans-serif);
   padding: 16px;
   border-radius: 12px;
   background: var(--ot-bg, #fff);
-  border: 1px solid color-mix(in srgb, var(--ot-muted, #67677c) 20%, transparent);
+  border: 1px solid var(--ot-border, rgba(103, 103, 124, 0.22));
+  color: var(--ot-fg, #181822);
 }
 
 .ot-checklist-header {
@@ -290,18 +388,8 @@
   margin-bottom: 8px;
 }
 
-.ot-checklist-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ot-fg, #181822);
-  margin: 0;
-}
-
-.ot-checklist-count {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--ot-muted, #67677c);
-}
+.ot-checklist-title { font-size: 15px; font-weight: 600; margin: 0; }
+.ot-checklist-count { font-size: 12px; font-weight: 500; color: var(--ot-muted, #67677c); }
 
 .ot-checklist-bar-track {
   height: 4px;
@@ -336,49 +424,17 @@
   transition: background 0.15s ease;
 }
 
-.ot-checklist-item:hover {
-  background: color-mix(in srgb, var(--ot-muted, #67677c) 6%, transparent);
-}
+.ot-checklist-item:hover { background: color-mix(in srgb, var(--ot-muted, #67677c) 6%, transparent); }
+.ot-checklist-item--completed { opacity: 0.6; }
 
-.ot-checklist-item--completed {
-  opacity: 0.6;
-}
-
-.ot-checklist-icon {
-  font-size: 14px;
-  width: 18px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.ot-checklist-item--completed .ot-checklist-icon { color: #10b981; }
+.ot-checklist-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+.ot-checklist-item--completed .ot-checklist-icon { color: var(--ot-success, #10b981); }
 .ot-checklist-item--in_progress .ot-checklist-icon { color: var(--ot-accent, #6d5cff); }
 .ot-checklist-item--pending .ot-checklist-icon { color: var(--ot-muted, #67677c); }
 
-.ot-checklist-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-}
-
-.ot-checklist-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ot-fg, #181822);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ot-checklist-desc {
-  font-size: 11px;
-  color: var(--ot-muted, #67677c);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.ot-checklist-info { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.ot-checklist-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ot-checklist-desc { font-size: 11px; color: var(--ot-muted, #67677c); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .ot-checklist-btn {
   font-family: inherit;
@@ -394,21 +450,370 @@
   transition: background 0.12s ease;
 }
 
-.ot-checklist-btn:hover {
-  background: color-mix(in srgb, var(--ot-accent, #6d5cff) 10%, transparent);
+.ot-checklist-btn:hover { background: color-mix(in srgb, var(--ot-accent, #6d5cff) 10%, transparent); }
+.ot-checklist-btn:disabled { opacity: 0.4; cursor: default; }
+
+.ot-checklist--floating {
+  position: fixed;
+  inset-inline-end: 20px;
+  bottom: 20px;
+  width: 320px;
+  max-width: calc(100vw - 40px);
+  z-index: var(--ot-z, 9999);
+  box-shadow: var(--ot-shadow);
 }
 
-.ot-checklist-btn:disabled {
-  opacity: 0.4;
-  cursor: default;
+.ot-checklist-toggle {
+  border: 0;
+  background: transparent;
+  color: var(--ot-muted, #67677c);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
 }
+
+.ot-checklist--collapsed .ot-checklist-items,
+.ot-checklist--collapsed .ot-checklist-bar-track { display: none; }
+
+/* --------------------------------------------------------------------- */
+/* Banner                                                                 */
+/* --------------------------------------------------------------------- */
+
+.ot-banner {
+  position: fixed;
+  inset-inline: 0;
+  z-index: var(--ot-z, 9999);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--ot-accent, #6d5cff);
+  color: #fff;
+  font-family: var(--ot-font);
+  font-size: 13.5px;
+  line-height: 1.45;
+  box-shadow: 0 2px 12px rgba(10, 10, 25, 0.18);
+}
+
+.ot-banner--top { top: 0; }
+.ot-banner--bottom { bottom: 0; }
+.ot-banner-content { flex: 1; min-width: 0; }
+.ot-banner-content a { color: inherit; text-decoration: underline; }
+
+.ot-banner-action {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 650;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ot-banner-action:hover { background: rgba(255, 255, 255, 0.28); }
+
+.ot-banner-dismiss {
+  border: 0;
+  background: transparent;
+  color: #fff;
+  opacity: 0.8;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  flex-shrink: 0;
+}
+
+.ot-banner-dismiss:hover { opacity: 1; }
+
+/* --------------------------------------------------------------------- */
+/* Resource center / help hub                                             */
+/* --------------------------------------------------------------------- */
+
+.ot-hub {
+  font-family: var(--ot-font);
+  width: 340px;
+  max-width: calc(100vw - 40px);
+  background: var(--ot-bg, #fff);
+  color: var(--ot-fg, #181822);
+  border: 1px solid var(--ot-border, rgba(103, 103, 124, 0.22));
+  border-radius: 14px;
+  box-shadow: var(--ot-shadow);
+  overflow: hidden;
+}
+
+.ot-hub--floating {
+  position: fixed;
+  inset-inline-end: 20px;
+  bottom: 76px;
+  z-index: var(--ot-z, 9999);
+}
+
+.ot-hub-header { padding: 14px 16px 10px; }
+.ot-hub-title { margin: 0 0 8px; font-size: 15px; font-weight: 650; }
+
+.ot-hub-search {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--ot-border, rgba(103, 103, 124, 0.22));
+  background: transparent;
+  color: inherit;
+}
+
+.ot-hub-search:focus-visible { outline: 2px solid var(--ot-accent); outline-offset: 1px; }
+
+.ot-hub-list { list-style: none; margin: 0; padding: 0 8px 10px; max-height: 320px; overflow-y: auto; }
+
+.ot-hub-item {
+  display: block;
+  width: 100%;
+  text-align: start;
+  font-family: inherit;
+  font-size: 13px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 10px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.ot-hub-item:hover { background: color-mix(in srgb, var(--ot-muted) 8%, transparent); }
+.ot-hub-item-desc { display: block; font-size: 11.5px; color: var(--ot-muted); margin-top: 2px; }
+.ot-hub-empty { padding: 16px 10px; text-align: center; font-size: 12.5px; color: var(--ot-muted); }
+
+.ot-hub-launcher {
+  position: fixed;
+  inset-inline-end: 20px;
+  bottom: 20px;
+  z-index: var(--ot-z, 9999);
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--ot-accent, #6d5cff);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px -6px rgba(10, 10, 25, 0.45);
+}
+
+/* --------------------------------------------------------------------- */
+/* Survey                                                                 */
+/* --------------------------------------------------------------------- */
+
+.ot-survey { font-family: var(--ot-font); }
+.ot-survey-question { margin: 0 0 12px; font-size: 14px; font-weight: 600; }
+
+.ot-survey-scale { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; }
+
+.ot-survey-score {
+  flex: 1;
+  min-width: 30px;
+  font-family: inherit;
+  font-size: 12.5px;
+  padding: 8px 0;
+  border-radius: 7px;
+  border: 1px solid var(--ot-border, rgba(103, 103, 124, 0.22));
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.ot-survey-score:hover { border-color: var(--ot-accent); }
+.ot-survey-score--selected { background: var(--ot-accent); border-color: var(--ot-accent); color: #fff; }
+
+.ot-survey-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--ot-muted);
+  margin-bottom: 12px;
+}
+
+.ot-survey-options { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+
+.ot-survey-option {
+  font-family: inherit;
+  font-size: 13px;
+  text-align: start;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--ot-border, rgba(103, 103, 124, 0.22));
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ot-survey-option:hover { border-color: var(--ot-accent); }
+.ot-survey-option--selected { background: color-mix(in srgb, var(--ot-accent) 12%, transparent); border-color: var(--ot-accent); }
+
+.ot-survey-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 13px;
+  min-height: 72px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--ot-border, rgba(103, 103, 124, 0.22));
+  background: transparent;
+  color: inherit;
+  resize: vertical;
+  margin-bottom: 12px;
+}
+
+.ot-survey-thanks { font-size: 13.5px; color: var(--ot-muted); text-align: center; padding: 12px 0; }
+
+/* --------------------------------------------------------------------- */
+/* Standalone hint                                                        */
+/* --------------------------------------------------------------------- */
+
+.ot-hint {
+  position: fixed;
+  z-index: var(--ot-z, 9999);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+.ot-hint-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--ot-accent, #6d5cff);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ot-accent) 25%, transparent);
+}
+
+.ot-hint-panel {
+  position: absolute;
+  top: 24px;
+  inset-inline-start: 0;
+  width: 240px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--ot-bg, #fff);
+  color: var(--ot-fg, #181822);
+  box-shadow: var(--ot-shadow);
+  font-family: var(--ot-font);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------- */
+/* Recorder + debug overlay                                               */
+/* --------------------------------------------------------------------- */
+
+.ot-rec-highlight {
+  position: fixed;
+  pointer-events: none;
+  z-index: 2147483646;
+  border: 2px solid #6d5cff;
+  background: rgba(109, 92, 255, 0.12);
+  border-radius: 4px;
+  transition: all 60ms linear;
+}
+
+.ot-rec-label {
+  position: fixed;
+  pointer-events: none;
+  z-index: 2147483647;
+  background: #181822;
+  color: #fff;
+  font: 500 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 3px 7px;
+  border-radius: 5px;
+  max-width: 460px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ot-rec-panel,
+.ot-debug {
+  position: fixed;
+  z-index: 2147483647;
+  width: 320px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: #17171f;
+  color: #f2f2f7;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.6);
+  font: 400 12px/1.5 ui-sans-serif, system-ui, sans-serif;
+  padding: 12px 14px;
+  pointer-events: auto;
+}
+
+.ot-rec-panel { top: 16px; inset-inline-end: 16px; }
+.ot-debug { bottom: 16px; inset-inline-start: 16px; width: 300px; }
+
+.ot-rec-panel h4,
+.ot-debug h4 { margin: 0 0 8px; font-size: 12.5px; font-weight: 650; }
+
+.ot-rec-steps { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+
+.ot-rec-step {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.ot-rec-step code { font-size: 10.5px; opacity: 0.75; word-break: break-all; }
+.ot-rec-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.ot-rec-btn {
+  font: 600 11.5px/1 inherit;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 0;
+  background: #6d5cff;
+  color: #fff;
+  cursor: pointer;
+}
+
+.ot-rec-btn--ghost { background: rgba(255, 255, 255, 0.1); }
+
+.ot-debug-row { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.ot-debug-key { opacity: 0.6; }
+.ot-debug-val { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; text-align: end; word-break: break-all; }
+.ot-debug-ok { color: #10b981; }
+.ot-debug-bad { color: #ef4444; }
+
+/* --------------------------------------------------------------------- */
+/* Reduced motion                                                         */
+/* --------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
   .ot-popover,
   .ot-ring,
   .ot-dim,
   .ot-beacon,
-  .ot-checklist-bar-fill { transition: none; }
-  .ot-beacon--hotspot { animation: none; }
+  .ot-rec-highlight,
+  .ot-checklist-bar-fill { transition: none; animation: none; }
+  .ot-beacon--hotspot,
   .ot-beacon--beacon { animation: none; }
+  .ot-popover { animation: none; }
 }

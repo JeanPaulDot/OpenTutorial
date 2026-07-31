@@ -64,9 +64,15 @@ describe('evaluateShowIf', () => {
     expect(evaluateShowIf("missing === 'x'", {})).toBe(false);
   });
 
-  it('returns false for expressions exceeding MAX_LEN', () => {
-    const long = 'true && ' + 'x && '.repeat(50) + 'true';
+  it('returns false for expressions exceeding maxLength', () => {
+    const long = 'true && ' + 'x && '.repeat(200) + 'true';
+    expect(long.length).toBeGreaterThan(500);
     expect(evaluateShowIf(long, { x: true })).toBe(false);
+  });
+
+  it('respects a custom maxLength option', () => {
+    const expr = 'x && x && x';
+    expect(evaluateShowIf(expr, { x: true }, { maxLength: 5 })).toBe(false);
   });
 
   it('returns false for invalid expressions (graceful)', () => {

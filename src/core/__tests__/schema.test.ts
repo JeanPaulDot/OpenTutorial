@@ -41,14 +41,19 @@ describe('validateSpec', () => {
     expect(r.ok).toBe(false);
   });
 
-  it('rejects missing title', () => {
+  it('rejects missing title (hard)', () => {
     const r = validateSpec({ ...VALID_SPEC, title: '' });
     expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.errors[0].path).toBe('$.title');
+      expect(r.errors[0].severity).toBe('error');
+    }
   });
 
-  it('rejects title > 60 chars', () => {
+  it('warns on title > 60 chars (soft)', () => {
     const r = validateSpec({ ...VALID_SPEC, title: 'x'.repeat(61) });
-    expect(r.ok).toBe(false);
+    expect(r.ok).toBe(true);
+    expect(r.warnings.some((w) => w.path === '$.title')).toBe(true);
   });
 
   it('rejects missing steps', () => {
@@ -56,8 +61,14 @@ describe('validateSpec', () => {
     expect(r.ok).toBe(false);
   });
 
-  it('rejects >24 steps', () => {
+  it('warns on >24 steps (soft)', () => {
     const r = validateSpec({ ...VALID_SPEC, steps: Array.from({ length: 25 }, (_, i) => ({ id: `s${i}`, title: 't', content: 'c' })) });
+    expect(r.ok).toBe(true);
+    expect(r.warnings.some((w) => w.path === '$.steps')).toBe(true);
+  });
+
+  it('rejects >200 steps (hard)', () => {
+    const r = validateSpec({ ...VALID_SPEC, steps: Array.from({ length: 201 }, (_, i) => ({ id: `s${i}`, title: 't', content: 'c' })) });
     expect(r.ok).toBe(false);
   });
 
@@ -66,14 +77,16 @@ describe('validateSpec', () => {
     expect(r.ok).toBe(false);
   });
 
-  it('rejects step title > 80 chars', () => {
+  it('warns on step title > 80 chars (soft)', () => {
     const r = validateSpec({ ...VALID_SPEC, steps: [{ id: 's', title: 'x'.repeat(81), content: 'ok' }] });
-    expect(r.ok).toBe(false);
+    expect(r.ok).toBe(true);
+    expect(r.warnings.some((w) => w.path === '$.steps[0].title')).toBe(true);
   });
 
-  it('rejects step content > 320 chars', () => {
+  it('warns on step content > 320 chars (soft)', () => {
     const r = validateSpec({ ...VALID_SPEC, steps: [{ id: 's', title: 'ok', content: 'x'.repeat(321) }] });
-    expect(r.ok).toBe(false);
+    expect(r.ok).toBe(true);
+    expect(r.warnings.some((w) => w.path === '$.steps[0].content')).toBe(true);
   });
 
   it('rejects advanceOn target-click without target', () => {
@@ -86,9 +99,12 @@ describe('validateSpec', () => {
     expect(r.ok).toBe(false);
   });
 
-  it('rejects showIf > 200 chars', () => {
-    const r = validateSpec({ ...VALID_SPEC, steps: [{ id: 's', title: 't', content: 'c', showIf: 'x'.repeat(201) }] });
+  it('rejects showIf > 500 chars (hard safety cap)', () => {
+    const r = validateSpec({ ...VALID_SPEC, steps: [{ id: 's', title: 't', content: 'c', showIf: 'x'.repeat(501) }] });
     expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.errors.some((e) => e.path === '$.steps[0].showIf')).toBe(true);
+    }
   });
 
   it('rejects next pointing to non-existent step', () => {
@@ -111,9 +127,10 @@ describe('validateSpec', () => {
     expect(r.ok).toBe(false);
   });
 
-  it('rejects bad theme keys', () => {
+  it('warns on unknown theme keys (soft)', () => {
     const r = validateSpec({ ...VALID_SPEC, theme: { unknown_key: 'red' } as never });
-    expect(r.ok).toBe(false);
+    expect(r.ok).toBe(true);
+    expect(r.warnings.some((w) => w.path === '$.theme.unknown_key')).toBe(true);
   });
 
   it('accepts display mode hotspot', () => {

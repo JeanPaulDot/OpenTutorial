@@ -5,27 +5,32 @@ export interface HotspotModel {
     showDismiss?: boolean;
     onDismiss?: () => void;
 }
+interface Rect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+/**
+ * The non-blocking indicator used by `hotspot` and `beacon` steps: a pulsing dot
+ * anchored to the target, optionally with a small tooltip beside it.
+ */
 export declare class TourHotspot {
     readonly el: HTMLDivElement;
     private beaconEl;
     private tooltipEl;
+    private textEl;
     private dismissBtn;
     private lastRect;
     private hasTooltip;
+    /** Held in a field so re-rendering never stacks duplicate listeners. */
+    private onDismiss;
     constructor();
-    render(model: HotspotModel, rect: {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    }): void;
+    render(model: HotspotModel, rect: Rect): void;
     private buildTooltip;
     private positionTooltip;
-    reposition(newRect: {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-    }): void;
+    reposition(newRect: Rect): void;
+    focus(): void;
     destroy(): void;
 }
+export {};

@@ -1,4 +1,5 @@
 import type { DisplayMode } from '../types';
+import { renderInline } from '../markdown';
 
 export interface HotspotModel {
   display: DisplayMode;
@@ -7,44 +8,55 @@ export interface HotspotModel {
   onDismiss?: () => void;
 }
 
+interface Rect { x: number; y: number; width: number; height: number }
+
+/**
+ * The non-blocking indicator used by `hotspot` and `beacon` steps: a pulsing dot
+ * anchored to the target, optionally with a small tooltip beside it.
+ */
 export class TourHotspot {
   readonly el: HTMLDivElement;
-  private beaconEl: HTMLDivElement;
+  private beaconEl: HTMLButtonElement;
   private tooltipEl: HTMLDivElement | null = null;
+  private textEl: HTMLSpanElement | null = null;
   private dismissBtn: HTMLButtonElement | null = null;
-  private lastRect: { x: number; y: number; width: number; height: number } | null = null;
+  private lastRect: Rect | null = null;
   private hasTooltip = false;
+  /** Held in a field so re-rendering never stacks duplicate listeners. */
+  private onDismiss: (() => void) | null = null;
 
   constructor() {
     this.el = document.createElement('div');
     this.el.className = 'ot-hotspot';
 
-    this.beaconEl = document.createElement('div');
+    this.beaconEl = document.createElement('button');
+    this.beaconEl.type = 'button';
     this.beaconEl.className = 'ot-beacon';
+    this.beaconEl.addEventListener('click', () => this.onDismiss?.());
 
     this.el.appendChild(this.beaconEl);
   }
 
-  render(model: HotspotModel, rect: { x: number; y: number; width: number; height: number }): void {
+  render(model: HotspotModel, rect: Rect): void {
     this.lastRect = rect;
+    this.onDismiss = model.onDismiss ?? null;
     this.beaconEl.className = `ot-beacon ot-beacon--${model.display}`;
 
     this.el.style.left = `${rect.x + rect.width / 2}px`;
     this.el.style.top = `${rect.y + rect.height / 2}px`;
     this.el.style.pointerEvents = 'auto';
 
-    const isBeacon = model.display === 'beacon';
+    const label = model.content?.trim() || 'Show me';
+    this.beaconEl.setAttribute('aria-label', label);
 
-    if (isBeacon) {
+    if (model.display === 'beacon') {
       this.hasTooltip = false;
       if (this.tooltipEl) this.tooltipEl.style.display = 'none';
       this.beaconEl.title = model.content ?? '';
-      this.beaconEl.addEventListener('click', () => model.onDismiss?.(), { once: true });
     } else {
       this.hasTooltip = true;
       this.buildTooltip(model);
       this.positionTooltip(rect);
-      this.beaconEl.addEventListener('click', () => model.onDismiss?.(), { once: true });
     }
   }
 
@@ -52,29 +64,34 @@ export class TourHotspot {
     if (!this.tooltipEl) {
       this.tooltipEl = document.createElement('div');
       this.tooltipEl.className = 'ot-hotspot-tooltip';
+      this.tooltipEl.setAttribute('role', 'status');
+
+      this.textEl = document.createElement('span');
+      this.textEl.className = 'ot-hotspot-text';
+      this.tooltipEl.appendChild(this.textEl);
+
       this.el.appendChild(this.tooltipEl);
     }
-    this.tooltipEl.innerHTML = '';
     this.tooltipEl.style.display = 'flex';
+    if (this.textEl) this.textEl.innerHTML = renderInline(model.content ?? '');
 
-    const textSpan = document.createElement('span');
-    textSpan.className = 'ot-hotspot-text';
-    textSpan.textContent = model.content ?? '';
-    this.tooltipEl.appendChild(textSpan);
-
-    if (model.showDismiss || model.display === 'hotspot') {
+    const wantsDismiss = model.showDismiss || model.display === 'hotspot';
+    if (wantsDismiss) {
       if (!this.dismissBtn) {
         this.dismissBtn = document.createElement('button');
+        this.dismissBtn.type = 'button';
         this.dismissBtn.className = 'ot-hotspot-dismiss';
         this.dismissBtn.textContent = '→';
         this.dismissBtn.setAttribute('aria-label', 'Next step');
-        this.dismissBtn.addEventListener('click', () => model.onDismiss?.());
+        this.dismissBtn.addEventListener('click', () => this.onDismiss?.());
       }
       this.tooltipEl.appendChild(this.dismissBtn);
+    } else if (this.dismissBtn?.parentNode) {
+      this.dismissBtn.remove();
     }
   }
 
-  private positionTooltip(rect: { x: number; y: number; width: number; height: number }): void {
+  private positionTooltip(rect: Rect): void {
     if (!this.tooltipEl) return;
     const vw = window.innerWidth;
     const tooltipW = this.tooltipEl.offsetWidth || 200;
@@ -95,7 +112,7 @@ export class TourHotspot {
     this.tooltipEl.style.top = '16px';
   }
 
-  reposition(newRect: { x: number; y: number; width: number; height: number }): void {
+  reposition(newRect: Rect): void {
     if (!this.lastRect) return;
     this.lastRect = newRect;
     this.el.style.left = `${newRect.x + newRect.width / 2}px`;
@@ -103,7 +120,10 @@ export class TourHotspot {
     if (this.hasTooltip) this.positionTooltip(newRect);
   }
 
+  focus(): void { this.beaconEl.focus({ preventScroll: true }); }
+
   destroy(): void {
+    this.onDismiss = null;
     this.el.remove();
   }
 }

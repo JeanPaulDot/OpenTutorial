@@ -123,11 +123,19 @@ describe('TourEngine', () => {
     expect(engine.getState().currentStepId).toBe('a');
   });
 
-  it('prev on first step does nothing', async () => {
+  it('starting at a later step seeds history so Back works', async () => {
     const engine = new TourEngine(MIN_SPEC);
-    await engine.start();
+    await engine.start('b');
+    expect(engine.getState().currentStepId).toBe('b');
+    expect(engine.getState().canGoBack).toBe(true);
     engine.prev();
     expect(engine.getState().currentStepId).toBe('a');
+  });
+
+  it('starting at first step has no Back', async () => {
+    const engine = new TourEngine(MIN_SPEC);
+    await engine.start();
+    expect(engine.getState().canGoBack).toBe(false);
   });
 
   it('setGlobalTheme does not crash', () => {
