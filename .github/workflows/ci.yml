@@ -27,4 +27,7 @@ jobs:
         run: npm test
 
       - name: Build library
-        run: npm run build && npm run build:types
+        run: npm run build && BUILD_TARGET=iife npm run build && npm run build:types
+
+      - name: Verify committed dist matches src
+        run: git diff --exit-code dist/

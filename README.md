@@ -1,6 +1,6 @@
 # Opentutorial
 
-Spec-driven in-app tour engine. Zero runtime dependencies. React 19 + vanilla JS adapters.
+Spec-driven in-app guidance engine. Zero runtime dependencies. Adapters for React, Vue 3, Svelte, a universal Web Component, and plain vanilla JS.
 
 ```bash
 npm install @opentutorial/core
@@ -9,7 +9,7 @@ npm install @opentutorial/core
 ## Quick start (React)
 
 ```tsx
-import { TourProvider, useTour, defineSpec } from '@opentutorial/core';
+import { TourProvider, useTour, defineSpec } from '@opentutorial/core/react';
 import '@opentutorial/core/styles.css';
 
 const mySpec = defineSpec({
@@ -39,11 +39,9 @@ export default function App() {
 function YourApp() {
   const { start } = useTour();
   return (
-    <div>
-      <button data-tour="target" onClick={() => start('quick-start')}>
-        Start tour
-      </button>
-    </div>
+    <button data-tour="target" onClick={() => start('quick-start')}>
+      Start tour
+    </button>
   );
 }
 ```
@@ -61,6 +59,58 @@ const tl = createTutorialLayer({
 tl.start('my-tour');
 ```
 
+## Quick start (Vue 3)
+
+```ts
+import { createTourPlugin, TOUR_KEY } from '@opentutorial/core/vue';
+
+app.use(createTourPlugin({ specs, context: { plan: 'pro' } }));
+
+// in a component
+const tour = inject(TOUR_KEY)!;
+tour.start('welcome');
+```
+
+## Quick start (Svelte)
+
+```svelte
+<script>
+  import { createTourStore, tourAnchor } from '@opentutorial/core/svelte';
+  const tour = createTourStore({ specs });
+</script>
+
+<button use:tourAnchor={'start-btn'} on:click={() => tour.start('welcome')}>
+  Start — step {$tour.state?.index ?? 0}
+</button>
+```
+
+## Quick start (Web Component / plain HTML)
+
+Works in Angular, Solid, Lit, Astro, Rails, Django, or a static page — no bundler needed:
+
+```html
+<script src="https://unpkg.com/@opentutorial/core/dist/opentutorial.global.js"></script>
+
+<open-tutorial auto-start="welcome">
+  <script type="application/json">
+    { "specVersion": 1, "id": "welcome", "title": "Hi", "steps": [ /* ... */ ] }
+  </script>
+</open-tutorial>
+```
+
+## Entry points
+
+| Import | What you get |
+|---|---|
+| `@opentutorial/core` | Framework-agnostic core + vanilla adapter. **React-free.** |
+| `@opentutorial/core/react` | Everything + `TourProvider`, `useTour`, all components |
+| `@opentutorial/core/vue` | Everything + Vue plugin / composable |
+| `@opentutorial/core/svelte` | Everything + Svelte store + `tourAnchor` action |
+| `@opentutorial/core/webcomponent` | `<open-tutorial>` custom element |
+| `@opentutorial/core/analytics` | All analytics adapters + funnel reports |
+| `@opentutorial/core/authoring` | Tour recorder, debug overlay, selector scoring |
+| `@opentutorial/core/styles.css` | All styles (20+ `--ot-*` custom properties) |
+
 ## Display modes
 
 | Mode | Behavior |
@@ -71,37 +121,55 @@ tl.start('my-tour');
 
 ## Features
 
-- **Spotlight mode** — full backdrop with animated cutout, flip-away positioning
-- **Hotspot mode** — non-intrusive pulsing dot + tooltip, scroll-aware
-- **Beacon mode** — minimal new-feature indicator
-- **TourChecklist** — onboarding progress component with status + progress bar
-- **i18n** — key-based localization, bring your own resolver
-- **Progress resume** — users pick up where they left off across sessions
-- **Analytics** — PostHog, Mixpanel, Amplitude, GA4 adapters
-- **Deep links** — `?tour=<id>` starts a tour from URL
-- **showIf** — conditional step visibility with safe boolean expressions
-- **Theming** — 20+ CSS custom properties, live-swappable per spec or step
-- **Validation** — 24+ schema checks, broken specs never crash the host
+- **Tour orchestration** — one tour at a time, priority queue, audience rules, frequency capping, tour chaining
+- **Triggers** — `manual`, `auto`, `event`, `route`, `element`, `idle`, `scroll`
+- **Cross-page tours** — `autoResume` rehydrates a tour after full page navigations; `onNavigate` hooks SPA routers
+- **Rich content** — text, image, video, list, code and (opt-in) HTML blocks, not just inline markdown
+- **Resilient targeting** — fallback selector lists, text matching, shadow-DOM piercing, iframe support, visibility waits
+- **Interaction gating** — `interaction: 'free' | 'target-only' | 'blocked'` controls what users can click
+- **Advance conditions** — `button`, `target-click`, `event`, `auto`, `input-match`, `form-submit`, `element-appears`, `element-disappears`, `url-match`, plus a `beforeNext` guard
+- **Branching** — `next: [{ if: "plan === 'pro'", to: 'pro-step' }]` rule lists
+- **Custom rendering** — replace the built-in popover with your own component via `renderStep`
+- **Pause / resume** — full `pause()` / `resume()` lifecycle on the engine and every adapter
+- **Persistence** — sync or async storage; ships localStorage, cookie, IndexedDB and remote (REST) adapters, with per-user namespacing via `userId`
+- **Analytics** — PostHog, Mixpanel, Amplitude, Segment, RudderStack, Heap, GA4, Datadog RUM, a batched HTTP adapter, and `createFunnelReport` for drop-off analysis
+- **Guidance surfaces** — `Announcement`, `Banner`, `Survey`/NPS, `ResourceCenter`, `Hint`, and a self-managing `TourChecklist`
+- **Authoring** — point-and-click recorder with selector stability scoring, debug overlay, published JSON Schema
+- **i18n** — key-based localization with interpolation, RTL support
+- **Theming** — 20+ CSS custom properties, dark mode via `prefers-color-scheme` or `data-ot-theme`, reduced-motion support
+- **Validation** — fail-closed schema checks with error/warning severity; a bad spec never crashes the host
 
 ## Spec authoring
 
-A `TutorialSpec` is a plain JSON object validated against a strict schema:
+A `TutorialSpec` is a plain JSON object validated against a strict schema. Editors get autocomplete from the published schema (`dist/spec.schema.json`):
 
 ```json
 {
+  "$schema": "./node_modules/@opentutorial/core/dist/spec.schema.json",
   "specVersion": 1,
   "id": "my-tour",
   "title": "My Tour",
-  "trigger": { "type": "auto", "once": true, "delay": 500 },
+  "priority": 10,
+  "trigger": { "type": "auto", "delay": 500 },
+  "audience": { "showIf": "plan !== 'free'" },
+  "frequency": { "max": 3, "cooldown": 604800000 },
   "steps": [
     {
       "id": "step1",
-      "target": { "selector": "[data-tour='target']" },
+      "target": { "selector": ["[data-tour='target']", "#fallback"] },
       "placement": "bottom",
       "display": "spotlight",
+      "interaction": "target-only",
       "title": "Step Title",
-      "content": "Step **content** with `markdown`.",
-      "advanceOn": "button"
+      "content": {
+        "blocks": [
+          { "type": "text", "value": "Step **content** with `markdown`." },
+          { "type": "image", "src": "/help.png", "alt": "Where to click" }
+        ]
+      },
+      "advanceOn": "input-match",
+      "match": "/.+@.+/",
+      "next": [{ "if": "plan === 'pro'", "to": "pro-step" }]
     }
   ]
 }
@@ -115,12 +183,15 @@ A `TutorialSpec` is a plain JSON object validated against a strict schema:
 { "showIf": "(a || b) && !c" }
 ```
 
-### Persistence & resume
+### Persistence, identity & resume
 
 ```tsx
 <TourProvider
   specs={[mySpec]}
-  resume={true}
+  userId={user.id}               // per-user progress namespacing
+  storage={createIndexedDBStorage()}
+  resume={true}                  // resume across sessions
+  autoResume={true}              // resume across page navigations
   progressTtl={86400000}
 />
 ```
@@ -129,11 +200,9 @@ A `TutorialSpec` is a plain JSON object validated against a strict schema:
 
 ```tsx
 <TourProvider
-  specs={[{
-    ...spec,
-    title: { key: 'tour.welcome.title', fallback: 'Welcome' },
-  }]}
+  specs={[{ ...spec, title: { key: 'tour.welcome.title', fallback: 'Welcome' } }]}
   locale="fr"
+  dir="rtl"
   i18nResolver={(key) => messages[key]}
 />
 ```
@@ -141,12 +210,21 @@ A `TutorialSpec` is a plain JSON object validated against a strict schema:
 ### Analytics
 
 ```tsx
-import { createPostHogAdapter } from '@opentutorial/core';
+import { createPostHogAdapter, createFunnelReport } from '@opentutorial/core/analytics';
 
-<TourProvider
-  specs={[mySpec]}
-  onEvent={createPostHogAdapter(posthog)}
-/>
+<TourProvider specs={[mySpec]} onEvent={createPostHogAdapter(posthog)} />
+```
+
+### Authoring tools
+
+```ts
+import { startRecorder, showDebugOverlay } from '@opentutorial/core/authoring';
+
+// Point-and-click spec recorder (dev only)
+if (import.meta.env.DEV) startRecorder({ tourId: 'my-tour' });
+
+// Live debug overlay: current step, resolved target, context, showIf results
+<TourProvider specs={[mySpec]} debug />
 ```
 
 ## API
@@ -159,60 +237,81 @@ import { createPostHogAdapter } from '@opentutorial/core';
 | `context` | `object` | `{}` |
 | `theme` | `ThemeOverrides` | — |
 | `zIndex` | `number` | `9999` |
-| `storage` | `KeyValueStorage` | `localStorage` |
+| `storage` | `KeyValueStorage` (sync or async) | `localStorage` |
+| `userId` | `string` | — |
 | `onEvent` | `(TourEvent) => void` | — |
 | `deepLinkParam` | `string \| false` | `'tour'` |
 | `locale` | `string` | `'en'` |
 | `i18nResolver` | `(key, locale) => string \| undefined` | — |
+| `dir` | `'ltr' \| 'rtl' \| 'auto'` | `'auto'` |
 | `resume` | `boolean` | `false` |
+| `autoResume` | `boolean` | `false` |
 | `progressTtl` | `number` (ms) | `86400000` |
+| `interaction` | `'free' \| 'target-only' \| 'blocked'` | `'free'` |
+| `container` | `HTMLElement` | `document.body` |
+| `isolate` | `boolean` (shadow DOM) | `false` |
+| `allowHtml` | `boolean` | `false` |
+| `strict` | `boolean` | `false` |
+| `onNavigate` | `(path) => void` | hard reload |
+| `beforeNext` | `(ctx) => boolean \| Promise<boolean>` | — |
+| `renderStep` | `(ctx) => ReactNode` | built-in popover |
+| `dev` / `debug` | `boolean` | `false` |
 
 ### `useTour()`
 
-Returns: `{ start, stop, activeId, state, events, context, setContext, setTheme, resetTours, hasSeen, specs }`
+Returns: `{ start, request, stop, pause, resume, next, prev, goTo, activeId, state, events, clearEvents, context, setContext, setTheme, setUser, resetTours, resetTour, resetProgress, hasSeen, whyBlocked, getEngine, specs }`
 
 ## Architecture
 
 ```
-TourProvider → TourEngine (framework-agnostic) → TourLayer (DOM)
-                   ↕                              ↕
-                TutorialSpec               TourPopover / TourHotspot
+TourProvider / createTutorialLayer / <open-tutorial>
+        ↓
+TourOrchestrator (queue, triggers, frequency, audience)
+        ↓
+TourEngine (framework-agnostic state machine) → TourLayer (DOM)
+        ↕                                          ↕
+   TutorialSpec                            TourPopover / TourHotspot
 ```
 
 ## Project structure
 
 ```
-src/
-  core/                 ← The library (published package) — framework-agnostic
-    __tests__/          ← 79 unit tests
-    adapters/           ← react.tsx, vanilla.ts
-    analytics/          ← posthog, mixpanel, amplitude, ga4
-    components/         ← TourChecklist
-    dom/                ← layer, popover, hotspot, focus, waitFor
-    i18n/               ← resolveText, createKeyResolver
-    engine.ts           ← TourEngine (state machine)
-    schema.ts           ← Spec validator (24+ checks)
-    safeEval.ts         ← showIf expression evaluator
-    persist.ts          ← Seen state + progress persistence
-    styles.css          ← All tour styles (--ot-* vars)
-    index.ts            ← Public API surface
-dist/                   ← Built library (ESM + CJS + CSS + .d.ts) — committed for git installers
+src/core/               ← The library (published package) — framework-agnostic
+  __tests__/            ← Unit tests (Vitest)
+  adapters/             ← react, vue, svelte, webcomponent, vanilla
+  analytics/            ← vendors, http batching, funnel reports
+  authoring/            ← recorder, debug overlay, selector scoring
+  components/           ← TourChecklist, Announcement, Banner, Survey, ResourceCenter, Hint
+  dom/                  ← layer, popover, hotspot, focus, target resolution, navigation
+  i18n/                 ← resolveText, interpolation, key resolvers
+  storage/              ← memory, cookie, IndexedDB, remote
+  engine.ts             ← TourEngine (state machine)
+  orchestrator.ts       ← TourOrchestrator (queue, triggers, eligibility)
+  triggers.ts           ← route/element/idle/scroll/event triggers
+  schema.ts             ← Spec validator (error/warning severity)
+  safeEval.ts           ← showIf expression evaluator (no eval, CSP-safe)
+  persist.ts            ← Seen state + progress + active-tour persistence
+  content.ts            ← Block content normalization and rendering
+  styles.ts             ← All tour styles (--ot-* vars), emitted as dist/styles.css
+schema/spec.schema.json ← Published JSON Schema for editor autocomplete
+dist/                   ← Built library (ESM + CJS + IIFE + CSS + .d.ts) — committed for git installers
 ```
 
 ## Development
 
 ```bash
-npm install      # install dev dependencies
-npm test         # run 79 unit tests
-npm run lint     # lint source with ESLint
-npm run build    # build library to dist/ (ESM + CJS + CSS)
+npm install          # install dev dependencies
+npm test             # run unit tests
+npm run lint         # lint source with ESLint
+npm run build        # build library to dist/ (ESM + CJS + CSS)
+BUILD_TARGET=iife npm run build   # build the <script> global bundle
 npm run build:types  # emit TypeScript declarations to dist/
 ```
 
 ## Status
 
-`@opentutorial/core` is in **beta (0.1.x)**. The core API is stable enough for production use,
-but breaking changes may land before `1.0` — pin your version (e.g. `"@opentutorial/core": "0.1.x"`)
+`@opentutorial/core` is in **beta (0.x)**. The core API is stable enough for production use,
+but breaking changes may land before `1.0` — pin your version (e.g. `"@opentutorial/core": "0.2.x"`)
 and watch the changelog.
 
 ## License
