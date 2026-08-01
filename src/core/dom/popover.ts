@@ -7,7 +7,7 @@
  * be rewritten per locale.
  */
 
-import type { AdvanceOn, ContentBlock, Direction, Placement } from '../types';
+import type { AdvanceOn, ContentBlock, Density, Direction, Placement } from '../types';
 import { renderBlocks } from '../content';
 
 export interface PopoverLabels {
@@ -33,6 +33,7 @@ export interface PopoverModel {
   /** Render centered with no arrow, regardless of target. */
   modal: boolean;
   allowHtml?: boolean;
+  density?: Density;
 }
 
 export interface PopoverCallbacks {
@@ -44,7 +45,15 @@ export interface PopoverCallbacks {
 export interface PopoverOptions {
   /** Advance/rewind on horizontal touch swipes. Default true. */
   swipe?: boolean;
+  /** Size the card from its content and the viewport. Default true. */
+  autoSize?: boolean;
 }
+
+/** Width bounds for auto-sizing, before the viewport clamp. */
+const MIN_WIDTH = 240;
+const MAX_WIDTH = 460;
+/** Never eat more than this share of the viewport height. */
+const MAX_HEIGHT_RATIO = 0.7;
 
 /** Horizontal travel that counts as a swipe rather than a tap or a scroll. */
 const SWIPE_MIN_X = 56;
@@ -93,10 +102,12 @@ export class TourPopover {
   /** The last rendered model, so a swipe honours the same rules as the buttons. */
   private model: PopoverModel | null = null;
   private detachSwipe: (() => void) | null = null;
+  private autoSize = true;
 
   constructor(cbs: PopoverCallbacks, dir: Direction = 'ltr', opts: PopoverOptions = {}) {
     this.cbs = cbs;
     this.dir = dir;
+    this.autoSize = opts.autoSize !== false;
 
     this.el = document.createElement('div');
     this.el.className = 'ot-popover';
@@ -268,6 +279,51 @@ export class TourPopover {
     // must not claim to be modal or screen readers will hide the rest of it.
     this.el.setAttribute('aria-modal', model.modal ? 'true' : 'false');
     this.el.classList.toggle('ot-popover--modal-step', model.modal);
+
+    // Density is a data attribute rather than a class so a host can target it
+    // in CSS without knowing our class-name scheme.
+    if (model.density) this.el.dataset.otDensity = model.density;
+    else delete this.el.dataset.otDensity;
+
+    this.applyAutoSize();
+  }
+
+  /**
+   * Pick a width from the content and a max-height from the viewport.
+   *
+   * A fixed 340px card is wrong twice: a one-line step looks empty in it, and a
+   * step with a code block or an image overflows it. Measuring the natural
+   * width once per render costs a single forced layout and makes the card fit
+   * what it actually holds.
+   *
+   * Height is capped rather than sized, so long content scrolls inside the card
+   * instead of running off the bottom of the screen — which is what used to
+   * happen on a short viewport.
+   */
+  private applyAutoSize(): void {
+    const view = this.el.ownerDocument?.defaultView ?? window;
+    const vh = view.innerHeight;
+    const vw = view.innerWidth;
+
+    // The mobile bottom sheet is full-bleed by design; leave it alone.
+    const isSheet = vw <= 480;
+    this.el.style.maxHeight = `${Math.round(vh * MAX_HEIGHT_RATIO)}px`;
+
+    if (!this.autoSize || isSheet) {
+      this.el.style.width = '';
+      return;
+    }
+
+    // Measure at the natural content width, then clamp.
+    this.el.style.width = 'max-content';
+    const natural = this.el.offsetWidth;
+    this.el.style.width = '';
+
+    const ceiling = Math.min(MAX_WIDTH, vw - VIEWPORT_MARGIN * 2);
+    const floor = Math.min(MIN_WIDTH, ceiling);
+    const width = Math.max(floor, Math.min(natural, ceiling));
+
+    this.el.style.width = `${Math.round(width)}px`;
   }
 
   /** Position relative to a target rect (viewport coords), or centered when null. */

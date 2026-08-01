@@ -25,6 +25,7 @@ export declare class TourEngine {
     private stepEnteredAt;
     private startedAt;
     private advancing;
+    private sampleDecision;
     constructor(spec: TutorialSpec, opts?: CreateTourOptions);
     /** Resolves once persisted state has been read (matters for async storage). */
     get ready(): Promise<void>;
@@ -80,8 +81,12 @@ export declare class TourEngine {
     private showStep;
     private showIndicator;
     private renderStep;
+    /** Shared by `renderStep` and `renderIndicator`. */
+    private renderContext;
     private rerenderCurrent;
     private makeModel;
+    /** Step overrides spec, which overrides the global option. */
+    private densityFor;
     /** Element rect mapped into the top-level viewport (adds the iframe offset). */
     private viewportRect;
     private reposition;
@@ -92,4 +97,6 @@ export declare class TourEngine {
     private runActions;
     private applyThemeChain;
     private emit;
+    /** Cached per engine: one hash per tour, not one per event. */
+    private sampled;
 }

@@ -30,17 +30,36 @@ export declare class TourLayer {
     private shadow;
     private svg;
     private dimRect;
+    private mask;
     private hole;
+    private holes;
     private ring;
+    private rings;
     private shield;
     private panels;
     private current;
+    /** Every highlighted rect, when a step targets more than one element. */
+    private currentAll;
     private interaction;
     private opts;
     constructor(zIndex: number, opts?: LayerOptions);
+    /** Add a cutout to the mask pool. */
+    private addHole;
+    /** Add a highlight ring to the pool. */
+    private addRing;
     private setHole;
+    /** Smallest rect containing every input. Drives the popover and the shield. */
+    private static union;
     /** Update the cutout + ring. Pass null to clear the spotlight. */
-    updateSpotlight(rect: SpotlightRect | null, padding?: number, radius?: number): void;
+    /**
+     * Update the cutout(s) and ring(s). Pass null to clear the spotlight.
+     *
+     * An array highlights several elements at once — "these three fields" — with
+     * one cutout and one ring each. The popover and the interaction shield use
+     * their union, because a four-panel shield cannot express a disjoint gap and a
+     * popover has to point somewhere.
+     */
+    updateSpotlight(rect: SpotlightRect | SpotlightRect[] | null, padding?: number, radius?: number): void;
     /** Dim the viewport with no cutout — for modal steps that have no target. */
     showBackdrop(): void;
     setInteraction(mode: InteractionMode): void;
@@ -50,6 +69,8 @@ export declare class TourLayer {
      */
     private applyShield;
     refresh(): void;
+    /** The rects currently highlighted, for the popover to anchor against. */
+    getSpotlightRects(): SpotlightRect[];
     mountPopover(el: HTMLElement): void;
     setBackdropColor(color: string): void;
     setDir(dir: 'ltr' | 'rtl'): void;

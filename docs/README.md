@@ -34,6 +34,7 @@ an issue.
 | [Guidance surfaces](guides/surfaces.md) | Banner, announcement, survey, checklist, hub, hints, changelog |
 | [Persistence & identity](guides/persistence.md) | Storage adapters, `userId`, export/import, the REST contract |
 | [Analytics](guides/analytics.md) | Adapters, funnels, batching, sampling |
+| [A/B testing](guides/experiments.md) | Variant assignment, weights, holdouts |
 | [Authoring](guides/authoring.md) | The recorder, selector scoring, the debug overlay, the CLI |
 | [i18n](guides/i18n.md) | Resolvers, interpolation, pluralization, direction |
 | [Accessibility](guides/accessibility.md) | Keyboard map, ARIA, reduced motion, our conformance claims |

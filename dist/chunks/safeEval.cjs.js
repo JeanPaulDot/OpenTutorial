@@ -1,4 +1,4 @@
-"use strict";var T=Object.defineProperty;var C=(o,t,e)=>t in o?T(o,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):o[t]=e;var u=(o,t,e)=>C(o,typeof t!="symbol"?t+"":t,e);const R=`
+"use strict";var A=Object.defineProperty;var C=(o,t,e)=>t in o?A(o,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):o[t]=e;var x=(o,t,e)=>C(o,typeof t!="symbol"?t+"":t,e);const R=`
 /*
  * OpenTutorial styles. Everything is driven by --ot-* custom properties set on
  * .ot-root — override them from host CSS or via spec \`theme\` objects.
@@ -100,6 +100,45 @@
 
 .ot-popover--modal-step { --ot-popover-width: 420px; }
 
+/*
+ * Density scales the three things that actually change how roomy a card feels.
+ * Everything else is derived from them, so headings, buttons, code blocks and
+ * the arrow all move together.
+ */
+.ot-popover[data-ot-density="compact"] {
+  --ot-spacing: 11px;
+  --ot-font-size: 12.5px;
+  --ot-radius: 10px;
+}
+
+.ot-popover[data-ot-density="spacious"] {
+  --ot-spacing: 22px;
+  --ot-font-size: 14.5px;
+  --ot-radius: 18px;
+}
+
+/*
+ * The card is capped at a share of the viewport, so a long step scrolls its
+ * body instead of running off the bottom of the screen. Title and footer stay
+ * put — losing the Next button below the fold was the old failure mode.
+ */
+.ot-popover {
+  display: flex;
+  flex-direction: column;
+}
+
+.ot-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.ot-content-wrap {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+}
+
 @keyframes ot-pop-in {
   from { opacity: 0; transform: translateY(4px) scale(0.985); }
   to   { opacity: 1; transform: none; }
@@ -179,6 +218,52 @@
 }
 
 .ot-html { font-size: var(--ot-font-size); line-height: 1.55; color: var(--ot-muted); margin-bottom: 10px; }
+
+/* --------------------------------------------------------------------- */
+/* Block markdown                                                         */
+/* --------------------------------------------------------------------- */
+
+.ot-prose { font-size: var(--ot-font-size); line-height: 1.55; color: var(--ot-muted); }
+.ot-prose > *:last-child { margin-bottom: 0; }
+
+.ot-heading {
+  margin: 0 0 6px;
+  color: var(--ot-fg);
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.ot-prose > .ot-heading:not(:first-child) { margin-top: 14px; }
+
+/* Scaled from the body size so a density change moves headings with it. */
+.ot-heading--1 { font-size: calc(var(--ot-font-size) + 4px); }
+.ot-heading--2 { font-size: calc(var(--ot-font-size) + 2.5px); }
+.ot-heading--3 { font-size: calc(var(--ot-font-size) + 1px); }
+.ot-heading--4,
+.ot-heading--5,
+.ot-heading--6 { font-size: var(--ot-font-size); }
+.ot-heading--5,
+.ot-heading--6 { color: var(--ot-muted); text-transform: uppercase; letter-spacing: 0.05em; font-size: calc(var(--ot-font-size) - 2px); }
+
+.ot-quote {
+  margin: 0 0 10px;
+  padding: 2px 0 2px 12px;
+  border-inline-start: 3px solid color-mix(in srgb, var(--ot-accent) 45%, transparent);
+  color: var(--ot-muted);
+}
+
+.ot-quote > *:last-child { margin-bottom: 0; }
+
+.ot-inline-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: calc(var(--ot-radius) * 0.5);
+  vertical-align: middle;
+}
+
+.ot-prose .ot-list { margin-bottom: 10px; }
+.ot-prose .ot-code { margin-bottom: 10px; }
 
 .ot-skip {
   position: absolute;
@@ -948,5 +1033,5 @@
   .ot-beacon--beacon { animation: none; }
   .ot-popover { animation: none; }
 }
-`.trim(),j="button, a, [role], label, summary, h1, h2, h3, h4, h5, h6, p, li, td, th, span, div";function w(o,t=document){try{return t.querySelector(o)}catch{return null}}function f(o,t=document){try{return Array.from(t.querySelectorAll(o))}catch{return[]}}function k(o,t=document){const e=f(o,t),r=new Set,s=n=>{for(const i of f("*",n)){const p=i.shadowRoot;!p||r.has(p)||(r.add(p),e.push(...f(o,p)),s(p))}};return s(t),[...new Set(e)]}function h(o){const t=o.getBoundingClientRect();if(t.width===0&&t.height===0)return!1;const e=o.ownerDocument?.defaultView;if(!e)return!0;const r=e.getComputedStyle(o);return r.visibility!=="hidden"&&r.display!=="none"&&r.opacity!=="0"}function x(o){return o.replace(/\s+/g," ").trim().toLowerCase()}function m(o,t,e){const r=x(o);if(!r)return null;const n=(t??f(j,e)).filter(c=>x(c.textContent??"").includes(r));if(n.length===0)return null;const i=n.filter(c=>x(c.textContent??"")===r);return(i.length?i:n).reduce((c,d)=>c.contains(d)?d:c)}function z(o){if(!o.iframe)return{doc:document,offset:{x:0,y:0}};const t=w(o.iframe);if(!t)return null;try{const e=t.contentDocument;if(!e)return null;const r=t.getBoundingClientRect();return{doc:e,offset:{x:r.x,y:r.y}}}catch{return null}}function b(o){const t=z(o);if(!t)return null;const{doc:e,offset:r}=t,s=o.selector?Array.isArray(o.selector)?o.selector:[o.selector]:[],n=i=>{const p=o.visible?i.filter(h):i;return p.length===0?null:p[o.index??0]??null};for(const i of s){const p=o.shadow?k(i,e):f(i,e);if(o.text){const d=m(o.text,o.visible?p.filter(h):p,e);if(d)return{element:d,doc:e,frameOffset:r,matched:i};continue}const c=n(p);if(c)return{element:c,doc:e,frameOffset:r,matched:i}}if(s.length===0&&o.text){const i=m(o.text,null,e);if(i&&(!o.visible||h(i)))return{element:i,doc:e,frameOffset:r,matched:`text:${o.text}`}}return null}function D(o){const t=[];return o.selector&&t.push(Array.isArray(o.selector)?o.selector.join(" | "):o.selector),o.text&&t.push(`text "${o.text}"`),o.iframe&&t.push(`in iframe ${o.iframe}`),t.join(" + ")||"(no selector)"}function O(o,t=5e3){return new Promise(e=>{const r=b(o);if(r){e(r);return}let s=!1,n=null;const i=l=>{s||(s=!0,n?.disconnect(),clearInterval(c),clearTimeout(d),e(l))},p=()=>{const l=b(o);l&&i(l)};try{n=new MutationObserver(p);const l=o.iframe?z(o)?.doc.documentElement??document.documentElement:document.documentElement;n.observe(l,{childList:!0,subtree:!0,attributes:!0})}catch{}const c=setInterval(p,100),d=setTimeout(()=>i(null),t)})}function M(o,t=5e3){return O({selector:o},t).then(e=>e?.element??null)}const _=500,q=new Set(["__proto__","constructor","prototype"]),v={includes:(o,t)=>typeof o=="string"?o.includes(String(t[0])):Array.isArray(o)?o.includes(t[0]):!1,startsWith:(o,t)=>typeof o=="string"?o.startsWith(String(t[0])):!1,endsWith:(o,t)=>typeof o=="string"?o.endsWith(String(t[0])):!1,toLowerCase:o=>typeof o=="string"?o.toLowerCase():o,toUpperCase:o=>typeof o=="string"?o.toUpperCase():o,trim:o=>typeof o=="string"?o.trim():o,indexOf:(o,t)=>typeof o=="string"?o.indexOf(String(t[0])):Array.isArray(o)?o.indexOf(t[0]):-1,matches:(o,t)=>{if(typeof o!="string")return!1;try{return new RegExp(String(t[0])).test(o)}catch{return!1}}},F=["===","!==","==","!=","<=",">=","&&","||","<",">","!","(",")","[","]",",","+","-","*","/","%","?",":"];function E(o){const t=[];let e=0;for(;e<o.length;){const r=o.slice(e);if(/^\s/.test(r)){e+=1;continue}const s=F.find(i=>r.startsWith(i));if(s){t.push({t:"op",v:s}),e+=s.length;continue}if(r[0]==="."){t.push({t:"dot"}),e+=1;continue}let n=r.match(/^'((?:[^'\\]|\\.)*)'/)??r.match(/^"((?:[^"\\]|\\.)*)"/);if(n){t.push({t:"str",v:n[1].replace(/\\(.)/g,"$1")}),e+=n[0].length;continue}if(n=r.match(/^\d+(\.\d+)?/),n){t.push({t:"num",v:Number(n[0])}),e+=n[0].length;continue}if(n=r.match(/^(true|false)\b/),n){t.push({t:"bool",v:n[1]==="true"}),e+=n[0].length;continue}if(n=r.match(/^null\b/),n){t.push({t:"null"}),e+=n[0].length;continue}if(n=r.match(/^undefined\b/),n){t.push({t:"undef"}),e+=n[0].length;continue}if(n=r.match(/^[A-Za-z_$][\w$]*/),n){t.push({t:"ident",v:n[0]}),e+=n[0].length;continue}throw new Error(`Unexpected character "${r[0]}" at ${e}`)}return t}function g(o,t){if(o!=null&&!(typeof t=="string"&&q.has(t))){if(typeof o=="string")return t==="length"?o.length:typeof t=="number"?o[t]:void 0;if(Array.isArray(o))return t==="length"?o.length:o[t];if(typeof o=="object")return o[String(t)]}}function y(o,t){return o===t?!0:o==null?t==null:typeof o=="number"||typeof t=="number"?Number(o)===Number(t):String(o)===String(t)}function a(o){return typeof o=="number"?o:Number(o)}class S{constructor(t,e){u(this,"pos",0);u(this,"tokens");u(this,"ctx");this.tokens=t,this.ctx=e}parse(){const t=this.ternary();if(this.pos!==this.tokens.length)throw new Error("Trailing tokens");return t}peek(){return this.tokens[this.pos]}isOp(t){const e=this.peek();return!!e&&e.t==="op"&&e.v===t}eatOp(t){return this.isOp(t)?(this.pos+=1,!0):!1}expectOp(t){if(!this.eatOp(t))throw new Error(`Expected "${t}"`)}ternary(){const t=this.orExpr();if(!this.eatOp("?"))return t;const e=this.ternary();this.expectOp(":");const r=this.ternary();return t?e:r}orExpr(){let t=this.andExpr();for(;this.eatOp("||");){const e=this.andExpr();t=t||e}return t}andExpr(){let t=this.equality();for(;this.eatOp("&&");){const e=this.equality();t=t&&e}return t}equality(){let t=this.relational();for(;;){if(this.eatOp("===")){t=t===this.relational();continue}if(this.eatOp("!==")){t=t!==this.relational();continue}if(this.eatOp("==")){t=y(t,this.relational());continue}if(this.eatOp("!=")){t=!y(t,this.relational());continue}return t}}relational(){let t=this.additive();for(;;){if(this.eatOp("<=")){t=a(t)<=a(this.additive());continue}if(this.eatOp(">=")){t=a(t)>=a(this.additive());continue}if(this.eatOp("<")){t=a(t)<a(this.additive());continue}if(this.eatOp(">")){t=a(t)>a(this.additive());continue}return t}}additive(){let t=this.multiplicative();for(;;){if(this.eatOp("+")){const e=this.multiplicative();t=typeof t=="string"||typeof e=="string"?String(t)+String(e):a(t)+a(e);continue}if(this.eatOp("-")){t=a(t)-a(this.multiplicative());continue}return t}}multiplicative(){let t=this.unary();for(;;){if(this.eatOp("*")){t=a(t)*a(this.unary());continue}if(this.eatOp("/")){t=a(t)/a(this.unary());continue}if(this.eatOp("%")){t=a(t)%a(this.unary());continue}return t}}unary(){return this.eatOp("!")?!this.unary():this.eatOp("-")?-a(this.unary()):this.postfix()}postfix(){let t=this.primary();for(;;){if(this.peek()?.t==="dot"){this.pos+=1;const e=this.peek();if(!e||e.t!=="ident")throw new Error('Expected identifier after "."');if(this.pos+=1,this.isOp("(")){this.pos+=1;const r=[];if(!this.isOp(")"))do r.push(this.ternary());while(this.eatOp(","));this.expectOp(")");const s=Object.prototype.hasOwnProperty.call(v,e.v)?v[e.v]:void 0;if(typeof s!="function")throw new Error(`Method "${e.v}" is not allowed`);t=s(t,r);continue}t=g(t,e.v);continue}if(this.eatOp("[")){const e=this.ternary();this.expectOp("]"),t=g(t,typeof e=="number"?e:String(e));continue}return t}}primary(){const t=this.peek();if(!t)throw new Error("Unexpected end of expression");if(t.t==="op"&&t.v==="("){this.pos+=1;const e=this.ternary();return this.expectOp(")"),e}if(t.t==="op"&&t.v==="["){this.pos+=1;const e=[];if(!this.isOp("]"))do e.push(this.ternary());while(this.eatOp(","));return this.expectOp("]"),e}switch(this.pos+=1,t.t){case"str":return t.v;case"num":return t.v;case"bool":return t.v;case"null":return null;case"undef":return;case"ident":return g(this.ctx,t.v);default:throw new Error("Unexpected token")}}}function A(o,t,e={}){try{if(typeof o!="string")return;if(o.length>(e.maxLength??_)){e.onError?.("expression exceeds the maximum length",o);return}return new S(E(o),t).parse()}catch(r){e.onError?.(r instanceof Error?r.message:"invalid expression",o);return}}function $(o,t,e={}){return!!A(o,t,e)}function L(o){try{return new S(E(o),{}).parse(),{ok:!0}}catch(t){return{ok:!1,message:t instanceof Error?t.message:"invalid expression"}}}exports.CSS=R;exports.checkExpression=L;exports.describeTarget=D;exports.evaluateExpression=A;exports.evaluateShowIf=$;exports.isVisible=h;exports.queryDeep=k;exports.resolveTarget=b;exports.safeQuery=w;exports.waitForElement=M;exports.waitForTarget=O;
+`.trim(),j="button, a, [role], label, summary, h1, h2, h3, h4, h5, h6, p, li, td, th, span, div";function z(o,t=document){try{return t.querySelector(o)}catch{return null}}function f(o,t=document){try{return Array.from(t.querySelectorAll(o))}catch{return[]}}function m(o,t=document){const e=f(o,t),r=new Set,c=n=>{for(const i of f("*",n)){const a=i.shadowRoot;!a||r.has(a)||(r.add(a),e.push(...f(o,a)),c(a))}};return c(t),[...new Set(e)]}function h(o){const t=o.getBoundingClientRect();if(t.width===0&&t.height===0)return!1;const e=o.ownerDocument?.defaultView;if(!e)return!0;const r=e.getComputedStyle(o);return r.visibility!=="hidden"&&r.display!=="none"&&r.opacity!=="0"}function g(o){return o.replace(/\s+/g," ").trim().toLowerCase()}function y(o,t,e){const r=g(o);if(!r)return null;const n=(t??f(j,e)).filter(p=>g(p.textContent??"").includes(r));if(n.length===0)return null;const i=n.filter(p=>g(p.textContent??"")===r);return(i.length?i:n).reduce((p,l)=>p.contains(l)?l:p)}function v(o){if(!o.iframe)return{doc:document,offset:{x:0,y:0}};const t=z(o.iframe);if(!t)return null;try{const e=t.contentDocument;if(!e)return null;const r=t.getBoundingClientRect();return{doc:e,offset:{x:r.x,y:r.y}}}catch{return null}}function u(o){const t=v(o);if(!t)return null;const{doc:e,offset:r}=t,c=o.selector?Array.isArray(o.selector)?o.selector:[o.selector]:[],n=i=>{const a=o.visible?i.filter(h):i;return a.length===0?null:a[o.index??0]??null};for(const i of c){const a=o.shadow?m(i,e):f(i,e);if(o.text){const l=y(o.text,o.visible?a.filter(h):a,e);if(l)return{element:l,doc:e,frameOffset:r,matched:i};continue}const p=n(a);if(p)return{element:p,doc:e,frameOffset:r,matched:i}}if(c.length===0&&o.text){const i=y(o.text,null,e);if(i&&(!o.visible||h(i)))return{element:i,doc:e,frameOffset:r,matched:`text:${o.text}`}}return null}function q(o){if(!o.all){const i=u(o);return i?[i]:[]}const t=v(o);if(!t)return[];const{doc:e,offset:r}=t,c=o.selector?Array.isArray(o.selector)?o.selector:[o.selector]:[];for(const i of c){const a=o.shadow?m(i,e):f(i,e),p=o.visible?a.filter(h):a;if(p.length>0)return p.map(l=>({element:l,doc:e,frameOffset:r,matched:i}))}const n=u(o);return n?[n]:[]}function D(o){const t=[];return o.selector&&t.push(Array.isArray(o.selector)?o.selector.join(" | "):o.selector),o.text&&t.push(`text "${o.text}"`),o.iframe&&t.push(`in iframe ${o.iframe}`),t.join(" + ")||"(no selector)"}function O(o,t=5e3){return new Promise(e=>{const r=u(o);if(r){e(r);return}let c=!1,n=null;const i=d=>{c||(c=!0,n?.disconnect(),clearInterval(p),clearTimeout(l),e(d))},a=()=>{const d=u(o);d&&i(d)};try{n=new MutationObserver(a);const d=o.iframe?v(o)?.doc.documentElement??document.documentElement:document.documentElement;n.observe(d,{childList:!0,subtree:!0,attributes:!0})}catch{}const p=setInterval(a,100),l=setTimeout(()=>i(null),t)})}function M(o,t=5e3){return O({selector:o},t).then(e=>e?.element??null)}const _=500,F=new Set(["__proto__","constructor","prototype"]),w={includes:(o,t)=>typeof o=="string"?o.includes(String(t[0])):Array.isArray(o)?o.includes(t[0]):!1,startsWith:(o,t)=>typeof o=="string"?o.startsWith(String(t[0])):!1,endsWith:(o,t)=>typeof o=="string"?o.endsWith(String(t[0])):!1,toLowerCase:o=>typeof o=="string"?o.toLowerCase():o,toUpperCase:o=>typeof o=="string"?o.toUpperCase():o,trim:o=>typeof o=="string"?o.trim():o,indexOf:(o,t)=>typeof o=="string"?o.indexOf(String(t[0])):Array.isArray(o)?o.indexOf(t[0]):-1,matches:(o,t)=>{if(typeof o!="string")return!1;try{return new RegExp(String(t[0])).test(o)}catch{return!1}}},$=["===","!==","==","!=","<=",">=","&&","||","<",">","!","(",")","[","]",",","+","-","*","/","%","?",":"];function E(o){const t=[];let e=0;for(;e<o.length;){const r=o.slice(e);if(/^\s/.test(r)){e+=1;continue}const c=$.find(i=>r.startsWith(i));if(c){t.push({t:"op",v:c}),e+=c.length;continue}if(r[0]==="."){t.push({t:"dot"}),e+=1;continue}let n=r.match(/^'((?:[^'\\]|\\.)*)'/)??r.match(/^"((?:[^"\\]|\\.)*)"/);if(n){t.push({t:"str",v:n[1].replace(/\\(.)/g,"$1")}),e+=n[0].length;continue}if(n=r.match(/^\d+(\.\d+)?/),n){t.push({t:"num",v:Number(n[0])}),e+=n[0].length;continue}if(n=r.match(/^(true|false)\b/),n){t.push({t:"bool",v:n[1]==="true"}),e+=n[0].length;continue}if(n=r.match(/^null\b/),n){t.push({t:"null"}),e+=n[0].length;continue}if(n=r.match(/^undefined\b/),n){t.push({t:"undef"}),e+=n[0].length;continue}if(n=r.match(/^[A-Za-z_$][\w$]*/),n){t.push({t:"ident",v:n[0]}),e+=n[0].length;continue}throw new Error(`Unexpected character "${r[0]}" at ${e}`)}return t}function b(o,t){if(o!=null&&!(typeof t=="string"&&F.has(t))){if(typeof o=="string")return t==="length"?o.length:typeof t=="number"?o[t]:void 0;if(Array.isArray(o))return t==="length"?o.length:o[t];if(typeof o=="object")return o[String(t)]}}function k(o,t){return o===t?!0:o==null?t==null:typeof o=="number"||typeof t=="number"?Number(o)===Number(t):String(o)===String(t)}function s(o){return typeof o=="number"?o:Number(o)}class S{constructor(t,e){x(this,"pos",0);x(this,"tokens");x(this,"ctx");this.tokens=t,this.ctx=e}parse(){const t=this.ternary();if(this.pos!==this.tokens.length)throw new Error("Trailing tokens");return t}peek(){return this.tokens[this.pos]}isOp(t){const e=this.peek();return!!e&&e.t==="op"&&e.v===t}eatOp(t){return this.isOp(t)?(this.pos+=1,!0):!1}expectOp(t){if(!this.eatOp(t))throw new Error(`Expected "${t}"`)}ternary(){const t=this.orExpr();if(!this.eatOp("?"))return t;const e=this.ternary();this.expectOp(":");const r=this.ternary();return t?e:r}orExpr(){let t=this.andExpr();for(;this.eatOp("||");){const e=this.andExpr();t=t||e}return t}andExpr(){let t=this.equality();for(;this.eatOp("&&");){const e=this.equality();t=t&&e}return t}equality(){let t=this.relational();for(;;){if(this.eatOp("===")){t=t===this.relational();continue}if(this.eatOp("!==")){t=t!==this.relational();continue}if(this.eatOp("==")){t=k(t,this.relational());continue}if(this.eatOp("!=")){t=!k(t,this.relational());continue}return t}}relational(){let t=this.additive();for(;;){if(this.eatOp("<=")){t=s(t)<=s(this.additive());continue}if(this.eatOp(">=")){t=s(t)>=s(this.additive());continue}if(this.eatOp("<")){t=s(t)<s(this.additive());continue}if(this.eatOp(">")){t=s(t)>s(this.additive());continue}return t}}additive(){let t=this.multiplicative();for(;;){if(this.eatOp("+")){const e=this.multiplicative();t=typeof t=="string"||typeof e=="string"?String(t)+String(e):s(t)+s(e);continue}if(this.eatOp("-")){t=s(t)-s(this.multiplicative());continue}return t}}multiplicative(){let t=this.unary();for(;;){if(this.eatOp("*")){t=s(t)*s(this.unary());continue}if(this.eatOp("/")){t=s(t)/s(this.unary());continue}if(this.eatOp("%")){t=s(t)%s(this.unary());continue}return t}}unary(){return this.eatOp("!")?!this.unary():this.eatOp("-")?-s(this.unary()):this.postfix()}postfix(){let t=this.primary();for(;;){if(this.peek()?.t==="dot"){this.pos+=1;const e=this.peek();if(!e||e.t!=="ident")throw new Error('Expected identifier after "."');if(this.pos+=1,this.isOp("(")){this.pos+=1;const r=[];if(!this.isOp(")"))do r.push(this.ternary());while(this.eatOp(","));this.expectOp(")");const c=Object.prototype.hasOwnProperty.call(w,e.v)?w[e.v]:void 0;if(typeof c!="function")throw new Error(`Method "${e.v}" is not allowed`);t=c(t,r);continue}t=b(t,e.v);continue}if(this.eatOp("[")){const e=this.ternary();this.expectOp("]"),t=b(t,typeof e=="number"?e:String(e));continue}return t}}primary(){const t=this.peek();if(!t)throw new Error("Unexpected end of expression");if(t.t==="op"&&t.v==="("){this.pos+=1;const e=this.ternary();return this.expectOp(")"),e}if(t.t==="op"&&t.v==="["){this.pos+=1;const e=[];if(!this.isOp("]"))do e.push(this.ternary());while(this.eatOp(","));return this.expectOp("]"),e}switch(this.pos+=1,t.t){case"str":return t.v;case"num":return t.v;case"bool":return t.v;case"null":return null;case"undef":return;case"ident":return b(this.ctx,t.v);default:throw new Error("Unexpected token")}}}function T(o,t,e={}){try{if(typeof o!="string")return;if(o.length>(e.maxLength??_)){e.onError?.("expression exceeds the maximum length",o);return}return new S(E(o),t).parse()}catch(r){e.onError?.(r instanceof Error?r.message:"invalid expression",o);return}}function L(o,t,e={}){return!!T(o,t,e)}function N(o){try{return new S(E(o),{}).parse(),{ok:!0}}catch(t){return{ok:!1,message:t instanceof Error?t.message:"invalid expression"}}}exports.CSS=R;exports.checkExpression=N;exports.describeTarget=D;exports.evaluateExpression=T;exports.evaluateShowIf=L;exports.isVisible=h;exports.queryDeep=m;exports.resolveTarget=u;exports.resolveTargets=q;exports.safeQuery=z;exports.waitForElement=M;exports.waitForTarget=O;
 //# sourceMappingURL=safeEval.cjs.js.map

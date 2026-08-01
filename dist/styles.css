@@ -99,6 +99,45 @@
 
 .ot-popover--modal-step { --ot-popover-width: 420px; }
 
+/*
+ * Density scales the three things that actually change how roomy a card feels.
+ * Everything else is derived from them, so headings, buttons, code blocks and
+ * the arrow all move together.
+ */
+.ot-popover[data-ot-density="compact"] {
+  --ot-spacing: 11px;
+  --ot-font-size: 12.5px;
+  --ot-radius: 10px;
+}
+
+.ot-popover[data-ot-density="spacious"] {
+  --ot-spacing: 22px;
+  --ot-font-size: 14.5px;
+  --ot-radius: 18px;
+}
+
+/*
+ * The card is capped at a share of the viewport, so a long step scrolls its
+ * body instead of running off the bottom of the screen. Title and footer stay
+ * put — losing the Next button below the fold was the old failure mode.
+ */
+.ot-popover {
+  display: flex;
+  flex-direction: column;
+}
+
+.ot-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.ot-content-wrap {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+}
+
 @keyframes ot-pop-in {
   from { opacity: 0; transform: translateY(4px) scale(0.985); }
   to   { opacity: 1; transform: none; }
@@ -178,6 +217,52 @@
 }
 
 .ot-html { font-size: var(--ot-font-size); line-height: 1.55; color: var(--ot-muted); margin-bottom: 10px; }
+
+/* --------------------------------------------------------------------- */
+/* Block markdown                                                         */
+/* --------------------------------------------------------------------- */
+
+.ot-prose { font-size: var(--ot-font-size); line-height: 1.55; color: var(--ot-muted); }
+.ot-prose > *:last-child { margin-bottom: 0; }
+
+.ot-heading {
+  margin: 0 0 6px;
+  color: var(--ot-fg);
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.ot-prose > .ot-heading:not(:first-child) { margin-top: 14px; }
+
+/* Scaled from the body size so a density change moves headings with it. */
+.ot-heading--1 { font-size: calc(var(--ot-font-size) + 4px); }
+.ot-heading--2 { font-size: calc(var(--ot-font-size) + 2.5px); }
+.ot-heading--3 { font-size: calc(var(--ot-font-size) + 1px); }
+.ot-heading--4,
+.ot-heading--5,
+.ot-heading--6 { font-size: var(--ot-font-size); }
+.ot-heading--5,
+.ot-heading--6 { color: var(--ot-muted); text-transform: uppercase; letter-spacing: 0.05em; font-size: calc(var(--ot-font-size) - 2px); }
+
+.ot-quote {
+  margin: 0 0 10px;
+  padding: 2px 0 2px 12px;
+  border-inline-start: 3px solid color-mix(in srgb, var(--ot-accent) 45%, transparent);
+  color: var(--ot-muted);
+}
+
+.ot-quote > *:last-child { margin-bottom: 0; }
+
+.ot-inline-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: calc(var(--ot-radius) * 0.5);
+  vertical-align: middle;
+}
+
+.ot-prose .ot-list { margin-bottom: 10px; }
+.ot-prose .ot-code { margin-bottom: 10px; }
 
 .ot-skip {
   position: absolute;

@@ -126,7 +126,9 @@ test('the spotlight follows the target on scroll', async ({ page }) => {
   await expect(ring).toBeVisible();
 
   const before = await ring.boundingBox();
-  await page.mouse.wheel(0, 400);
+  // `window.scrollTo` rather than a wheel gesture: mobile WebKit does not
+  // synthesise wheel events, and the tracking path is the same either way.
+  await page.evaluate(() => window.scrollTo(0, 400));
   await page.waitForTimeout(300);
   const after = await ring.boundingBox();
 
@@ -152,26 +154,28 @@ test.describe('mobile', () => {
   test('a horizontal swipe advances the tour', async ({ page }) => {
     await startTour(page);
 
-    // Built in the page so the events carry real `Touch` objects — Playwright's
-    // dispatchEvent cannot construct those from plain data.
+    // Built in the page because Playwright's dispatchEvent cannot carry touch
+    // lists. Plain events with the lists attached, rather than `new TouchEvent`
+    // — WebKit has no `Touch` constructor, and the handler only reads
+    // `touches.length` and `clientX`/`clientY`.
     await page.evaluate(() => {
       const popover = document.querySelector('.ot-popover') as HTMLElement;
       const box = popover.getBoundingClientRect();
       const y = box.y + box.height / 2;
 
-      const touch = (x: number): Touch =>
-        new Touch({ identifier: 1, target: popover, clientX: x, clientY: y });
+      const fire = (type: string, touches: Array<{ x: number }>, changed: Array<{ x: number }>) => {
+        const event = new Event(type, { bubbles: true });
+        const list = (points: Array<{ x: number }>) =>
+          points.map((p) => ({ clientX: p.x, clientY: y, identifier: 1, target: popover }));
+        Object.defineProperty(event, 'touches', { value: list(touches) });
+        Object.defineProperty(event, 'changedTouches', { value: list(changed) });
+        popover.dispatchEvent(event);
+      };
 
-      popover.dispatchEvent(new TouchEvent('touchstart', {
-        bubbles: true,
-        touches: [touch(box.x + box.width - 30)],
-        changedTouches: [touch(box.x + box.width - 30)],
-      }));
-      popover.dispatchEvent(new TouchEvent('touchend', {
-        bubbles: true,
-        touches: [],
-        changedTouches: [touch(box.x + 20)],
-      }));
+      const from = { x: box.x + box.width - 30 };
+      const to = { x: box.x + 20 };
+      fire('touchstart', [from], [from]);
+      fire('touchend', [], [to]);
     });
 
     await expect(page.locator('.ot-title')).toHaveText('Only this is clickable');

@@ -2,10 +2,10 @@ import { jsx as e, jsxs as b, Fragment as X } from "react/jsx-runtime";
 import { isValidElement as oe, cloneElement as ae, useState as T, useRef as D, useEffect as L, useCallback as ce, useMemo as P, useContext as le, createContext as ie } from "react";
 import { createPortal as ue } from "react-dom";
 import { TourOrchestrator as de, resolveText as z, TourPersistence as Y, renderInline as Z, normalizeContent as he, renderBlocks as me, createChangelog as pe } from "./index.js";
-import { DEFAULT_LABELS as _e, MemoryStorage as Me, SurfaceState as Pe, TourEngine as He, assertValidSpec as Oe, blocksToText as qe, createAnnouncement as Be, createBanner as Fe, createChecklist as Ie, createCookieStorage as Ve, createHint as je, createIndexedDBStorage as ze, createKeyResolver as Ge, createLocaleResolver as Je, createMemoryStorage as Ke, createRemoteStorage as Qe, createResourceCenter as Ue, createSurvey as We, createTour as Xe, createTours as Ye, createTutorialLayer as Ze, currentPath as et, defineSpec as tt, defineStep as rt, escapeHtml as nt, extendSpec as st, installTrigger as ot, interpolate as at, localeDirection as ct, matchPath as lt, onLocationChange as it, resolveLabel as ut, selectPlural as dt, validateSpec as ht, validateSpecs as mt } from "./index.js";
+import { DEFAULT_LABELS as Me, MemoryStorage as _e, SurfaceState as Pe, TourEngine as Be, assertValidSpec as He, assignAll as Oe, assignVariant as qe, blocksToText as Fe, createAnnouncement as Ie, createBanner as Ve, createChecklist as je, createCookieStorage as ze, createHint as Ge, createIndexedDBStorage as Je, createKeyResolver as Ke, createLocaleResolver as Qe, createMemoryStorage as Ue, createRemoteStorage as We, createResourceCenter as Xe, createSurvey as Ye, createTour as Ze, createTours as et, createTutorialLayer as tt, currentPath as rt, defineSpec as nt, defineStep as st, escapeHtml as ot, extendSpec as at, hasBlockMarkdown as ct, installTrigger as lt, interpolate as it, localeDirection as ut, matchPath as dt, onLocationChange as ht, renderMarkdown as mt, resolveLabel as pt, selectPlural as bt, validateSpec as vt, validateSpecs as ft } from "./index.js";
 import { r as be } from "./chunks/safeEval.es.js";
-import { C as bt, c as vt, d as ft, e as gt, a as yt, i as Nt, q as kt, s as Ct, w as xt, b as wt } from "./chunks/safeEval.es.js";
-import { createAmplitudeAdapter as Tt, createDatadogAdapter as Et, createDebugAdapter as Lt, createEventCollector as At, createFunnelReport as $t, createGA4Adapter as Rt, createHeapAdapter as Dt, createHttpAdapter as _t, createMixpanelAdapter as Mt, createMultiAdapter as Pt, createPostHogAdapter as Ht, createRudderStackAdapter as Ot, createSegmentAdapter as qt, filterEvents as Bt, shouldSample as Ft, withEventTypes as It, withSampling as Vt } from "./analytics.js";
+import { C as yt, c as Nt, d as kt, e as Ct, a as xt, i as wt, q as St, b as Tt, s as Et, w as Lt, f as At } from "./chunks/safeEval.es.js";
+import { createAmplitudeAdapter as Rt, createDatadogAdapter as Dt, createDebugAdapter as Mt, createEventCollector as _t, createFunnelReport as Pt, createGA4Adapter as Bt, createHeapAdapter as Ht, createHttpAdapter as Ot, createMixpanelAdapter as qt, createMultiAdapter as Ft, createPostHogAdapter as It, createRudderStackAdapter as Vt, createSegmentAdapter as jt, filterEvents as zt, shouldSample as Gt, withEventTypes as Jt, withSampling as Kt } from "./analytics.js";
 const ee = ie(null);
 function ke({
   specs: t,
@@ -32,10 +32,10 @@ function ke({
   beforeNext: $,
   renderStep: c,
   dev: l,
-  debug: M,
+  debug: _,
   children: f
 }) {
-  const [H, _] = T([]), [O, q] = T(null), [G, re] = T(null), [B, ne] = T(n ?? {}), [V, J] = T(null), K = D(C), j = D($), Q = D(A), U = D(c);
+  const [B, M] = T([]), [H, O] = T(null), [G, re] = T(null), [q, ne] = T(n ?? {}), [V, J] = T(null), K = D(C), j = D($), Q = D(A), U = D(c);
   K.current = C, j.current = $, Q.current = A, U.current = c;
   const F = D(null);
   F.current || (F.current = new de(t, {
@@ -57,23 +57,23 @@ function ke({
     strict: R,
     deepLinkParam: S,
     dev: l,
-    debug: M,
+    debug: _,
     onNavigate: (r) => Q.current?.(r),
     beforeNext: j.current ? (r) => j.current(r) : void 0,
     renderStep: U.current ? (r, w) => (J({ ctx: r, host: w }), () => J(null)) : void 0,
     onEvent: (r) => {
-      _((w) => [...w.slice(-99), r]), K.current?.(r);
+      M((w) => [...w.slice(-99), r]), K.current?.(r);
     },
     onStateChange: (r, w) => {
-      q(r), re(w);
+      O(r), re(w);
     }
   }));
   const a = F.current;
   L(() => (a.mount(), () => {
     a.destroy(), F.current = null;
   }), [a]), L(() => {
-    a.setContext(B);
-  }, [B, a]), L(() => {
+    a.setContext(q);
+  }, [q, a]), L(() => {
     i && a.setTheme(i);
   }, [i, a]), L(() => {
     y && a.setLocale(y);
@@ -99,11 +99,11 @@ function ke({
     }),
     prev: () => I((r) => r.prev()),
     goTo: (r) => I((w) => w.goTo(r)),
-    activeId: O,
+    activeId: H,
     state: G,
-    events: H,
-    clearEvents: () => _([]),
-    context: B,
+    events: B,
+    clearEvents: () => M([]),
+    context: q,
     setContext: (r) => ne((w) => ({ ...w, ...r })),
     setTheme: (r) => a.setTheme(r),
     setUser: (r) => a.setUser(r),
@@ -116,7 +116,7 @@ function ke({
     whyBlocked: (r) => a.checkEligibility(r),
     getEngine: (r) => a.getEngine(r),
     specs: t
-  }), [a, t, O, G, H, B, I]);
+  }), [a, t, H, G, B, q, I]);
   return /* @__PURE__ */ b(ee.Provider, { value: se, children: [
     f,
     V && c ? ue(c(V.ctx), V.host) : null
@@ -159,13 +159,13 @@ function we({
     return E?.(), null;
   const c = (f) => f === void 0 ? "" : z(f, k, p, m.context), l = (f) => {
     i ? i(f) : m.start(f);
-  }, M = [
+  }, _ = [
     "ot-checklist",
     g ? "ot-checklist--floating" : "",
     N ? "ot-checklist--collapsed" : "",
     d
   ].filter(Boolean).join(" ");
-  return /* @__PURE__ */ b("div", { className: M, children: [
+  return /* @__PURE__ */ b("div", { className: _, children: [
     u && /* @__PURE__ */ b("div", { className: "ot-checklist-header", children: [
       /* @__PURE__ */ e("h3", { className: "ot-checklist-title", children: u }),
       /* @__PURE__ */ b("span", { className: "ot-checklist-count", children: [
@@ -197,22 +197,22 @@ function we({
         children: /* @__PURE__ */ e("div", { className: "ot-checklist-bar-fill", style: { width: `${A}%` } })
       }
     ),
-    /* @__PURE__ */ e("ul", { className: "ot-checklist-items", children: o.map((f, H) => {
-      const _ = x[H], O = _ === "completed" ? "✓" : _ === "in_progress" ? "◌" : "○", q = c(f.description);
-      return /* @__PURE__ */ b("li", { className: `ot-checklist-item ot-checklist-item--${_}`, children: [
-        /* @__PURE__ */ e("span", { className: "ot-checklist-icon", "aria-hidden": "true", children: O }),
+    /* @__PURE__ */ e("ul", { className: "ot-checklist-items", children: o.map((f, B) => {
+      const M = x[B], H = M === "completed" ? "✓" : M === "in_progress" ? "◌" : "○", O = c(f.description);
+      return /* @__PURE__ */ b("li", { className: `ot-checklist-item ot-checklist-item--${M}`, children: [
+        /* @__PURE__ */ e("span", { className: "ot-checklist-icon", "aria-hidden": "true", children: H }),
         /* @__PURE__ */ b("div", { className: "ot-checklist-info", children: [
           /* @__PURE__ */ e("span", { className: "ot-checklist-name", children: c(f.title) }),
-          q && /* @__PURE__ */ e("span", { className: "ot-checklist-desc", children: q })
+          O && /* @__PURE__ */ e("span", { className: "ot-checklist-desc", children: O })
         ] }),
-        _ !== "completed" && /* @__PURE__ */ e(
+        M !== "completed" && /* @__PURE__ */ e(
           "button",
           {
             type: "button",
             className: "ot-checklist-btn",
             onClick: () => l(f.id),
-            disabled: _ === "in_progress",
-            children: _ === "in_progress" ? "Running" : "Start"
+            disabled: M === "in_progress",
+            children: M === "in_progress" ? "Running" : "Start"
           }
         )
       ] }, f.id);
@@ -303,8 +303,8 @@ function Te({
     x && x.replaceChildren(me(A, { allowHtml: C }));
   }, [x, A, C]), L(() => {
     if (!k || !h) return;
-    const l = (M) => {
-      M.key === "Escape" && $();
+    const l = (_) => {
+      _.key === "Escape" && $();
     };
     return window.addEventListener("keydown", l), () => window.removeEventListener("keydown", l);
   }, [k, h]), k ? /* @__PURE__ */ b("div", { className: "ot-root", "data-opentutorial": "", children: [
@@ -367,7 +367,7 @@ function Ee({
   const [m, N] = T(null), [v, o] = T(null), [k, s] = T(""), [x, R] = T(!1);
   if (x)
     return /* @__PURE__ */ e("div", { className: `ot-survey ${y}`.trim(), children: /* @__PURE__ */ e("p", { className: "ot-survey-thanks", children: S }) });
-  const A = n === "nps" ? Array.from({ length: 11 }, (l, M) => M) : n === "rating" ? [1, 2, 3, 4, 5] : null, $ = n === "nps" || n === "rating" ? m !== null : n === "choice" ? v !== null : k.trim().length > 0, c = () => {
+  const A = n === "nps" ? Array.from({ length: 11 }, (l, _) => _) : n === "rating" ? [1, 2, 3, 4, 5] : null, $ = n === "nps" || n === "rating" ? m !== null : n === "choice" ? v !== null : k.trim().length > 0, c = () => {
     $ && (p({
       surveyId: t,
       kind: n,
@@ -608,84 +608,89 @@ function $e({ entries: t, ...n }) {
 export {
   Te as Announcement,
   Se as Banner,
-  bt as CSS,
+  yt as CSS,
   $e as Changelog,
-  _e as DEFAULT_LABELS,
+  Me as DEFAULT_LABELS,
   Ae as Hint,
-  Me as MemoryStorage,
+  _e as MemoryStorage,
   Le as ResourceCenter,
   Pe as SurfaceState,
   Ee as Survey,
   xe as TourAnchor,
   we as TourChecklist,
-  He as TourEngine,
+  Be as TourEngine,
   de as TourOrchestrator,
   Y as TourPersistence,
   ke as TourProvider,
-  Oe as assertValidSpec,
-  qe as blocksToText,
-  vt as checkExpression,
-  Tt as createAmplitudeAdapter,
-  Be as createAnnouncement,
-  Fe as createBanner,
+  He as assertValidSpec,
+  Oe as assignAll,
+  qe as assignVariant,
+  Fe as blocksToText,
+  Nt as checkExpression,
+  Rt as createAmplitudeAdapter,
+  Ie as createAnnouncement,
+  Ve as createBanner,
   pe as createChangelog,
-  Ie as createChecklist,
-  Ve as createCookieStorage,
-  Et as createDatadogAdapter,
-  Lt as createDebugAdapter,
-  At as createEventCollector,
-  $t as createFunnelReport,
-  Rt as createGA4Adapter,
-  Dt as createHeapAdapter,
-  je as createHint,
-  _t as createHttpAdapter,
-  ze as createIndexedDBStorage,
-  Ge as createKeyResolver,
-  Je as createLocaleResolver,
-  Ke as createMemoryStorage,
-  Mt as createMixpanelAdapter,
-  Pt as createMultiAdapter,
-  Ht as createPostHogAdapter,
-  Qe as createRemoteStorage,
-  Ue as createResourceCenter,
-  Ot as createRudderStackAdapter,
-  qt as createSegmentAdapter,
-  We as createSurvey,
-  Xe as createTour,
-  Ye as createTours,
-  Ze as createTutorialLayer,
-  et as currentPath,
-  tt as defineSpec,
-  rt as defineStep,
-  ft as describeTarget,
-  nt as escapeHtml,
-  gt as evaluateExpression,
-  yt as evaluateShowIf,
-  st as extendSpec,
-  Bt as filterEvents,
-  ot as installTrigger,
-  at as interpolate,
-  Nt as isVisible,
-  ct as localeDirection,
-  lt as matchPath,
+  je as createChecklist,
+  ze as createCookieStorage,
+  Dt as createDatadogAdapter,
+  Mt as createDebugAdapter,
+  _t as createEventCollector,
+  Pt as createFunnelReport,
+  Bt as createGA4Adapter,
+  Ht as createHeapAdapter,
+  Ge as createHint,
+  Ot as createHttpAdapter,
+  Je as createIndexedDBStorage,
+  Ke as createKeyResolver,
+  Qe as createLocaleResolver,
+  Ue as createMemoryStorage,
+  qt as createMixpanelAdapter,
+  Ft as createMultiAdapter,
+  It as createPostHogAdapter,
+  We as createRemoteStorage,
+  Xe as createResourceCenter,
+  Vt as createRudderStackAdapter,
+  jt as createSegmentAdapter,
+  Ye as createSurvey,
+  Ze as createTour,
+  et as createTours,
+  tt as createTutorialLayer,
+  rt as currentPath,
+  nt as defineSpec,
+  st as defineStep,
+  kt as describeTarget,
+  ot as escapeHtml,
+  Ct as evaluateExpression,
+  xt as evaluateShowIf,
+  at as extendSpec,
+  zt as filterEvents,
+  ct as hasBlockMarkdown,
+  lt as installTrigger,
+  it as interpolate,
+  wt as isVisible,
+  ut as localeDirection,
+  dt as matchPath,
   he as normalizeContent,
-  it as onLocationChange,
-  kt as queryDeep,
+  ht as onLocationChange,
+  St as queryDeep,
   me as renderBlocks,
   Z as renderInline,
-  ut as resolveLabel,
+  mt as renderMarkdown,
+  pt as resolveLabel,
   be as resolveTarget,
+  Tt as resolveTargets,
   z as resolveText,
-  Ct as safeQuery,
-  dt as selectPlural,
-  Ft as shouldSample,
+  Et as safeQuery,
+  bt as selectPlural,
+  Gt as shouldSample,
   te as useTour,
   Ce as useTourEvents,
-  ht as validateSpec,
-  mt as validateSpecs,
-  xt as waitForElement,
-  wt as waitForTarget,
-  It as withEventTypes,
-  Vt as withSampling
+  vt as validateSpec,
+  ft as validateSpecs,
+  Lt as waitForElement,
+  At as waitForTarget,
+  Jt as withEventTypes,
+  Kt as withSampling
 };
 //# sourceMappingURL=react.js.map

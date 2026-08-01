@@ -26,6 +26,13 @@ export declare function queryDeep(selector: string, root?: ParentNode): Element[
 export declare function isVisible(el: Element): boolean;
 /** Resolve a target once. Returns null when nothing matches right now. */
 export declare function resolveTarget(target: TourTarget): ResolvedTarget | null;
+/**
+ * Resolve every element a target matches, for `all: true` steps.
+ *
+ * Returns at most one entry unless `all` is set, so callers can use this
+ * uniformly without branching on the flag.
+ */
+export declare function resolveTargets(target: TourTarget): ResolvedTarget[];
 /** Human-readable description of a target, for error messages and the debug panel. */
 export declare function describeTarget(target: TourTarget): string;
 /**

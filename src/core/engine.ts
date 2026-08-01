@@ -2,17 +2,18 @@ import { TourLayer } from './dom/layer';
 import { TourPopover, type PopoverModel } from './dom/popover';
 import { TourHotspot } from './dom/hotspot';
 import { trapFocus } from './dom/focus';
-import { resolveTarget, waitForTarget, describeTarget, type ResolvedTarget } from './dom/target';
+import { resolveTarget, resolveTargets, waitForTarget, describeTarget, type ResolvedTarget } from './dom/target';
 import { currentPath, matchPath, onLocationChange } from './dom/navigation';
 import { TourPersistence, type PersistedRoot } from './persist';
 import { validateSpec } from './schema';
 import { evaluateShowIf } from './safeEval';
+import { shouldSample } from './analytics/sampling';
 import { resolveText, resolveLabel } from './i18n';
 import { normalizeContent, blocksToText } from './content';
 import type {
-  ContentBlock, CreateTourOptions, InteractionMode, SpecIssue, StepAction, StepRenderContext,
-  ThemeOverrides, TourEvent, TourEventType, TourState, TourStatus, TourStep, TutorialSpec,
-  I18nContent, StepContent,
+  ContentBlock, CreateTourOptions, Density, InteractionMode, SpecIssue, StepAction,
+  StepRenderContext, ThemeOverrides, TourEvent, TourEventType, TourState, TourStatus,
+  TourStep, TutorialSpec, I18nContent, StepContent,
 } from './types';
 
 const THEME_VAR_MAP: Record<keyof ThemeOverrides, string> = {
@@ -36,6 +37,15 @@ const THEME_VAR_MAP: Record<keyof ThemeOverrides, string> = {
   spotlightRing: '--ot-spotlight-ring',
   popoverWidth: '--ot-popover-width',
 };
+
+/** Smallest rect containing every input. */
+function unionRect(rects: Array<{ x: number; y: number; width: number; height: number }>) {
+  const x = Math.min(...rects.map((r) => r.x));
+  const y = Math.min(...rects.map((r) => r.y));
+  const right = Math.max(...rects.map((r) => r.x + r.width));
+  const bottom = Math.max(...rects.map((r) => r.y + r.height));
+  return { x, y, width: right - x, height: bottom - y };
+}
 
 const PX_KEYS = new Set(['radius', 'popoverWidth', 'fontSize', 'spacing', 'arrowSize', 'overlayBlur']);
 const MS_KEYS = new Set(['animationMs']);
@@ -69,6 +79,7 @@ export class TourEngine {
   private stepEnteredAt = 0;
   private startedAt = 0;
   private advancing = false;
+  private sampleDecision: boolean | null = null;
 
   constructor(spec: TutorialSpec, opts: CreateTourOptions = {}) {
     this.spec = spec;
@@ -153,14 +164,22 @@ export class TourEngine {
   getContext(): Record<string, unknown> { return this.context; }
 
   setContext(patch: Record<string, unknown>): void {
+    const before = this.visibleSteps().length;
     Object.assign(this.context, patch);
-    // A step whose `showIf` just became false must not stay on screen.
-    if (this.status === 'running') {
-      const step = this.currentStep();
-      if (step?.showIf && !evaluateShowIf(step.showIf, this.context)) {
-        void this.next();
-      }
+    if (this.status !== 'running') return;
+
+    const step = this.currentStep();
+
+    // A step whose own condition just became false must not stay on screen.
+    if (step?.showIf && !evaluateShowIf(step.showIf, this.context)) {
+      void this.next();
+      return;
     }
+
+    // Steps *ahead* may have appeared or vanished too. Nothing needs moving —
+    // `next()` recomputes the visible list every time — but the progress dots
+    // and "Step 2 of 5" are now stale, so repaint them.
+    if (this.visibleSteps().length !== before) this.rerenderCurrent();
   }
 
   setGlobalTheme(theme: ThemeOverrides): void {
@@ -362,11 +381,15 @@ export class TourEngine {
     });
     this.layer.attach();
 
-    if (this.opts.renderStep) {
+    // A host that only replaces the indicator still needs the built-in popover
+    // for its ordinary steps, so both surfaces are built when only one hook is set.
+    if (this.opts.renderStep || this.opts.renderIndicator) {
       this.customHost = document.createElement('div');
       this.customHost.className = 'ot-custom-host';
       this.layer.mountPopover(this.customHost);
-    } else {
+    }
+
+    if (!this.opts.renderStep) {
       this.popover = new TourPopover(
         {
           onNext: () => void this.next(),
@@ -374,7 +397,7 @@ export class TourEngine {
           onSkip: () => this.skip('user'),
         },
         this.opts.dir ?? 'ltr',
-        { swipe: this.opts.swipe },
+        { swipe: this.opts.swipe, autoSize: this.opts.autoSize },
       );
       this.layer.mountPopover(this.popover.el);
     }
@@ -539,6 +562,36 @@ export class TourEngine {
     if (!this.layer) return;
     const rect = this.viewportRect(found);
     if (this.popover) this.popover.el.style.display = 'none';
+
+    // `renderIndicator` is a separate hook from `renderStep` on purpose: plenty
+    // of hosts replace the popover but are happy with the built-in beacon, and
+    // silently routing indicator steps through `renderStep` would break them.
+    if (this.opts.renderIndicator && this.customHost) {
+      this.customHost.style.display = '';
+      this.customHost.classList.add('ot-custom-indicator');
+      this.customHost.style.position = 'fixed';
+      this.customHost.style.left = `${rect.x + rect.width / 2}px`;
+      this.customHost.style.top = `${rect.y + rect.height / 2}px`;
+
+      this.cleanupRender?.();
+      const visible = this.visibleSteps();
+      const index = visible.findIndex((s) => s.id === step.id);
+      const cleanup = this.opts.renderIndicator(
+        {
+          ...this.renderContext(step, Math.max(0, index), visible.length, this.blocks(step.content)),
+          display,
+        },
+        this.customHost,
+      );
+      this.cleanupRender = typeof cleanup === 'function' ? cleanup : null;
+
+      if (display === 'beacon') {
+        const timeout = window.setTimeout(() => void this.next(), step.duration ?? 5000);
+        this.cleanupAdvance = () => window.clearTimeout(timeout);
+      }
+      return;
+    }
+
     if (this.customHost) this.customHost.style.display = 'none';
 
     this.hotspot = new TourHotspot();
@@ -565,21 +618,7 @@ export class TourEngine {
 
     if (this.opts.renderStep && this.customHost) {
       this.cleanupRender?.();
-      const ctx: StepRenderContext = {
-        tourId: this.spec.id,
-        step,
-        index,
-        total,
-        title: this.text(step.title),
-        blocks,
-        canGoBack: step.canGoBack !== false && this.history.length > 0,
-        canSkip: step.skippable !== false,
-        isLast: !step.next && index >= total - 1,
-        next: () => void this.next(),
-        prev: () => this.prev(),
-        skip: () => this.skip('user'),
-        goTo: (id: string) => this.goTo(id),
-      };
+      const ctx = this.renderContext(step, index, total, blocks);
       const cleanup = this.opts.renderStep(ctx, this.customHost);
       this.cleanupRender = typeof cleanup === 'function' ? cleanup : null;
       this.customHost.style.display = '';
@@ -589,6 +628,30 @@ export class TourEngine {
     if (!this.popover) return;
     this.popover.el.style.display = '';
     this.popover.render(this.makeModel(step, index, total, blocks));
+  }
+
+  /** Shared by `renderStep` and `renderIndicator`. */
+  private renderContext(
+    step: TourStep,
+    index: number,
+    total: number,
+    blocks: ContentBlock[],
+  ): StepRenderContext {
+    return {
+      tourId: this.spec.id,
+      step,
+      index,
+      total,
+      title: this.text(step.title),
+      blocks,
+      canGoBack: step.canGoBack !== false && this.history.length > 0,
+      canSkip: step.skippable !== false,
+      isLast: !step.next && index >= total - 1,
+      next: () => void this.next(),
+      prev: () => this.prev(),
+      skip: () => this.skip('user'),
+      goTo: (id: string) => this.goTo(id),
+    };
   }
 
   private rerenderCurrent(): void {
@@ -631,7 +694,13 @@ export class TourEngine {
       showBack: buttons.back !== false,
       modal: (step.display ?? 'spotlight') === 'modal' || this.interactionFor(step) === 'blocked',
       allowHtml: this.opts.allowHtml,
+      density: this.densityFor(step),
     };
+  }
+
+  /** Step overrides spec, which overrides the global option. */
+  private densityFor(step: TourStep): Density {
+    return step.density ?? this.spec.density ?? this.opts.density ?? 'comfortable';
   }
 
   /** Element rect mapped into the top-level viewport (adds the iframe offset). */
@@ -663,8 +732,15 @@ export class TourEngine {
         this.hotspot.reposition(rect);
         this.layer.setInteraction(this.interactionFor(step));
       } else {
-        this.layer.updateSpotlight(rect, pad, this.mergedRadius());
-        if (surfaceIsPopover) this.popover?.position(rect, step.placement ?? 'auto', pad);
+        // A multi-target step re-resolves each frame: the elements may reflow
+        // independently, so a cached list would drift out of place.
+        const rects = step.target?.all
+          ? resolveTargets(step.target).map((r) => this.viewportRect(r))
+          : [rect];
+        const anchor = rects.length > 1 ? unionRect(rects) : rect;
+
+        this.layer.updateSpotlight(rects.length > 0 ? rects : rect, pad, this.mergedRadius());
+        if (surfaceIsPopover) this.popover?.position(anchor, step.placement ?? 'auto', pad);
       }
     } else {
       this.layer.showBackdrop();
@@ -890,7 +966,23 @@ export class TourEngine {
     };
     // Frozen so one listener cannot corrupt the event for the next.
     const frozen = Object.freeze({ ...e });
-    try { this.opts.onEvent?.(frozen); } catch { /* listener errors must not break the tour */ }
+
+    // `sampleRate` gates the adapter, not the DOM event: a host listening on
+    // `window` is usually driving UI, and silently dropping 90% of those would
+    // be a debugging nightmare.
+    if (this.sampled()) {
+      try { this.opts.onEvent?.(frozen); } catch { /* listener errors must not break the tour */ }
+    }
     try { window.dispatchEvent(new CustomEvent('opentutorial', { detail: frozen })); } catch { /* noop */ }
+  }
+
+  /** Cached per engine: one hash per tour, not one per event. */
+  private sampled(): boolean {
+    const rate = this.opts.sampleRate;
+    if (rate === undefined || rate >= 1) return true;
+    if (this.sampleDecision === null) {
+      this.sampleDecision = shouldSample(this.spec?.id ?? 'unknown', rate);
+    }
+    return this.sampleDecision;
   }
 }

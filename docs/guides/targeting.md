@@ -58,6 +58,22 @@ fragile across locales — prefer it as a fallback, not a primary.
 
 Zero-based. Out of range resolves to nothing rather than the wrong element.
 
+## Highlighting several elements
+
+```jsonc
+{ "target": { "selector": "[data-tour='required-field']", "all": true } }
+```
+
+Every match gets its own cutout and ring — "fill in these three fields". The
+popover anchors to their bounding box, and so does the `target-only`
+interaction gap, because a four-panel shield cannot express a disjoint hole.
+
+Rects are re-resolved on every frame, since the elements can reflow
+independently of one another.
+
+`all` is ignored when `text` is used: text matching resolves to a single
+deepest element by definition.
+
 ## Waiting
 
 By default a target must exist when the step is shown. For content that arrives

@@ -23,9 +23,15 @@ export { evaluateShowIf, evaluateExpression, checkExpression } from './safeEval'
 export type { EvalOptions } from './safeEval';
 
 // Content
-export { renderInline, escapeHtml } from './markdown';
+export { renderInline, renderMarkdown, hasBlockMarkdown, escapeHtml } from './markdown';
+export type { InlineOptions } from './markdown';
+
 export { normalizeContent, renderBlocks, blocksToText } from './content';
 export type { RenderBlocksOptions } from './content';
+
+// Experiments — variant assignment for A/B testing tours
+export { assignVariant, assignAll } from './experiments';
+export type { VariantSpec, VariantInput, AssignOptions } from './experiments';
 
 // Persistence
 export { TourPersistence } from './persist';
@@ -40,7 +46,7 @@ export {
 export type { RemoteStorageOptions } from './storage/remote';
 
 // DOM utilities
-export { resolveTarget, waitForTarget, waitForElement, safeQuery, queryDeep, isVisible, describeTarget } from './dom/target';
+export { resolveTarget, resolveTargets, waitForTarget, waitForElement, safeQuery, queryDeep, isVisible, describeTarget } from './dom/target';
 export type { ResolvedTarget } from './dom/target';
 export { currentPath, matchPath, onLocationChange } from './dom/navigation';
 
@@ -110,6 +116,7 @@ export type {
   AnalyticsAdapter,
   ContentBlock,
   CreateTourOptions,
+  Density,
   Direction,
   DisplayMode,
   FrequencyRule,

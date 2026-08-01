@@ -77,6 +77,12 @@ export interface TourTarget {
   text?: string;
   /** Pick the nth match (0-based) when the selector matches several elements. */
   index?: number;
+  /**
+   * Highlight every match instead of just one — "these three fields".
+   * The popover anchors to their union. Ignored when `text` is used, which
+   * resolves to a single element by definition.
+   */
+  all?: boolean;
   /** Search open shadow roots as well as the light DOM. */
   shadow?: boolean;
   /** Selector of a same-origin iframe to search inside. */
@@ -162,6 +168,14 @@ export interface StepButtons {
  */
 export type InteractionMode = 'free' | 'target-only' | 'blocked';
 
+/**
+ * How much room a step's chrome takes.
+ *
+ * Scales padding, font size and popover width together, so a dense admin tool
+ * and a marketing walkthrough can both look native without retheming.
+ */
+export type Density = 'compact' | 'comfortable' | 'spacious';
+
 export interface TourStep {
   id: string;
   target?: TourTarget;
@@ -182,6 +196,8 @@ export interface TourStep {
   /** Path pattern (trailing `*` allowed) for `advanceOn: 'url-match'`. */
   urlPattern?: string;
   interaction?: InteractionMode;
+  /** Overrides the spec-level density for this step. */
+  density?: Density;
   skippable?: boolean;
   canGoBack?: boolean;
   next?: NextSpec;
@@ -206,6 +222,8 @@ export interface TutorialSpec {
   onComplete?: { startTour?: string; emit?: string; navigate?: string };
   theme?: ThemeOverrides;
   interaction?: InteractionMode;
+  /** Default chrome density for every step. Default `'comfortable'`. */
+  density?: Density;
   steps: TourStep[];
 }
 
@@ -326,6 +344,12 @@ export interface CreateTourOptions {
   theme?: ThemeOverrides;
   zIndex?: number;
   onEvent?: AnalyticsAdapter;
+  /**
+   * Fraction of tour runs reported through `onEvent`, 0–1. Applies to every
+   * adapter at once, so you do not have to remember to wrap each one.
+   * Sampling is per run, not per event, so funnels stay complete.
+   */
+  sampleRate?: number;
   persistence?: { storage?: KeyValueStorage; keyPrefix?: string };
   /** Namespaces persisted state so two users on one browser stay separate. */
   userId?: string;
@@ -338,6 +362,13 @@ export interface CreateTourOptions {
   autoResume?: boolean;
   /** Default interaction mode for every step. */
   interaction?: InteractionMode;
+  /** Default chrome density. Specs and steps override it. Default `'comfortable'`. */
+  density?: Density;
+  /**
+   * Let the popover pick its own width from its content and the viewport,
+   * within `--ot-popover-min-width` and `--ot-popover-max-width`. Default true.
+   */
+  autoSize?: boolean;
   /** Mount the overlay here instead of `document.body`. */
   container?: HTMLElement;
   /** Render the overlay inside a shadow root so host CSS cannot leak in. */
@@ -354,6 +385,15 @@ export interface CreateTourOptions {
   beforeNext?: (ctx: { tourId: string; step: TourStep; index: number }) => boolean | Promise<boolean>;
   /** Replace the built-in popover entirely. */
   renderStep?: (ctx: StepRenderContext, host: HTMLElement) => void | (() => void);
+  /**
+   * Replace the built-in hotspot/beacon indicator. Separate from `renderStep`
+   * because replacing the popover and keeping the default beacon is a common,
+   * reasonable combination. The host is positioned at the target's centre.
+   */
+  renderIndicator?: (
+    ctx: StepRenderContext & { display: 'hotspot' | 'beacon' },
+    host: HTMLElement,
+  ) => void | (() => void);
   dev?: boolean;
   /** Show the debug overlay (step, target, context, showIf results). */
   debug?: boolean;

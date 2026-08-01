@@ -132,6 +132,40 @@ export function resolveTarget(target: TourTarget): ResolvedTarget | null {
   return null;
 }
 
+/**
+ * Resolve every element a target matches, for `all: true` steps.
+ *
+ * Returns at most one entry unless `all` is set, so callers can use this
+ * uniformly without branching on the flag.
+ */
+export function resolveTargets(target: TourTarget): ResolvedTarget[] {
+  if (!target.all) {
+    const single = resolveTarget(target);
+    return single ? [single] : [];
+  }
+
+  const frame = resolveDocument(target);
+  if (!frame) return [];
+  const { doc, offset } = frame;
+
+  const selectors = target.selector
+    ? (Array.isArray(target.selector) ? target.selector : [target.selector])
+    : [];
+
+  for (const selector of selectors) {
+    const found = target.shadow ? queryDeep(selector, doc) : safeQueryAll(selector, doc);
+    const visible = target.visible ? found.filter(isVisible) : found;
+    if (visible.length > 0) {
+      return visible.map((element) => ({ element, doc, frameOffset: offset, matched: selector }));
+    }
+  }
+
+  // Text matching resolves to a single deepest element by definition, so `all`
+  // has nothing extra to offer there.
+  const single = resolveTarget(target);
+  return single ? [single] : [];
+}
+
 /** Human-readable description of a target, for error messages and the debug panel. */
 export function describeTarget(target: TourTarget): string {
   const bits: string[] = [];

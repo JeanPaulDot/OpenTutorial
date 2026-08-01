@@ -6,6 +6,79 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-01
+
+**The API is now stable.** Everything documented in `docs/` is covered by
+semantic versioning: no breaking change without a major release.
+
+This release closes the last of the roadmap and makes the tour adapt to its
+content and its viewport rather than the other way round.
+
+### Added
+
+#### Content
+- **Full markdown in step content.** Headings, ordered and unordered lists,
+  blockquotes, fenced code with language classes, horizontal rules and inline
+  images, on top of the emphasis/code/link support that already existed. A step
+  with no block syntax still renders as a single `<p>`, so existing tours
+  produce the markup they always did.
+- **Hardened URL handling.** `javascript:`, `vbscript:`, `data:` and `file:`
+  links are dropped — including forms obfuscated with control characters, which
+  browsers parse as executable. Relative links are now allowed and stay in the
+  same tab; only genuinely external links get `target="_blank"`.
+- `renderMarkdown()`, `hasBlockMarkdown()` and a `breaks` option on
+  `renderInline()`.
+
+#### Layout
+- **Auto-sizing popover.** The card measures its content and picks a width
+  between 240px and 460px, clamped to the viewport — a one-line step no longer
+  rattles around in a 340px box, and a step with a code block no longer
+  overflows one. Disable with `autoSize: false`.
+- **Height is capped at 70% of the viewport**, so long content scrolls inside
+  the card while the title and footer stay put. Losing the Next button below the
+  fold on a short screen was the failure mode this replaces.
+- **Density** — `compact` | `comfortable` | `spacious`, settable per provider,
+  spec or step. Scales spacing, font size and radius together, and surfaces as
+  `data-ot-density` for host CSS to hook.
+
+#### Features
+- **Multi-element highlight** — `target: { selector: '…', all: true }` gives
+  every match its own cutout and ring. The popover and the interaction shield
+  use their union.
+- **`renderIndicator`** replaces the built-in hotspot/beacon, separately from
+  `renderStep` — replacing the popover while keeping the default beacon is a
+  reasonable combination that used to be impossible.
+- **A/B testing** — `assignVariant()` and `assignAll()`. Stable hash-based
+  assignment with weights and holdouts, no storage and no service. See
+  [docs/guides/experiments.md](docs/guides/experiments.md).
+- **`sampleRate`** on the layer applies run-level analytics sampling to every
+  adapter at once.
+- **`showIf` is fully reactive** — `setContext` now also repaints the step count
+  when a *later* step becomes visible or hidden, not just when the current one
+  does.
+- **`opentutorial preview <url>`** serves a page that runs your specs against a
+  running app, turning the authoring loop into *edit JSON → refresh*.
+
+#### Documentation
+- Docs now ship **inside the npm package**, so a site or wiki can render them
+  from `node_modules` and never drift from the installed version.
+- New [A/B testing guide](docs/guides/experiments.md).
+
+#### Verification
+- E2E and accessibility suites run on **Chromium, Firefox, WebKit and two mobile
+  profiles** — 94 browser tests, up from 38 on Chromium alone.
+- 601 unit tests.
+
+### Changed
+- Text content renders block markdown by default. A line beginning `- ` or `1. `
+  that used to render literally now becomes a list. Pass `markdown: 'inline'` to
+  `renderBlocks` for the old behaviour.
+- The popover sizes itself unless `autoSize: false` is set; `--ot-popover-width`
+  now acts as the fallback rather than the fixed width.
+
+### Fixed
+- The `docs/` directory was missing from the published package.
+
 ## [0.3.0] - 2026-08-01
 
 The theme of this release is **parity and proof**: everything React could do,

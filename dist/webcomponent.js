@@ -1,11 +1,11 @@
 var u = Object.defineProperty;
 var h = (r, s, e) => s in r ? u(r, s, { enumerable: !0, configurable: !0, writable: !0, value: e }) : r[s] = e;
 var l = (r, s, e) => h(r, typeof s != "symbol" ? s + "" : s, e);
-import { createTutorialLayer as p } from "./index.js";
-import { DEFAULT_LABELS as f, MemoryStorage as S, SurfaceState as v, TourEngine as E, TourOrchestrator as C, TourPersistence as T, assertValidSpec as _, blocksToText as k, createAnnouncement as L, createBanner as w, createChangelog as R, createChecklist as D, createCookieStorage as H, createHint as P, createIndexedDBStorage as z, createKeyResolver as B, createLocaleResolver as F, createMemoryStorage as I, createRemoteStorage as M, createResourceCenter as O, createSurvey as q, createTour as V, createTours as J, currentPath as N, defineSpec as j, defineStep as G, escapeHtml as K, extendSpec as Q, installTrigger as U, interpolate as $, localeDirection as W, matchPath as X, normalizeContent as Y, onLocationChange as Z, renderBlocks as ee, renderInline as te, resolveLabel as re, resolveText as se, selectPlural as ae, validateSpec as ie, validateSpecs as ne } from "./index.js";
-import { C as le, c as ce, d as ue, e as he, a as pe, i as de, q as me, r as ye, s as ge, w as be, b as Ae } from "./chunks/safeEval.es.js";
-import { createAmplitudeAdapter as fe, createDatadogAdapter as Se, createDebugAdapter as ve, createEventCollector as Ee, createFunnelReport as Ce, createGA4Adapter as Te, createHeapAdapter as _e, createHttpAdapter as ke, createMixpanelAdapter as Le, createMultiAdapter as we, createPostHogAdapter as Re, createRudderStackAdapter as De, createSegmentAdapter as He, filterEvents as Pe, shouldSample as ze, withEventTypes as Be, withSampling as Fe } from "./analytics.js";
-const d = [
+import { createTutorialLayer as d } from "./index.js";
+import { DEFAULT_LABELS as x, MemoryStorage as S, SurfaceState as v, TourEngine as E, TourOrchestrator as C, TourPersistence as T, assertValidSpec as k, assignAll as _, assignVariant as w, blocksToText as L, createAnnouncement as R, createBanner as D, createChangelog as H, createChecklist as M, createCookieStorage as B, createHint as P, createIndexedDBStorage as z, createKeyResolver as F, createLocaleResolver as I, createMemoryStorage as O, createRemoteStorage as q, createResourceCenter as V, createSurvey as J, createTour as N, createTours as j, currentPath as G, defineSpec as K, defineStep as Q, escapeHtml as U, extendSpec as $, hasBlockMarkdown as W, installTrigger as X, interpolate as Y, localeDirection as Z, matchPath as ee, normalizeContent as te, onLocationChange as re, renderBlocks as se, renderInline as ae, renderMarkdown as ie, resolveLabel as ne, resolveText as oe, selectPlural as le, validateSpec as ce, validateSpecs as ue } from "./index.js";
+import { C as de, c as pe, d as me, e as ge, a as ye, i as Ae, q as be, r as fe, b as xe, s as Se, w as ve, f as Ee } from "./chunks/safeEval.es.js";
+import { createAmplitudeAdapter as Te, createDatadogAdapter as ke, createDebugAdapter as _e, createEventCollector as we, createFunnelReport as Le, createGA4Adapter as Re, createHeapAdapter as De, createHttpAdapter as He, createMixpanelAdapter as Me, createMultiAdapter as Be, createPostHogAdapter as Pe, createRudderStackAdapter as ze, createSegmentAdapter as Fe, filterEvents as Ie, shouldSample as Oe, withEventTypes as qe, withSampling as Ve } from "./analytics.js";
+const p = [
   "specs",
   "context",
   "theme",
@@ -37,7 +37,7 @@ class m extends HTMLElement {
     l(this, "_context", {});
   }
   static get observedAttributes() {
-    return d;
+    return p;
   }
   /** Assign specs as a property when they are not serializable into an attribute. */
   set specs(e) {
@@ -92,7 +92,7 @@ class m extends HTMLElement {
       return;
     }
     const t = (i) => this.hasAttribute(i) && this.getAttribute(i) !== "false", n = Number(this.getAttribute("z-index")), a = this.getAttribute("deep-link-param");
-    this.layer = p({
+    this.layer = d({
       specs: e,
       context: { ...o(this.getAttribute("context"), {}), ...this._context },
       theme: o(this.getAttribute("theme"), void 0),
@@ -143,82 +143,87 @@ class m extends HTMLElement {
     return this.layer;
   }
 }
-function y(r = "open-tutorial") {
+function g(r = "open-tutorial") {
   typeof customElements > "u" || customElements.get(r) || customElements.define(r, m);
 }
-y();
+g();
 export {
-  le as CSS,
-  f as DEFAULT_LABELS,
+  de as CSS,
+  x as DEFAULT_LABELS,
   S as MemoryStorage,
   m as OpenTutorialElement,
   v as SurfaceState,
   E as TourEngine,
   C as TourOrchestrator,
   T as TourPersistence,
-  _ as assertValidSpec,
-  k as blocksToText,
-  ce as checkExpression,
-  fe as createAmplitudeAdapter,
-  L as createAnnouncement,
-  w as createBanner,
-  R as createChangelog,
-  D as createChecklist,
-  H as createCookieStorage,
-  Se as createDatadogAdapter,
-  ve as createDebugAdapter,
-  Ee as createEventCollector,
-  Ce as createFunnelReport,
-  Te as createGA4Adapter,
-  _e as createHeapAdapter,
+  k as assertValidSpec,
+  _ as assignAll,
+  w as assignVariant,
+  L as blocksToText,
+  pe as checkExpression,
+  Te as createAmplitudeAdapter,
+  R as createAnnouncement,
+  D as createBanner,
+  H as createChangelog,
+  M as createChecklist,
+  B as createCookieStorage,
+  ke as createDatadogAdapter,
+  _e as createDebugAdapter,
+  we as createEventCollector,
+  Le as createFunnelReport,
+  Re as createGA4Adapter,
+  De as createHeapAdapter,
   P as createHint,
-  ke as createHttpAdapter,
+  He as createHttpAdapter,
   z as createIndexedDBStorage,
-  B as createKeyResolver,
-  F as createLocaleResolver,
-  I as createMemoryStorage,
-  Le as createMixpanelAdapter,
-  we as createMultiAdapter,
-  Re as createPostHogAdapter,
-  M as createRemoteStorage,
-  O as createResourceCenter,
-  De as createRudderStackAdapter,
-  He as createSegmentAdapter,
-  q as createSurvey,
-  V as createTour,
-  J as createTours,
-  p as createTutorialLayer,
-  N as currentPath,
-  y as defineOpenTutorialElement,
-  j as defineSpec,
-  G as defineStep,
-  ue as describeTarget,
-  K as escapeHtml,
-  he as evaluateExpression,
-  pe as evaluateShowIf,
-  Q as extendSpec,
-  Pe as filterEvents,
-  U as installTrigger,
-  $ as interpolate,
-  de as isVisible,
-  W as localeDirection,
-  X as matchPath,
-  Y as normalizeContent,
-  Z as onLocationChange,
-  me as queryDeep,
-  ee as renderBlocks,
-  te as renderInline,
-  re as resolveLabel,
-  ye as resolveTarget,
-  se as resolveText,
-  ge as safeQuery,
-  ae as selectPlural,
-  ze as shouldSample,
-  ie as validateSpec,
-  ne as validateSpecs,
-  be as waitForElement,
-  Ae as waitForTarget,
-  Be as withEventTypes,
-  Fe as withSampling
+  F as createKeyResolver,
+  I as createLocaleResolver,
+  O as createMemoryStorage,
+  Me as createMixpanelAdapter,
+  Be as createMultiAdapter,
+  Pe as createPostHogAdapter,
+  q as createRemoteStorage,
+  V as createResourceCenter,
+  ze as createRudderStackAdapter,
+  Fe as createSegmentAdapter,
+  J as createSurvey,
+  N as createTour,
+  j as createTours,
+  d as createTutorialLayer,
+  G as currentPath,
+  g as defineOpenTutorialElement,
+  K as defineSpec,
+  Q as defineStep,
+  me as describeTarget,
+  U as escapeHtml,
+  ge as evaluateExpression,
+  ye as evaluateShowIf,
+  $ as extendSpec,
+  Ie as filterEvents,
+  W as hasBlockMarkdown,
+  X as installTrigger,
+  Y as interpolate,
+  Ae as isVisible,
+  Z as localeDirection,
+  ee as matchPath,
+  te as normalizeContent,
+  re as onLocationChange,
+  be as queryDeep,
+  se as renderBlocks,
+  ae as renderInline,
+  ie as renderMarkdown,
+  ne as resolveLabel,
+  fe as resolveTarget,
+  xe as resolveTargets,
+  oe as resolveText,
+  Se as safeQuery,
+  le as selectPlural,
+  Oe as shouldSample,
+  ce as validateSpec,
+  ue as validateSpecs,
+  ve as waitForElement,
+  Ee as waitForTarget,
+  qe as withEventTypes,
+  Ve as withSampling
 };
 //# sourceMappingURL=webcomponent.js.map

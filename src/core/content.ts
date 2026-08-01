@@ -8,7 +8,7 @@
  */
 
 import type { ContentBlock, I18nContent, StepContent } from './types';
-import { renderInline, escapeHtml } from './markdown';
+import { renderInline, renderMarkdown, hasBlockMarkdown, escapeHtml } from './markdown';
 
 export type TextResolver = (content: I18nContent) => string;
 
@@ -48,6 +48,12 @@ export function blocksToText(blocks: ContentBlock[]): string {
 export interface RenderBlocksOptions {
   /** Allow `{ type: 'html' }` blocks through. Off unless the host opts in. */
   allowHtml?: boolean;
+  /**
+   * `'block'` (default) renders headings, lists, quotes and fences in text
+   * content. `'inline'` restricts it to emphasis, code and links — use it when
+   * a step's copy legitimately starts lines with `-` or `1.`.
+   */
+  markdown?: 'block' | 'inline';
   doc?: Document;
 }
 
@@ -59,10 +65,23 @@ export function renderBlocks(blocks: ContentBlock[], opts: RenderBlocksOptions =
   for (const block of blocks) {
     switch (block.type) {
       case 'text': {
-        const p = doc.createElement('p');
-        p.className = 'ot-content';
-        p.innerHTML = renderInline(typeof block.value === 'string' ? block.value : '');
-        frag.appendChild(p);
+        const value = typeof block.value === 'string' ? block.value : '';
+
+        // Block syntax (headings, lists, quotes, fences) needs a container that
+        // can hold several elements; a plain paragraph would nest them illegally.
+        // Prose without any of it stays a single <p>, which is the common case
+        // and keeps the markup as light as it was before block markdown existed.
+        if (opts.markdown !== 'inline' && hasBlockMarkdown(value)) {
+          const wrap = doc.createElement('div');
+          wrap.className = 'ot-prose';
+          wrap.innerHTML = renderMarkdown(value);
+          frag.appendChild(wrap);
+        } else {
+          const p = doc.createElement('p');
+          p.className = 'ot-content';
+          p.innerHTML = renderInline(value);
+          frag.appendChild(p);
+        }
         break;
       }
 

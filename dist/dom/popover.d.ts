@@ -6,7 +6,7 @@
  * `dir="rtl"` a `left` placement is mirrored to `right` so specs do not need to
  * be rewritten per locale.
  */
-import type { AdvanceOn, ContentBlock, Direction, Placement } from '../types';
+import type { AdvanceOn, ContentBlock, Density, Direction, Placement } from '../types';
 export interface PopoverLabels {
     next: string;
     back: string;
@@ -29,6 +29,7 @@ export interface PopoverModel {
     /** Render centered with no arrow, regardless of target. */
     modal: boolean;
     allowHtml?: boolean;
+    density?: Density;
 }
 export interface PopoverCallbacks {
     onNext: () => void;
@@ -38,6 +39,8 @@ export interface PopoverCallbacks {
 export interface PopoverOptions {
     /** Advance/rewind on horizontal touch swipes. Default true. */
     swipe?: boolean;
+    /** Size the card from its content and the viewport. Default true. */
+    autoSize?: boolean;
 }
 type Side = 'top' | 'bottom' | 'left' | 'right';
 interface Rect {
@@ -62,6 +65,7 @@ export declare class TourPopover {
     /** The last rendered model, so a swipe honours the same rules as the buttons. */
     private model;
     private detachSwipe;
+    private autoSize;
     constructor(cbs: PopoverCallbacks, dir?: Direction, opts?: PopoverOptions);
     /**
      * Horizontal touch swipes move between steps on mobile, where the popover is
@@ -76,6 +80,19 @@ export declare class TourPopover {
     private isScrollableX;
     setDir(dir: Direction): void;
     render(model: PopoverModel): void;
+    /**
+     * Pick a width from the content and a max-height from the viewport.
+     *
+     * A fixed 340px card is wrong twice: a one-line step looks empty in it, and a
+     * step with a code block or an image overflows it. Measuring the natural
+     * width once per render costs a single forced layout and makes the card fit
+     * what it actually holds.
+     *
+     * Height is capped rather than sized, so long content scrolls inside the card
+     * instead of running off the bottom of the screen — which is what used to
+     * happen on a short viewport.
+     */
+    private applyAutoSize;
     /** Position relative to a target rect (viewport coords), or centered when null. */
     position(target: Rect | null, placement: Placement, padding: number): void;
     private positionArrow;

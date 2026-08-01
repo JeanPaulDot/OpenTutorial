@@ -2,15 +2,65 @@
 
 ## Content
 
-### Inline markdown
+### Markdown
+
+Step content is full markdown.
 
 ```jsonc
 { "content": "Click **Save**, then open `settings.json`. [Docs](https://example.com)" }
 ```
 
-Supported: `**bold**`, `*italic*`, `` `code` ``, `[text](url)`. Author text is
-escaped **before** formatting, so a spec can never inject markup — even one
-fetched from a database or written by a non-engineer.
+| Syntax | Renders |
+|---|---|
+| `**bold**`, `*italic*`, `~~strike~~`, `` `code` `` | Inline emphasis |
+| `[text](url)` | Link |
+| `![alt](src)` | Inline image |
+| `#` through `######` | Headings 1–6 |
+| `-`, `*`, `+` | Unordered list |
+| `1.` | Ordered list (honours the start number) |
+| `>` | Blockquote, with blocks nestable inside |
+| Triple-backtick fence | Code block with a language class |
+| `---`, `***`, `___` | Horizontal rule |
+| Blank line | New paragraph |
+
+In a spec file, newlines are escaped:
+
+```jsonc
+{ "content": "## Connect a source\n\nPick one:\n\n- Postgres\n- BigQuery\n\n> Read-only credentials are enough." }
+```
+
+In code, a template literal reads better:
+
+```ts
+const content = `## Connect a source
+
+Pick one:
+
+- Postgres
+- BigQuery
+
+> Read-only credentials are enough.`;
+```
+
+A step with no block syntax stays a single `<p>`, so the common case produces
+exactly the markup it always did.
+
+**Escaping happens before formatting, never after.** Author text becomes inert
+HTML entities first, so a spec cannot inject markup — and there is no sanitizer
+to keep ahead of attackers.
+
+Links to `javascript:`, `vbscript:`, `data:` and `file:` are dropped, including
+forms obfuscated with control characters, because browsers would parse those as
+executable. Relative links (`/settings`, `#anchor`) are allowed and stay in the
+same tab; external links get `target="_blank"` and `rel="noopener noreferrer"`.
+Images may additionally use `data:image/…`, which cannot execute.
+
+Deliberately **not** supported: nested lists, reference links, and inline HTML.
+A tour step is a paragraph or two; everything past that is surface area an
+author can get wrong and a reviewer has to check. Use content blocks instead.
+
+To restrict a step to inline formatting — because its copy legitimately starts
+lines with `-` or `1.` — pass `markdown: 'inline'` to `renderBlocks`.
 
 ### Content blocks
 
@@ -91,6 +141,48 @@ Everything is a CSS custom property on `.ot-root`. There are exactly 20:
 Numeric theme keys take plain numbers; the engine appends the unit
 (`radius`, `fontSize`, `spacing`, `arrowSize`, `overlayBlur`, `popoverWidth` →
 px; `animationMs` → ms).
+
+### Density
+
+```ts
+createTutorialLayer({ specs, density: 'compact' });
+```
+
+```jsonc
+{ "density": "spacious", "steps": [{ "id": "s1", "density": "compact" }] }
+```
+
+| Value | Spacing | Font | Radius |
+|---|---|---|---|
+| `compact` | 11px | 12.5px | 10px |
+| `comfortable` | 16px | 13.5px | 14px |
+| `spacious` | 22px | 14.5px | 18px |
+
+Everything else derives from those three, so headings, buttons, code blocks and
+the arrow all move together. Resolution is step → spec → provider option.
+
+It lands as `data-ot-density` on the popover, so host CSS can target it without
+knowing our class names:
+
+```css
+.ot-popover[data-ot-density="compact"] .ot-title { letter-spacing: 0; }
+```
+
+### Auto-sizing
+
+The popover measures its content and picks its own width, between 240px and
+460px, clamped to the viewport. A one-line step gets a narrow card; a step with
+a code block gets a wide one.
+
+```ts
+createTutorialLayer({ specs, autoSize: false });   // fixed --ot-popover-width
+```
+
+Height is **capped**, not sized: at 70% of the viewport, long content scrolls
+inside the card while the title and footer stay put. Losing the Next button
+below the fold on a short screen was the failure mode this replaces.
+
+On mobile the bottom sheet is full-bleed, so auto-sizing steps aside there.
 
 ### Three levels
 

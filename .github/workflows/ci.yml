@@ -67,10 +67,11 @@ jobs:
         run: npm run build
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium firefox webkit
 
       # Covers what jsdom cannot: real layout for placement, real pointer-events
       # for interaction gating, cross-page resume, and the axe accessibility gate.
+      # Runs on Chromium, Firefox, WebKit and two mobile profiles.
       - name: E2E and accessibility
         run: npm run e2e
 

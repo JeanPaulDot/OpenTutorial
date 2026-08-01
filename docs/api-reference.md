@@ -51,10 +51,14 @@ enough.
 | `isolate` | `boolean` | `false` | Render inside a shadow root. |
 | `allowHtml` | `boolean` | `false` | Permit `{ type: 'html' }` blocks. |
 | `swipe` | `boolean` | `true` | Advance/rewind on horizontal touch swipes. |
+| `density` | `Density` | `'comfortable'` | `compact` \| `comfortable` \| `spacious`. |
+| `autoSize` | `boolean` | `true` | Size the popover from its content and the viewport. |
+| `sampleRate` | `number` | `1` | Fraction of tour runs reported through `onEvent`. |
 | `strict` | `boolean` | `false` | Treat validation warnings as errors. |
 | `onNavigate` | `(path: string) => void` | — | Handle `navigate` actions yourself (SPA routers). |
 | `beforeNext` | `(ctx) => boolean \| Promise<boolean>` | — | Veto advancing. |
 | `renderStep` | `(ctx, host) => void \| (() => void)` | — | Replace the built-in popover. |
+| `renderIndicator` | `(ctx, host) => void \| (() => void)` | — | Replace the built-in hotspot/beacon. |
 | `dev` | `boolean` | `true` | Log validation failures to the console. |
 | `debug` | `boolean` | `false` | Show the debug overlay. |
 
@@ -218,6 +222,7 @@ JSONPath-ish: `$.steps[2].target`.
 | Function | Notes |
 |---|---|
 | `resolveTarget(target)` | → `ResolvedTarget \| null`, resolved once. |
+| `resolveTargets(target)` | → `ResolvedTarget[]`. Every match when `all: true`, otherwise at most one. |
 | `waitForTarget(target, timeout?)` | → `Promise<ResolvedTarget \| null>`. |
 | `waitForElement(selector, timeout?)` | → `Promise<Element \| null>`. |
 | `safeQuery(selector, root?)` | Never throws on a malformed selector. |
@@ -245,8 +250,19 @@ JSONPath-ish: `$.steps[2].target`.
 | `normalizeContent(content, resolve)` | Any `StepContent` → `ContentBlock[]`. |
 | `renderBlocks(blocks, opts?)` | → `DocumentFragment`. `{ allowHtml?, doc? }`. |
 | `blocksToText(blocks)` | Plain-text flattening for labels and analytics. |
-| `renderInline(markdown)` | Inline markdown → escaped HTML string. |
+| `renderInline(markdown, opts?)` | Inline markdown → escaped HTML string. `{ breaks?: boolean }`. |
+| `renderMarkdown(markdown)` | Full block markdown → escaped HTML string. |
+| `hasBlockMarkdown(source)` | True when the source uses block syntax. |
 | `escapeHtml(text)` | |
+
+## Experiments
+
+| Function | Notes |
+|---|---|
+| `assignVariant(experiment, unit, variants, opts?)` | → variant name, or `null` for a holdout. |
+| `assignAll(unit, experiments)` | Assign several at once, ready to spread into the context. |
+
+See [A/B testing](guides/experiments.md).
 
 ---
 
@@ -389,6 +405,7 @@ generated from. Import it when injecting styles into your own shadow root.
 ```bash
 npx opentutorial validate specs/**/*.json --strict
 npx opentutorial lint-selectors http://localhost:3000 specs/
+npx opentutorial preview http://localhost:3000 specs/
 npx opentutorial schema
 ```
 

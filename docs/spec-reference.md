@@ -38,6 +38,7 @@ Run `npx opentutorial validate` in CI to catch problems before they ship.
 | `onComplete` | `{ startTour?, emit?, navigate? }` | — | Chain into another tour, fire an event, or navigate. |
 | `theme` | `ThemeOverrides` | — | Overrides the provider theme for this tour. |
 | `interaction` | `InteractionMode` | `'free'` | Default for every step. |
+| `density` | `Density` | `'comfortable'` | How roomy the chrome is. |
 | `steps` | `TourStep[]` | — | **Required.** At least one. |
 
 ### FrequencyRule
@@ -70,6 +71,7 @@ Impressions are counted when a tour actually starts, and persist per user.
 | `watch` | `string` | — | Selector for `element-appears` / `element-disappears`. |
 | `urlPattern` | `string` | — | Path pattern for `url-match`. A trailing `*` is a wildcard. |
 | `interaction` | `InteractionMode` | inherits | Overrides the spec-level mode. |
+| `density` | `Density` | inherits | Overrides the spec-level density. |
 | `skippable` | `boolean` | `true` | Shows the close button. |
 | `canGoBack` | `boolean` | `true` | Shows the back button. |
 | `next` | `NextSpec` | — | A step id, or a list of `{ if, to }` branch rules. |
@@ -103,6 +105,18 @@ falls back to whichever side has the most room, then clamps into the viewport.
 | `modal` | Centred dialog, no target. |
 | `banner` | Docked bar rather than a popover. |
 
+### Density
+
+| Value | Effect |
+|---|---|
+| `compact` | Tighter padding, 12.5px text, 10px radius. Dense admin tools. |
+| `comfortable` | The default. |
+| `spacious` | Roomier padding, 14.5px text, 18px radius. Marketing walkthroughs. |
+
+Density scales spacing, font size and radius together, and everything else —
+headings, buttons, code blocks, the arrow — derives from those, so one setting
+moves the whole card coherently. Resolution is step → spec → provider option.
+
 ### InteractionMode
 
 | Mode | Behaviour |
@@ -123,6 +137,7 @@ tooltip beside a still-usable page must not hide that page from screen readers.
 | `selector` | `string \| string[]` | — | A list is tried in order; the first match wins. |
 | `text` | `string` | — | Match by visible text. Combines with `selector` to narrow it. |
 | `index` | `number` | `0` | Pick the nth match. |
+| `all` | `boolean` | `false` | Highlight **every** match, not just one. The popover anchors to their union. |
 | `shadow` | `boolean` | `false` | Search open shadow roots too. |
 | `iframe` | `string` | — | Selector of a **same-origin** iframe to search inside. |
 | `waitFor` | `boolean` | `false` | Wait for the element instead of failing immediately. |
@@ -163,9 +178,33 @@ Either a string (inline markdown), an i18n object, or a block list.
 }
 ```
 
-Inline markdown supports `**bold**`, `*italic*`, `` `code` `` and
-`[links](https://example.com)`. Everything is escaped before formatting, so
-author text can never inject markup.
+Text content is **full markdown**: headings, ordered and unordered lists,
+blockquotes, fenced code, horizontal rules, images and inline emphasis.
+
+```jsonc
+{
+  "content": "## Connect a source
+
+Pick one, then authorise it.
+
+- Postgres
+- BigQuery
+
+> Read-only credentials are enough."
+}
+```
+
+Everything is escaped **before** it is formatted, so author text can never
+inject markup — that ordering is the whole security model, and it holds whether
+the spec came from your repo or a database.
+
+Links to script-bearing schemes (`javascript:`, `vbscript:`, `data:`) are
+dropped, including forms obfuscated with control characters. Relative links
+(`/settings`, `#anchor`) are allowed and open in the same tab; external links
+get `target="_blank"` and `rel="noopener noreferrer"`.
+
+See [Content & theming](guides/content-and-theming.md#markdown) for the full
+syntax table.
 
 `html` blocks are **escaped and rendered as visible text** unless you pass
 `allowHtml: true`. That is deliberate: an author who used a block the host has

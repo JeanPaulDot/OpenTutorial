@@ -15,6 +15,12 @@ export declare function blocksToText(blocks: ContentBlock[]): string;
 export interface RenderBlocksOptions {
     /** Allow `{ type: 'html' }` blocks through. Off unless the host opts in. */
     allowHtml?: boolean;
+    /**
+     * `'block'` (default) renders headings, lists, quotes and fences in text
+     * content. `'inline'` restricts it to emphasis, code and links — use it when
+     * a step's copy legitimately starts lines with `-` or `1.`.
+     */
+    markdown?: 'block' | 'inline';
     doc?: Document;
 }
 /** Build the DOM for a block list. Nothing here inserts unescaped author text. */

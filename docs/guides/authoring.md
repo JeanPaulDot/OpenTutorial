@@ -120,6 +120,7 @@ npx opentutorial <command>
 |---|---|
 | `validate [paths…]` | Validate spec JSON. Defaults to the current directory. |
 | `lint-selectors <url> [paths…]` | Check every step selector against a live page. |
+| `preview <url> [paths…]` | Serve a page that runs your specs against a URL. |
 | `schema` | Print the path to `spec.schema.json`. |
 | `version` | Print the package version. |
 
@@ -129,6 +130,7 @@ npx opentutorial <command>
 | `--json` | `validate` | Machine-readable output. |
 | `--quiet`, `-q` | `validate` | Only print files with issues. |
 | `--networkidle` | `lint-selectors` | Wait for network idle first. |
+| `--port <n>` | `preview` | Port for the preview server. Default 4180. |
 
 Exit codes: `0` pass · `1` validation or selector failures · `2` bad usage or a
 missing prerequisite.
@@ -174,6 +176,20 @@ npm i -D playwright && npx playwright install chromium
 ```
 
 Run it against a staging deploy in CI and you find broken tours before users do.
+
+### Previewing without a rebuild
+
+```bash
+npx opentutorial preview http://localhost:3000 specs/
+```
+
+Serves a page at `http://127.0.0.1:4180` that frames your app and runs the specs
+against it, with a picker for which tour to start. The loop becomes *edit JSON →
+refresh* instead of *edit JSON → rebuild → click to the right screen → start*.
+
+The target must be **same-origin** with the preview server for selectors to
+resolve — a cross-origin frame cannot be inspected by anyone, and the page says
+so when that happens.
 
 ## Typed authoring
 
@@ -222,6 +238,7 @@ not yet done.
 1. Add `data-tour` attributes to the elements you intend to target.
 2. Record a draft with `?ot-record=1`.
 3. Edit the copy in your editor, with `$schema` for autocomplete.
-4. `npx opentutorial validate --strict` in CI.
-5. `npx opentutorial lint-selectors` against staging.
-6. Watch `target-not-found` in production.
+4. Iterate with `npx opentutorial preview`.
+5. `npx opentutorial validate --strict` in CI.
+6. `npx opentutorial lint-selectors` against staging.
+7. Watch `target-not-found` in production.

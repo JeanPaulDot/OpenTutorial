@@ -1,6 +1,6 @@
 {
   "name": "@opentutorial/core",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Spec-driven in-app tour engine. Zero runtime deps, React + vanilla adapters, spotlight/hotspot/beacon modes.",
   "type": "module",
   "exports": {
@@ -78,6 +78,8 @@
   "files": [
     "bin",
     "dist",
+    "docs",
+    "CHANGELOG.md",
     "README.md"
   ],
   "scripts": {

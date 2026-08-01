@@ -18,18 +18,19 @@ const TRIGGER_TYPES = new Set(['manual', 'auto', 'event', 'route', 'element', 'i
 const ACTION_TYPES = new Set(['emit', 'click', 'focus', 'navigate', 'setContext', 'scrollTo', 'wait']);
 const BLOCK_TYPES = new Set(['text', 'image', 'video', 'list', 'code', 'divider', 'html']);
 const INTERACTION_MODES = new Set(['free', 'target-only', 'blocked']);
+const DENSITIES = new Set(['compact', 'comfortable', 'spacious']);
 
 const TOP_LEVEL_KEYS = new Set([
   'specVersion', 'id', 'title', 'description', 'version', 'priority', 'trigger',
-  'audience', 'frequency', 'onComplete', 'theme', 'interaction', 'steps',
+  'audience', 'frequency', 'onComplete', 'theme', 'interaction', 'density', 'steps',
 ]);
 const STEP_KEYS = new Set([
   'id', 'target', 'placement', 'display', 'title', 'content', 'buttons', 'advanceOn',
-  'event', 'duration', 'match', 'watch', 'urlPattern', 'interaction', 'skippable',
+  'event', 'duration', 'match', 'watch', 'urlPattern', 'interaction', 'density', 'skippable',
   'canGoBack', 'next', 'showIf', 'theme', 'onEnter', 'onExit',
 ]);
 const TARGET_KEYS = new Set([
-  'selector', 'text', 'index', 'shadow', 'iframe', 'waitFor', 'timeout', 'visible',
+  'selector', 'text', 'index', 'all', 'shadow', 'iframe', 'waitFor', 'timeout', 'visible',
   'scrollIntoView', 'scrollBehavior', 'padding',
 ]);
 const THEME_KEYS = new Set([
@@ -259,6 +260,9 @@ export function validateSpec(input: unknown): ValidationResult {
   if (input.interaction !== undefined && !INTERACTION_MODES.has(input.interaction as string)) {
     out.error('$.interaction', 'must be "free" | "target-only" | "blocked"');
   }
+  if (input.density !== undefined && !DENSITIES.has(input.density as string)) {
+    out.error('$.density', 'must be "compact" | "comfortable" | "spacious"');
+  }
 
   checkTrigger(input.trigger, out);
 
@@ -335,6 +339,9 @@ export function validateSpec(input: unknown): ValidationResult {
     }
     if (raw.interaction !== undefined && !INTERACTION_MODES.has(raw.interaction as string)) {
       out.error(`${p}.interaction`, 'must be "free" | "target-only" | "blocked"');
+    }
+    if (raw.density !== undefined && !DENSITIES.has(raw.density as string)) {
+      out.error(`${p}.density`, 'must be "compact" | "comfortable" | "spacious"');
     }
 
     const stepTitleLen = contentLength(raw.title, `${p}.title`, out);

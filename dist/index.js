@@ -1,11 +1,12 @@
-var Rt = Object.defineProperty;
-var Mt = (n, t, e) => t in n ? Rt(n, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : n[t] = e;
-var d = (n, t, e) => Mt(n, typeof t != "symbol" ? t + "" : t, e);
-import { C as Ot, c as Dt, a as et, r as Q, b as lt, d as Ht } from "./chunks/safeEval.es.js";
-import { e as Ze, i as ts, q as es, s as ss, w as is } from "./chunks/safeEval.es.js";
-import { createAmplitudeAdapter as rs, createDatadogAdapter as os, createDebugAdapter as as, createEventCollector as ls, createFunnelReport as cs, createGA4Adapter as hs, createHeapAdapter as ds, createHttpAdapter as us, createMixpanelAdapter as ps, createMultiAdapter as fs, createPostHogAdapter as ms, createRudderStackAdapter as gs, createSegmentAdapter as vs, filterEvents as ys, shouldSample as bs, withEventTypes as ws, withSampling as xs } from "./analytics.js";
-let mt = 0;
-class jt {
+var Kt = Object.defineProperty;
+var Xt = (n, t, e) => t in n ? Kt(n, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : n[t] = e;
+var d = (n, t, e) => Xt(n, typeof t != "symbol" ? t + "" : t, e);
+import { C as Yt, c as Jt, a as st, r as Q, f as ut, d as Qt, b as Zt } from "./chunks/safeEval.es.js";
+import { e as Es, i as $s, q as Ss, s as As, w as Cs } from "./chunks/safeEval.es.js";
+import { shouldSample as te, sampleValue as xt } from "./analytics.js";
+import { createAmplitudeAdapter as Ts, createDatadogAdapter as Ls, createDebugAdapter as Ns, createEventCollector as Ms, createFunnelReport as Rs, createGA4Adapter as Ps, createHeapAdapter as Ds, createHttpAdapter as qs, createMixpanelAdapter as Bs, createMultiAdapter as Os, createPostHogAdapter as Hs, createRudderStackAdapter as js, createSegmentAdapter as _s, filterEvents as zs, withEventTypes as Fs, withSampling as Ws } from "./analytics.js";
+let kt = 0;
+class mt {
   constructor(t, e = {}) {
     /** Children mount here — inside the shadow root when isolated. */
     d(this, "root");
@@ -14,21 +15,26 @@ class jt {
     d(this, "shadow", null);
     d(this, "svg");
     d(this, "dimRect");
+    d(this, "mask");
     d(this, "hole");
+    d(this, "holes", []);
     d(this, "ring");
+    d(this, "rings", []);
     d(this, "shield");
     d(this, "panels", []);
     d(this, "current", null);
+    /** Every highlighted rect, when a step targets more than one element. */
+    d(this, "currentAll", []);
     d(this, "interaction", "free");
     d(this, "opts");
-    mt += 1;
-    const s = `ot-mask-${mt}`;
+    kt += 1;
+    const s = `ot-mask-${kt}`;
     if (this.opts = e, this.root = document.createElement("div"), this.root.className = "ot-root", this.root.style.setProperty("--ot-z", String(t)), this.root.setAttribute("data-opentutorial", ""), e.dir && this.root.setAttribute("dir", e.dir), e.isolate) {
       this.host = document.createElement("div"), this.host.setAttribute("data-opentutorial-host", ""), this.host.style.cssText = "position:fixed;inset:0;pointer-events:none;", this.host.style.zIndex = String(t);
       try {
         this.shadow = this.host.attachShadow({ mode: "open" });
         const l = document.createElement("style");
-        l.textContent = Ot, this.shadow.appendChild(l), this.shadow.appendChild(this.root);
+        l.textContent = Yt, this.shadow.appendChild(l), this.shadow.appendChild(this.root);
       } catch {
         this.shadow = null, this.host = this.root;
       }
@@ -39,25 +45,60 @@ class jt {
     const r = document.createElementNS(i, "defs"), o = document.createElementNS(i, "mask");
     o.setAttribute("id", s);
     const a = document.createElementNS(i, "rect");
-    a.setAttribute("x", "0"), a.setAttribute("y", "0"), a.setAttribute("width", "100%"), a.setAttribute("height", "100%"), a.setAttribute("fill", "white"), this.hole = document.createElementNS(i, "rect"), this.hole.setAttribute("fill", "black"), this.hole.setAttribute("rx", "12"), this.setHole({ x: -9999, y: -9999, width: 0, height: 0 }, 0), o.appendChild(a), o.appendChild(this.hole), r.appendChild(o), this.dimRect = document.createElementNS(i, "rect"), this.dimRect.setAttribute("class", "ot-dim"), this.dimRect.setAttribute("x", "0"), this.dimRect.setAttribute("y", "0"), this.dimRect.setAttribute("width", "100%"), this.dimRect.setAttribute("height", "100%"), this.dimRect.setAttribute("mask", `url(#${s})`), this.svg.appendChild(r), this.svg.appendChild(this.dimRect), this.ring = document.createElement("div"), this.ring.className = "ot-ring", this.ring.style.opacity = "0", this.shield = document.createElement("div"), this.shield.className = "ot-shield", this.shield.style.display = "none";
+    a.setAttribute("x", "0"), a.setAttribute("y", "0"), a.setAttribute("width", "100%"), a.setAttribute("height", "100%"), a.setAttribute("fill", "white"), this.mask = o, this.hole = this.addHole(), o.appendChild(a), o.appendChild(this.hole), r.appendChild(o), this.dimRect = document.createElementNS(i, "rect"), this.dimRect.setAttribute("class", "ot-dim"), this.dimRect.setAttribute("x", "0"), this.dimRect.setAttribute("y", "0"), this.dimRect.setAttribute("width", "100%"), this.dimRect.setAttribute("height", "100%"), this.dimRect.setAttribute("mask", `url(#${s})`), this.svg.appendChild(r), this.svg.appendChild(this.dimRect), this.ring = document.createElement("div"), this.ring.className = "ot-ring", this.ring.style.opacity = "0", this.rings.push(this.ring), this.shield = document.createElement("div"), this.shield.className = "ot-shield", this.shield.style.display = "none";
     for (let l = 0; l < 4; l += 1) {
       const c = document.createElement("div");
       c.className = "ot-shield-panel", this.panels.push(c), this.shield.appendChild(c);
     }
     this.root.appendChild(this.svg), this.root.appendChild(this.ring), this.root.appendChild(this.shield), this.svg.style.display = "none";
   }
-  setHole(t, e) {
-    this.hole.setAttribute("x", String(t.x - e)), this.hole.setAttribute("y", String(t.y - e)), this.hole.setAttribute("width", String(Math.max(0, t.width + e * 2))), this.hole.setAttribute("height", String(Math.max(0, t.height + e * 2)));
+  /** Add a cutout to the mask pool. */
+  addHole() {
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    return t.setAttribute("fill", "black"), t.setAttribute("rx", "12"), t.setAttribute("x", "-9999"), t.setAttribute("y", "-9999"), t.setAttribute("width", "0"), t.setAttribute("height", "0"), this.holes.push(t), this.mask && this.mask.appendChild(t), t;
+  }
+  /** Add a highlight ring to the pool. */
+  addRing() {
+    const t = document.createElement("div");
+    return t.className = "ot-ring", t.style.opacity = "0", this.rings.push(t), this.root.appendChild(t), t;
+  }
+  setHole(t, e, s = this.hole) {
+    s.setAttribute("x", String(t.x - e)), s.setAttribute("y", String(t.y - e)), s.setAttribute("width", String(Math.max(0, t.width + e * 2))), s.setAttribute("height", String(Math.max(0, t.height + e * 2)));
+  }
+  /** Smallest rect containing every input. Drives the popover and the shield. */
+  static union(t) {
+    const e = Math.min(...t.map((o) => o.x)), s = Math.min(...t.map((o) => o.y)), i = Math.max(...t.map((o) => o.x + o.width)), r = Math.max(...t.map((o) => o.y + o.height));
+    return { x: e, y: s, width: i - e, height: r - s };
   }
   /** Update the cutout + ring. Pass null to clear the spotlight. */
+  /**
+   * Update the cutout(s) and ring(s). Pass null to clear the spotlight.
+   *
+   * An array highlights several elements at once — "these three fields" — with
+   * one cutout and one ring each. The popover and the interaction shield use
+   * their union, because a four-panel shield cannot express a disjoint gap and a
+   * popover has to point somewhere.
+   */
   updateSpotlight(t, e = 8, s = 12) {
-    if (this.current = t ? { ...t, padding: e, radius: s } : null, !t) {
-      this.setHole({ x: -9999, y: -9999, width: 0, height: 0 }, 0), this.ring.style.opacity = "0", this.svg.style.display = "none", this.applyShield();
+    const i = t === null ? [] : Array.isArray(t) ? t : [t];
+    if (this.currentAll = i, i.length === 0) {
+      this.current = null;
+      for (const r of this.holes) this.setHole({ x: -9999, y: -9999, width: 0, height: 0 }, 0, r);
+      for (const r of this.rings) r.style.opacity = "0";
+      this.svg.style.display = "none", this.applyShield();
       return;
     }
-    this.svg.style.display = "", this.setHole(t, e), this.hole.setAttribute("rx", String(s));
-    const i = this.ring.style;
-    i.opacity = "1", i.left = `${t.x - e}px`, i.top = `${t.y - e}px`, i.width = `${t.width + e * 2}px`, i.height = `${t.height + e * 2}px`, i.borderRadius = `${s}px`, this.applyShield();
+    for (this.current = { ...mt.union(i), padding: e, radius: s }, this.svg.style.display = ""; this.holes.length < i.length; ) this.addHole();
+    for (; this.rings.length < i.length; ) this.addRing();
+    i.forEach((r, o) => {
+      const a = this.holes[o];
+      this.setHole(r, e, a), a.setAttribute("rx", String(s));
+      const l = this.rings[o].style;
+      l.opacity = "1", l.left = `${r.x - e}px`, l.top = `${r.y - e}px`, l.width = `${r.width + e * 2}px`, l.height = `${r.height + e * 2}px`, l.borderRadius = `${s}px`;
+    });
+    for (let r = i.length; r < this.holes.length; r += 1)
+      this.setHole({ x: -9999, y: -9999, width: 0, height: 0 }, 0, this.holes[r]), this.rings[r].style.opacity = "0";
+    this.applyShield();
   }
   /** Dim the viewport with no cutout — for modal steps that have no target. */
   showBackdrop() {
@@ -87,7 +128,15 @@ class jt {
     l(i, 0, 0, t, s.y), l(o, 0, s.y + s.height, t, e - (s.y + s.height)), l(a, 0, s.y, s.x, s.height), l(r, s.x + s.width, s.y, t - (s.x + s.width), s.height);
   }
   refresh() {
-    this.current ? this.updateSpotlight(this.current, this.current.padding, this.current.radius) : this.applyShield();
+    this.current ? this.updateSpotlight(
+      this.currentAll.length > 1 ? this.currentAll : this.current,
+      this.current.padding,
+      this.current.radius
+    ) : this.applyShield();
+  }
+  /** The rects currently highlighted, for the popover to anchor against. */
+  getSpotlightRects() {
+    return this.currentAll;
   }
   mountPopover(t) {
     this.root.appendChild(t);
@@ -105,26 +154,120 @@ class jt {
     this.host.remove();
   }
 }
-const _t = {
+const ee = {
   "&": "&amp;",
   "<": "&lt;",
   ">": "&gt;",
   '"': "&quot;",
   "'": "&#39;"
 };
-function Ct(n) {
-  return n.replace(/[&<>"']/g, (t) => _t[t] ?? t);
+function nt(n) {
+  return n.replace(/[&<>"']/g, (t) => ee[t] ?? t);
 }
-const Ft = /^(https?:\/\/|mailto:)/i;
-function J(n) {
+const Dt = /^(javascript|vbscript|data|file|blob)\s*:/i;
+function qt(n) {
+  let t = "";
+  for (const e of n)
+    e.charCodeAt(0) > 32 && (t += e);
+  return t;
+}
+function se(n) {
+  const t = n.trim();
+  return Dt.test(qt(t)) ? null : t;
+}
+function ie(n) {
+  const t = qt(n.trim());
+  return /^data:image\/(png|jpe?g|gif|webp|avif);/i.test(t) ? n.trim() : Dt.test(t) ? null : n.trim();
+}
+function V(n, t = {}) {
   if (typeof n != "string") return "";
-  let t = Ct(n);
-  return t = t.replace(
+  let e = nt(n);
+  return e = e.replace(
+    /!\[([^\]]*)\]\(([^\s)]+)\)/g,
+    (s, i, r) => {
+      const o = ie(r);
+      return o ? `<img class="ot-inline-img" src="${o}" alt="${i}">` : s;
+    }
+  ), e = e.replace(
     /\[([^\]]+)\]\(([^\s)]+)\)/g,
-    (e, s, i) => Ft.test(i) ? `<a href="${i}" target="_blank" rel="noopener noreferrer">${s}</a>` : e
-  ), t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>"), t = t.replace(/\*([^*]+)\*/g, "<em>$1</em>"), t = t.replace(/~~([^~]+)~~/g, "<s>$1</s>"), t = t.replace(/`([^`]+)`/g, "<code>$1</code>"), t = t.replace(/\r?\n/g, "<br>"), t;
+    (s, i, r) => {
+      const o = se(r);
+      if (!o) return s;
+      const l = /^(https?:)?\/\//i.test(o) ? ' target="_blank" rel="noopener noreferrer"' : "";
+      return `<a href="${o}"${l}>${i}</a>`;
+    }
+  ), e = e.replace(/\*\*([^\s*][^*]*?[^\s*]|[^\s*])\*\*/g, "<strong>$1</strong>"), e = e.replace(/(^|[^*])\*([^\s*][^*\n]*?[^\s*]|[^\s*])\*/g, "$1<em>$2</em>"), e = e.replace(/~~([^~]+)~~/g, "<s>$1</s>"), e = e.replace(/`([^`]+)`/g, "<code>$1</code>"), t.breaks !== !1 && (e = e.replace(/\r?\n/g, "<br>")), e;
 }
-function ht(n, t) {
+const Bt = /^(#{1,6})\s+(.*)$/, Ot = /^\s*(`{3,}|~{3,})\s*([\w+-]*)\s*$/, Ht = /^\s*(-{3,}|\*{3,}|_{3,})\s*$/, pt = /^\s*[-*+]\s+(.*)$/, Z = /^\s*(\d+)\.\s+(.*)$/, it = /^\s*>\s?(.*)$/, lt = (n) => V(n, { breaks: !1 });
+function jt(n) {
+  if (typeof n != "string" || n === "") return "";
+  const t = n.replace(/\r\n?/g, `
+`).split(`
+`), e = [];
+  let s = [];
+  const i = () => {
+    s.length !== 0 && (e.push(`<p class="ot-content">${lt(s.join(`
+`)).replace(/\n/g, "<br>")}</p>`), s = []);
+  };
+  for (let r = 0; r < t.length; r += 1) {
+    const o = t[r], a = Ot.exec(o);
+    if (a) {
+      i();
+      const c = a[1][0], u = a[2], h = [];
+      for (r += 1; r < t.length && !new RegExp(`^\\s*${c}{3,}\\s*$`).test(t[r]); )
+        h.push(t[r]), r += 1;
+      const f = u ? ` class="language-${nt(u)}"` : "";
+      e.push(`<pre class="ot-code"><code${f}>${nt(h.join(`
+`))}</code></pre>`);
+      continue;
+    }
+    if (Ht.test(o)) {
+      i(), e.push('<hr class="ot-divider">');
+      continue;
+    }
+    const l = Bt.exec(o);
+    if (l) {
+      i();
+      const c = l[1].length;
+      e.push(`<h${c} class="ot-heading ot-heading--${c}">${lt(l[2])}</h${c}>`);
+      continue;
+    }
+    if (it.test(o)) {
+      i();
+      const c = [];
+      for (; r < t.length && it.test(t[r]); )
+        c.push(it.exec(t[r])[1]), r += 1;
+      r -= 1, e.push(`<blockquote class="ot-quote">${jt(c.join(`
+`))}</blockquote>`);
+      continue;
+    }
+    if (pt.test(o) || Z.test(o)) {
+      i();
+      const c = Z.test(o), u = [];
+      for (; r < t.length; ) {
+        const w = t[r], b = c ? Z.exec(w) : pt.exec(w);
+        if (!b) break;
+        u.push(`<li>${lt(c ? b[2] : b[1])}</li>`), r += 1;
+      }
+      r -= 1;
+      const h = c ? "ol" : "ul", f = c ? Number(Z.exec(o)[1]) : 1, k = c && f !== 1 ? ` start="${f}"` : "";
+      e.push(`<${h} class="ot-list"${k}>${u.join("")}</${h}>`);
+      continue;
+    }
+    if (o.trim() === "") {
+      i();
+      continue;
+    }
+    s.push(o);
+  }
+  return i(), e.join("");
+}
+function ne(n) {
+  return typeof n != "string" ? !1 : n.split(/\r?\n/).some(
+    (t) => Bt.test(t) || Ot.test(t) || Ht.test(t) || pt.test(t) || Z.test(t) || it.test(t)
+  );
+}
+function gt(n, t) {
   return n && typeof n == "object" && "blocks" in n && Array.isArray(n.blocks) ? n.blocks.map((e) => {
     switch (e.type) {
       case "text":
@@ -136,7 +279,7 @@ function ht(n, t) {
     }
   }) : [{ type: "text", value: t(n) }];
 }
-function zt(n) {
+function re(n) {
   return n.map((t) => {
     switch (t.type) {
       case "text":
@@ -152,13 +295,19 @@ function zt(n) {
     }
   }).filter(Boolean).join(" ");
 }
-function dt(n, t = {}) {
+function vt(n, t = {}) {
   const e = t.doc ?? document, s = e.createDocumentFragment();
   for (const i of n)
     switch (i.type) {
       case "text": {
-        const r = e.createElement("p");
-        r.className = "ot-content", r.innerHTML = J(typeof i.value == "string" ? i.value : ""), s.appendChild(r);
+        const r = typeof i.value == "string" ? i.value : "";
+        if (t.markdown !== "inline" && ne(r)) {
+          const o = e.createElement("div");
+          o.className = "ot-prose", o.innerHTML = jt(r), s.appendChild(o);
+        } else {
+          const o = e.createElement("p");
+          o.className = "ot-content", o.innerHTML = V(r), s.appendChild(o);
+        }
         break;
       }
       case "image": {
@@ -176,7 +325,7 @@ function dt(n, t = {}) {
         r.className = "ot-list";
         for (const o of i.items) {
           const a = e.createElement("li");
-          a.innerHTML = J(typeof o == "string" ? o : ""), r.appendChild(a);
+          a.innerHTML = V(typeof o == "string" ? o : ""), r.appendChild(a);
         }
         s.appendChild(r);
         break;
@@ -195,25 +344,25 @@ function dt(n, t = {}) {
       }
       case "html": {
         const r = e.createElement("div");
-        r.className = "ot-html", r.innerHTML = t.allowHtml ? i.value : Ct(i.value), s.appendChild(r);
+        r.className = "ot-html", r.innerHTML = t.allowHtml ? i.value : nt(i.value), s.appendChild(r);
         break;
       }
     }
   return s;
 }
-const Wt = 56, Gt = 44, Vt = 700, Ut = 14, z = 10;
-function Kt(n) {
+const oe = 240, ae = 460, le = 0.7, ce = 56, he = 44, de = 700, ue = 14, z = 10;
+function pe(n) {
   if (n === "auto" || n === "center") return { side: "auto", align: "center" };
   const [t, e] = n.split("-");
   return { side: t, align: e ?? "center" };
 }
-function Yt(n) {
+function fe(n) {
   return { top: "bottom", bottom: "top", left: "right", right: "left" }[n];
 }
-function Xt(n) {
+function me(n) {
   return n === "left" ? "right" : n === "right" ? "left" : n;
 }
-class Jt {
+class ge {
   constructor(t, e = "ltr", s = {}) {
     d(this, "el");
     d(this, "titleEl");
@@ -230,7 +379,8 @@ class Jt {
     /** The last rendered model, so a swipe honours the same rules as the buttons. */
     d(this, "model", null);
     d(this, "detachSwipe", null);
-    this.cbs = t, this.dir = e, this.el = document.createElement("div"), this.el.className = "ot-popover", this.el.setAttribute("role", "dialog"), this.el.tabIndex = -1, this.arrow = document.createElement("div"), this.arrow.className = "ot-arrow";
+    d(this, "autoSize", !0);
+    this.cbs = t, this.dir = e, this.autoSize = s.autoSize !== !1, this.el = document.createElement("div"), this.el.className = "ot-popover", this.el.setAttribute("role", "dialog"), this.el.tabIndex = -1, this.arrow = document.createElement("div"), this.arrow.className = "ot-arrow";
     const i = document.createElement("div");
     i.className = "ot-body", this.skipBtn = document.createElement("button"), this.skipBtn.type = "button", this.skipBtn.className = "ot-skip", this.skipBtn.setAttribute("aria-label", "Close tour"), this.skipBtn.innerHTML = "&times;", this.skipBtn.addEventListener("click", () => this.cbs.onSkip()), this.titleEl = document.createElement("h2"), this.titleEl.className = "ot-title", this.titleEl.id = `ot-title-${Math.random().toString(36).slice(2, 8)}`, this.el.setAttribute("aria-labelledby", this.titleEl.id), this.contentEl = document.createElement("div"), this.contentEl.className = "ot-content-wrap", this.progressEl = document.createElement("div"), this.progressEl.className = "ot-dots", this.progressEl.setAttribute("aria-hidden", "true"), this.liveEl = document.createElement("span"), this.liveEl.className = "ot-sr-only", this.liveEl.setAttribute("aria-live", "polite"), this.liveEl.setAttribute("aria-atomic", "true"), this.backBtn = document.createElement("button"), this.backBtn.type = "button", this.backBtn.className = "ot-btn ot-btn-ghost", this.backBtn.addEventListener("click", () => this.cbs.onPrev()), this.nextBtn = document.createElement("button"), this.nextBtn.type = "button", this.nextBtn.className = "ot-btn ot-btn-primary", this.nextBtn.addEventListener("click", () => this.cbs.onNext());
     const r = document.createElement("div");
@@ -270,7 +420,7 @@ class Jt {
       const l = a.changedTouches[0];
       if (!l) return;
       const c = l.clientX - t, u = l.clientY - e;
-      if (Date.now() - s > Vt || Math.abs(u) > Gt || Math.abs(c) < Wt) return;
+      if (Date.now() - s > de || Math.abs(u) > he || Math.abs(c) < ce) return;
       const h = this.dir === "rtl" ? c > 0 : c < 0, f = this.model;
       f && (h ? f.showNext && this.cbs.onNext() : f.showBack && f.canGoBack && f.index > 0 && this.cbs.onPrev());
     };
@@ -291,14 +441,38 @@ class Jt {
   }
   render(t) {
     this.model = t, this.titleEl.textContent = t.title, this.contentEl.replaceChildren(
-      dt(t.blocks, { allowHtml: t.allowHtml })
+      vt(t.blocks, { allowHtml: t.allowHtml })
     ), this.liveEl.textContent = `${t.title}. Step ${t.index + 1} of ${t.total}`, this.progressEl.replaceChildren();
     for (let s = 0; s < t.total; s += 1) {
       const i = document.createElement("span");
       i.className = `ot-dot${s === t.index ? " ot-dot-active" : ""}`, this.progressEl.appendChild(i);
     }
     const e = t.showBack && t.canGoBack && t.index > 0;
-    this.backBtn.style.display = e ? "" : "none", this.backBtn.textContent = t.labels.back, this.nextBtn.style.display = t.showNext ? "" : "none", this.nextBtn.textContent = t.isLast ? t.labels.done : t.labels.next, this.skipBtn.style.display = t.skippable ? "" : "none", this.skipBtn.setAttribute("aria-label", t.labels.skip), this.el.setAttribute("aria-modal", t.modal ? "true" : "false"), this.el.classList.toggle("ot-popover--modal-step", t.modal);
+    this.backBtn.style.display = e ? "" : "none", this.backBtn.textContent = t.labels.back, this.nextBtn.style.display = t.showNext ? "" : "none", this.nextBtn.textContent = t.isLast ? t.labels.done : t.labels.next, this.skipBtn.style.display = t.skippable ? "" : "none", this.skipBtn.setAttribute("aria-label", t.labels.skip), this.el.setAttribute("aria-modal", t.modal ? "true" : "false"), this.el.classList.toggle("ot-popover--modal-step", t.modal), t.density ? this.el.dataset.otDensity = t.density : delete this.el.dataset.otDensity, this.applyAutoSize();
+  }
+  /**
+   * Pick a width from the content and a max-height from the viewport.
+   *
+   * A fixed 340px card is wrong twice: a one-line step looks empty in it, and a
+   * step with a code block or an image overflows it. Measuring the natural
+   * width once per render costs a single forced layout and makes the card fit
+   * what it actually holds.
+   *
+   * Height is capped rather than sized, so long content scrolls inside the card
+   * instead of running off the bottom of the screen — which is what used to
+   * happen on a short viewport.
+   */
+  applyAutoSize() {
+    const t = this.el.ownerDocument?.defaultView ?? window, e = t.innerHeight, s = t.innerWidth, i = s <= 480;
+    if (this.el.style.maxHeight = `${Math.round(e * le)}px`, !this.autoSize || i) {
+      this.el.style.width = "";
+      return;
+    }
+    this.el.style.width = "max-content";
+    const r = this.el.offsetWidth;
+    this.el.style.width = "";
+    const o = Math.min(ae, s - z * 2), a = Math.min(oe, o), l = Math.max(a, Math.min(r, o));
+    this.el.style.width = `${Math.round(l)}px`;
   }
   /** Position relative to a target rect (viewport coords), or centered when null. */
   position(t, e, s) {
@@ -308,21 +482,21 @@ class Jt {
       return;
     }
     this.el.classList.remove("ot-modal"), this.arrow.style.display = "";
-    const l = Kt(e), c = this.dir === "rtl" ? Xt(l.side) : l.side, u = l.align, h = Ut + s, f = {
+    const l = pe(e), c = this.dir === "rtl" ? me(l.side) : l.side, u = l.align, h = ue + s, f = {
       top: t.y,
       bottom: r - (t.y + t.height),
       left: t.x,
       right: i - (t.x + t.width)
     };
-    let x = c === "auto" ? ["bottom", "right", "top", "left"].reduce((E, I) => f[I] > f[E] ? I : E, "bottom") : c;
-    const w = (g) => g === "top" || g === "bottom" ? f[g] >= a + h : f[g] >= o + h;
-    if (!w(x)) {
-      const g = Yt(x);
-      w(g) ? x = g : x = Object.keys(f).reduce((E, I) => f[E] >= f[I] ? E : I);
+    let w = c === "auto" ? ["bottom", "right", "top", "left"].reduce((E, I) => f[I] > f[E] ? I : E, "bottom") : c;
+    const b = (g) => g === "top" || g === "bottom" ? f[g] >= a + h : f[g] >= o + h;
+    if (!b(w)) {
+      const g = fe(w);
+      b(g) ? w = g : w = Object.keys(f).reduce((E, I) => f[E] >= f[I] ? E : I);
     }
-    let b = 0, m = 0;
+    let x = 0, m = 0;
     const y = (g, E, I) => u === "start" ? this.dir === "rtl" ? g + E - I : g : u === "end" ? this.dir === "rtl" ? g : g + E - I : g + E / 2 - I / 2;
-    x === "top" || x === "bottom" ? (b = y(t.x, t.width, o), m = x === "top" ? t.y - a - h : t.y + t.height + h) : (m = y(t.y, t.height, a), b = x === "left" ? t.x - o - h : t.x + t.width + h), b = Math.min(Math.max(b, z), Math.max(z, i - o - z)), m = Math.min(Math.max(m, z), Math.max(z, r - a - z)), this.el.style.left = `${b}px`, this.el.style.top = `${m}px`, this.lastSide = x, this.positionArrow(x, t, b, m, o, a);
+    w === "top" || w === "bottom" ? (x = y(t.x, t.width, o), m = w === "top" ? t.y - a - h : t.y + t.height + h) : (m = y(t.y, t.height, a), x = w === "left" ? t.x - o - h : t.x + t.width + h), x = Math.min(Math.max(x, z), Math.max(z, i - o - z)), m = Math.min(Math.max(m, z), Math.max(z, r - a - z)), this.el.style.left = `${x}px`, this.el.style.top = `${m}px`, this.lastSide = w, this.positionArrow(w, t, x, m, o, a);
   }
   positionArrow(t, e, s, i, r, o) {
     const a = this.arrow.style;
@@ -337,7 +511,7 @@ class Jt {
     this.detachSwipe?.(), this.detachSwipe = null, this.el.remove();
   }
 }
-class Qt {
+class ve {
   constructor() {
     d(this, "el");
     d(this, "beaconEl");
@@ -356,7 +530,7 @@ class Qt {
     this.beaconEl.setAttribute("aria-label", s), t.display === "beacon" ? (this.hasTooltip = !1, this.tooltipEl && (this.tooltipEl.style.display = "none"), this.beaconEl.title = t.content ?? "") : (this.hasTooltip = !0, this.buildTooltip(t), this.positionTooltip(e));
   }
   buildTooltip(t) {
-    this.tooltipEl || (this.tooltipEl = document.createElement("div"), this.tooltipEl.className = "ot-hotspot-tooltip", this.tooltipEl.setAttribute("role", "status"), this.textEl = document.createElement("span"), this.textEl.className = "ot-hotspot-text", this.tooltipEl.appendChild(this.textEl), this.el.appendChild(this.tooltipEl)), this.tooltipEl.style.display = "flex", this.textEl && (this.textEl.innerHTML = J(t.content ?? "")), t.showDismiss || t.display === "hotspot" ? (this.dismissBtn || (this.dismissBtn = document.createElement("button"), this.dismissBtn.type = "button", this.dismissBtn.className = "ot-hotspot-dismiss", this.dismissBtn.textContent = "→", this.dismissBtn.setAttribute("aria-label", "Next step"), this.dismissBtn.addEventListener("click", () => this.onDismiss?.())), this.tooltipEl.appendChild(this.dismissBtn)) : this.dismissBtn?.parentNode && this.dismissBtn.remove();
+    this.tooltipEl || (this.tooltipEl = document.createElement("div"), this.tooltipEl.className = "ot-hotspot-tooltip", this.tooltipEl.setAttribute("role", "status"), this.textEl = document.createElement("span"), this.textEl.className = "ot-hotspot-text", this.tooltipEl.appendChild(this.textEl), this.el.appendChild(this.tooltipEl)), this.tooltipEl.style.display = "flex", this.textEl && (this.textEl.innerHTML = V(t.content ?? "")), t.showDismiss || t.display === "hotspot" ? (this.dismissBtn || (this.dismissBtn = document.createElement("button"), this.dismissBtn.type = "button", this.dismissBtn.className = "ot-hotspot-dismiss", this.dismissBtn.textContent = "→", this.dismissBtn.setAttribute("aria-label", "Next step"), this.dismissBtn.addEventListener("click", () => this.onDismiss?.())), this.tooltipEl.appendChild(this.dismissBtn)) : this.dismissBtn?.parentNode && this.dismissBtn.remove();
   }
   positionTooltip(t) {
     if (!this.tooltipEl) return;
@@ -373,8 +547,8 @@ class Qt {
     this.onDismiss = null, this.el.remove();
   }
 }
-const Zt = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-function te(n) {
+const ye = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+function be(n) {
   if (!n) return !1;
   if (n.isContentEditable) return !0;
   const t = n.tagName;
@@ -383,14 +557,14 @@ function te(n) {
   const e = n.type;
   return !["button", "submit", "reset", "checkbox", "radio", "file"].includes(e);
 }
-function ee(n, t = {}) {
-  const e = document.activeElement, s = t.trap !== !1, i = () => Array.from(n.querySelectorAll(Zt)).filter((o) => o.getClientRects().length > 0 || o === document.activeElement), r = (o) => {
+function we(n, t = {}) {
+  const e = document.activeElement, s = t.trap !== !1, i = () => Array.from(n.querySelectorAll(ye)).filter((o) => o.getClientRects().length > 0 || o === document.activeElement), r = (o) => {
     const a = n.getRootNode().activeElement ?? document.activeElement;
     if (o.key === "Escape") {
       t.onEscape?.(), o.stopPropagation();
       return;
     }
-    if (te(a)) return;
+    if (be(a)) return;
     if (o.key === "ArrowRight") {
       t.onArrowNext?.(), o.preventDefault();
       return;
@@ -418,14 +592,14 @@ function ee(n, t = {}) {
     (!o || o === document.body || n.contains(o)) && e?.focus?.({ preventScroll: !0 });
   };
 }
-const ct = "opentutorial:locationchange";
-let gt = !1;
-function se() {
-  if (gt || typeof history > "u") return;
-  gt = !0;
+const ft = "opentutorial:locationchange";
+let Et = !1;
+function xe() {
+  if (Et || typeof history > "u") return;
+  Et = !0;
   const n = () => {
     try {
-      window.dispatchEvent(new Event(ct));
+      window.dispatchEvent(new Event(ft));
     } catch {
     }
   };
@@ -437,10 +611,10 @@ function se() {
     });
   }
 }
-function It() {
+function _t() {
   return typeof location > "u" ? "" : location.pathname + location.search + location.hash;
 }
-function Tt(n, t, e = !1) {
+function zt(n, t, e = !1) {
   if (!n) return !1;
   const s = t.split("#")[0];
   if (n.endsWith("*"))
@@ -456,13 +630,13 @@ function Tt(n, t, e = !1) {
   const i = s.split("?")[0];
   return e ? i === n : i.startsWith(n);
 }
-function Lt(n) {
+function Ft(n) {
   return typeof window > "u" ? () => {
-  } : (se(), window.addEventListener("popstate", n), window.addEventListener("hashchange", n), window.addEventListener(ct, n), () => {
-    window.removeEventListener("popstate", n), window.removeEventListener("hashchange", n), window.removeEventListener(ct, n);
+  } : (xe(), window.addEventListener("popstate", n), window.addEventListener("hashchange", n), window.addEventListener(ft, n), () => {
+    window.removeEventListener("popstate", n), window.removeEventListener("hashchange", n), window.removeEventListener(ft, n);
   });
 }
-class st {
+class rt {
   constructor() {
     d(this, "map", /* @__PURE__ */ new Map());
   }
@@ -476,10 +650,10 @@ class st {
     this.map.delete(t);
   }
 }
-function Te() {
-  return new st();
+function Qe() {
+  return new rt();
 }
-function Nt() {
+function Wt() {
   try {
     if (typeof localStorage < "u") {
       const n = "__ot_probe__";
@@ -487,20 +661,20 @@ function Nt() {
     }
   } catch {
   }
-  return new st();
+  return new rt();
 }
-function rt() {
+function ct() {
   return { v: 2, tours: {}, progress: {} };
 }
-class Pt {
+class Gt {
   constructor(t, e = "ot", s) {
     d(this, "ready");
     d(this, "storage");
     d(this, "prefix");
     d(this, "userId");
-    d(this, "root", rt());
+    d(this, "root", ct());
     d(this, "hydrated", !1);
-    this.storage = t ?? Nt(), this.prefix = e, this.userId = s, this.ready = this.hydrate();
+    this.storage = t ?? Wt(), this.prefix = e, this.userId = s, this.ready = this.hydrate();
   }
   key() {
     return this.userId ? `${this.prefix}:u:${this.userId}` : `${this.prefix}:anon`;
@@ -513,7 +687,7 @@ class Pt {
    * the previous user's completions over.
    */
   setUser(t) {
-    return t === this.userId ? this.ready : (this.userId = t, this.root = rt(), this.hydrated = !1, this.hydrate());
+    return t === this.userId ? this.ready : (this.userId = t, this.root = ct(), this.hydrated = !1, this.hydrate());
   }
   getUser() {
     return this.userId;
@@ -601,7 +775,7 @@ class Pt {
   }
   reset(t) {
     if (!t) {
-      this.root = rt(), this.save();
+      this.root = ct(), this.save();
       return;
     }
     delete this.root.tours[t], delete this.root.progress[t], this.save();
@@ -660,7 +834,7 @@ class Pt {
     return this.save(), !0;
   }
 }
-const vt = /* @__PURE__ */ new Set([
+const $t = /* @__PURE__ */ new Set([
   "auto",
   "center",
   "top",
@@ -675,7 +849,7 @@ const vt = /* @__PURE__ */ new Set([
   "right",
   "right-start",
   "right-end"
-]), yt = /* @__PURE__ */ new Set(["spotlight", "hotspot", "beacon", "modal", "banner"]), bt = /* @__PURE__ */ new Set([
+]), St = /* @__PURE__ */ new Set(["spotlight", "hotspot", "beacon", "modal", "banner"]), At = /* @__PURE__ */ new Set([
   "button",
   "target-click",
   "event",
@@ -685,7 +859,7 @@ const vt = /* @__PURE__ */ new Set([
   "element-appears",
   "element-disappears",
   "url-match"
-]), wt = /* @__PURE__ */ new Set(["manual", "auto", "event", "route", "element", "idle", "scroll"]), ie = /* @__PURE__ */ new Set(["emit", "click", "focus", "navigate", "setContext", "scrollTo", "wait"]), ne = /* @__PURE__ */ new Set(["text", "image", "video", "list", "code", "divider", "html"]), xt = /* @__PURE__ */ new Set(["free", "target-only", "blocked"]), re = /* @__PURE__ */ new Set([
+]), Ct = /* @__PURE__ */ new Set(["manual", "auto", "event", "route", "element", "idle", "scroll"]), ke = /* @__PURE__ */ new Set(["emit", "click", "focus", "navigate", "setContext", "scrollTo", "wait"]), Ee = /* @__PURE__ */ new Set(["text", "image", "video", "list", "code", "divider", "html"]), It = /* @__PURE__ */ new Set(["free", "target-only", "blocked"]), Tt = /* @__PURE__ */ new Set(["compact", "comfortable", "spacious"]), $e = /* @__PURE__ */ new Set([
   "specVersion",
   "id",
   "title",
@@ -698,8 +872,9 @@ const vt = /* @__PURE__ */ new Set([
   "onComplete",
   "theme",
   "interaction",
+  "density",
   "steps"
-]), oe = /* @__PURE__ */ new Set([
+]), Se = /* @__PURE__ */ new Set([
   "id",
   "target",
   "placement",
@@ -714,6 +889,7 @@ const vt = /* @__PURE__ */ new Set([
   "watch",
   "urlPattern",
   "interaction",
+  "density",
   "skippable",
   "canGoBack",
   "next",
@@ -721,10 +897,11 @@ const vt = /* @__PURE__ */ new Set([
   "theme",
   "onEnter",
   "onExit"
-]), ae = /* @__PURE__ */ new Set([
+]), Ae = /* @__PURE__ */ new Set([
   "selector",
   "text",
   "index",
+  "all",
   "shadow",
   "iframe",
   "waitFor",
@@ -733,7 +910,7 @@ const vt = /* @__PURE__ */ new Set([
   "scrollIntoView",
   "scrollBehavior",
   "padding"
-]), le = /* @__PURE__ */ new Set([
+]), Ce = /* @__PURE__ */ new Set([
   "accent",
   "bg",
   "fg",
@@ -753,11 +930,11 @@ const vt = /* @__PURE__ */ new Set([
   "z",
   "spotlightRing",
   "popoverWidth"
-]), ce = /^[a-z0-9]+(-[a-z0-9]+)*$/, F = { title: 60, stepTitle: 80, description: 200, content: 320, steps: 24 }, kt = { steps: 200 };
-function q(n) {
+]), Ie = /^[a-z0-9]+(-[a-z0-9]+)*$/, F = { title: 60, stepTitle: 80, description: 200, content: 320, steps: 24 }, Lt = { steps: 200 };
+function R(n) {
   return typeof n == "object" && n !== null && !Array.isArray(n);
 }
-class he {
+class Te {
   constructor() {
     d(this, "errors", []);
     d(this, "warnings", []);
@@ -769,17 +946,17 @@ class he {
     this.warnings.push({ path: t, message: e, severity: "warning" });
   }
 }
-function Et(n, t, e) {
+function Nt(n, t, e) {
   if (n !== void 0) {
-    if (!q(n)) {
+    if (!R(n)) {
       e.error(t, "theme must be an object");
       return;
     }
     for (const s of Object.keys(n))
-      le.has(s) || e.warn(`${t}.${s}`, `unknown theme token "${s}" (ignored)`);
+      Ce.has(s) || e.warn(`${t}.${s}`, `unknown theme token "${s}" (ignored)`);
   }
 }
-function ot(n, t, e) {
+function ht(n, t, e) {
   if (n === void 0) return;
   if (typeof n != "string") {
     e.error(t, "must be a string expression");
@@ -789,10 +966,10 @@ function ot(n, t, e) {
     e.error(t, `expression must be ≤ 500 chars (got ${n.length})`);
     return;
   }
-  const s = Dt(n);
+  const s = Jt(n);
   s.ok || e.error(t, `invalid expression: ${s.message}`);
 }
-function St(n, t, e) {
+function Mt(n, t, e) {
   if (n !== void 0) {
     if (!Array.isArray(n)) {
       e.error(t, "must be an array of actions");
@@ -800,11 +977,11 @@ function St(n, t, e) {
     }
     n.forEach((s, i) => {
       const r = `${t}[${i}]`;
-      if (!q(s)) {
+      if (!R(s)) {
         e.error(r, "action must be an object");
         return;
       }
-      if (!ie.has(s.type)) {
+      if (!ke.has(s.type)) {
         e.error(`${r}.type`, `unknown action type "${String(s.type)}"`);
         return;
       }
@@ -812,10 +989,10 @@ function St(n, t, e) {
     });
   }
 }
-function tt(n, t, e) {
+function et(n, t, e) {
   if (typeof n == "string") return n.length;
-  if (q(n) && typeof n.key == "string") return n.key.length;
-  if (q(n) && Array.isArray(n.blocks)) {
+  if (R(n) && typeof n.key == "string") return n.key.length;
+  if (R(n) && Array.isArray(n.blocks)) {
     if (n.blocks.length === 0) {
       e.error(t, "blocks must not be empty");
       return;
@@ -823,17 +1000,17 @@ function tt(n, t, e) {
     let s = 0;
     return n.blocks.forEach((i, r) => {
       const o = `${t}.blocks[${r}]`;
-      if (!q(i)) {
+      if (!R(i)) {
         e.error(o, "block must be an object");
         return;
       }
-      if (!ne.has(i.type)) {
+      if (!Ee.has(i.type)) {
         e.error(`${o}.type`, `unknown block type "${String(i.type)}"`);
         return;
       }
       switch (i.type) {
         case "text":
-          typeof i.value == "string" ? s += i.value.length : (!q(i.value) || typeof i.value.key != "string") && e.error(`${o}.value`, "text block requires a string or i18n object");
+          typeof i.value == "string" ? s += i.value.length : (!R(i.value) || typeof i.value.key != "string") && e.error(`${o}.value`, "text block requires a string or i18n object");
           break;
         case "image":
           typeof i.src != "string" && e.error(`${o}.src`, 'image block requires "src"'), typeof i.alt != "string" && e.error(`${o}.alt`, 'image block requires "alt" for accessibility');
@@ -854,15 +1031,15 @@ function tt(n, t, e) {
     }), s;
   }
 }
-function de(n, t) {
+function Le(n, t) {
   if (n === void 0) return;
-  if (!q(n)) {
+  if (!R(n)) {
     t.error("$.trigger", "must be an object");
     return;
   }
   const e = n.type;
-  if (!wt.has(e)) {
-    t.error("$.trigger.type", `must be one of: ${[...wt].join(" | ")}`);
+  if (!Ct.has(e)) {
+    t.error("$.trigger.type", `must be one of: ${[...Ct].join(" | ")}`);
     return;
   }
   if (n.delay !== void 0 && (typeof n.delay != "number" || n.delay < 0) && t.error("$.trigger.delay", "must be a non-negative number (ms)"), e === "event" && typeof n.event != "string" && t.error("$.trigger.event", 'required when trigger.type === "event"'), e === "route" && typeof n.path != "string" && t.error("$.trigger.path", 'required when trigger.type === "route"'), e === "element" && typeof n.selector != "string" && t.error("$.trigger.selector", 'required when trigger.type === "element"'), e === "idle" && (typeof n.ms != "number" || n.ms <= 0) && t.error("$.trigger.ms", 'required positive number (ms) when trigger.type === "idle"'), e === "scroll") {
@@ -870,35 +1047,35 @@ function de(n, t) {
     (typeof s != "number" || s < 0 || s > 100) && t.error("$.trigger.percent", "must be a number between 0 and 100");
   }
 }
-function ue(n, t, e) {
+function Ne(n, t, e) {
   if (n === void 0) return;
-  if (!q(n)) {
+  if (!R(n)) {
     e.error(`${t}.target`, "must be an object");
     return;
   }
   for (const o of Object.keys(n))
-    ae.has(o) || e.warn(`${t}.target.${o}`, `unknown target key "${o}" (ignored)`);
+    Ae.has(o) || e.warn(`${t}.target.${o}`, `unknown target key "${o}" (ignored)`);
   const { selector: s, text: i } = n, r = typeof s == "string" && s.trim().length > 0 || Array.isArray(s) && s.length > 0 && s.every((o) => typeof o == "string" && o.trim());
   s !== void 0 && !r && e.error(`${t}.target.selector`, "must be a non-empty CSS selector or array of selectors"), !r && typeof i != "string" && e.error(`${t}.target`, 'requires "selector", "text", or both'), n.timeout !== void 0 && (typeof n.timeout != "number" || n.timeout < 0) && e.error(`${t}.target.timeout`, "must be a non-negative number (ms)"), n.padding !== void 0 && (typeof n.padding != "number" || n.padding < 0) && e.error(`${t}.target.padding`, "must be a non-negative number (px)"), n.index !== void 0 && (typeof n.index != "number" || n.index < 0) && e.error(`${t}.target.index`, "must be a non-negative integer"), n.iframe !== void 0 && typeof n.iframe != "string" && e.error(`${t}.target.iframe`, "must be a CSS selector string"), n.scrollBehavior !== void 0 && !["auto", "smooth"].includes(n.scrollBehavior) && e.error(`${t}.target.scrollBehavior`, 'must be "auto" or "smooth"');
 }
-function ut(n) {
-  const t = new he();
-  if (!q(n))
+function yt(n) {
+  const t = new Te();
+  if (!R(n))
     return {
       ok: !1,
       errors: [{ path: "$", message: "spec must be a JSON object", severity: "error" }],
       warnings: []
     };
   for (const i of Object.keys(n))
-    re.has(i) || t.warn(`$.${i}`, `unknown top-level key "${i}" (ignored)`);
-  n.specVersion !== 1 && t.error("$.specVersion", "must be the integer 1"), typeof n.id != "string" || !n.id ? t.error("$.id", "required, non-empty string") : ce.test(n.id) || t.error("$.id", 'must be kebab-case (e.g. "dashboard-intro")');
-  const e = tt(n.title, "$.title", t);
+    $e.has(i) || t.warn(`$.${i}`, `unknown top-level key "${i}" (ignored)`);
+  n.specVersion !== 1 && t.error("$.specVersion", "must be the integer 1"), typeof n.id != "string" || !n.id ? t.error("$.id", "required, non-empty string") : Ie.test(n.id) || t.error("$.id", 'must be kebab-case (e.g. "dashboard-intro")');
+  const e = et(n.title, "$.title", t);
   if (e === void 0 ? t.error("$.title", "required (string or i18n object with key)") : e === 0 ? t.error("$.title", "must not be empty") : e > F.title && t.warn("$.title", `longer than ${F.title} chars (got ${e})`), n.description !== void 0) {
-    const i = tt(n.description, "$.description", t);
+    const i = et(n.description, "$.description", t);
     i === void 0 ? t.error("$.description", "must be a string or i18n object") : i > F.description && t.warn("$.description", `longer than ${F.description} chars (got ${i})`);
   }
-  if (n.version !== void 0 && typeof n.version != "string" && t.error("$.version", 'must be a string (e.g. "1.0.0")'), n.priority !== void 0 && typeof n.priority != "number" && t.error("$.priority", "must be a number"), n.interaction !== void 0 && !xt.has(n.interaction) && t.error("$.interaction", 'must be "free" | "target-only" | "blocked"'), de(n.trigger, t), n.audience !== void 0 && (q(n.audience) ? ot(n.audience.showIf, "$.audience.showIf", t) : t.error("$.audience", "must be an object")), n.frequency !== void 0)
-    if (!q(n.frequency))
+  if (n.version !== void 0 && typeof n.version != "string" && t.error("$.version", 'must be a string (e.g. "1.0.0")'), n.priority !== void 0 && typeof n.priority != "number" && t.error("$.priority", "must be a number"), n.interaction !== void 0 && !It.has(n.interaction) && t.error("$.interaction", 'must be "free" | "target-only" | "blocked"'), n.density !== void 0 && !Tt.has(n.density) && t.error("$.density", 'must be "compact" | "comfortable" | "spacious"'), Le(n.trigger, t), n.audience !== void 0 && (R(n.audience) ? ht(n.audience.showIf, "$.audience.showIf", t) : t.error("$.audience", "must be an object")), n.frequency !== void 0)
+    if (!R(n.frequency))
       t.error("$.frequency", "must be an object");
     else
       for (const i of ["max", "cooldown", "perSession"]) {
@@ -906,54 +1083,54 @@ function ut(n) {
         r !== void 0 && (typeof r != "number" || r < 0) && t.error(`$.frequency.${i}`, "must be a non-negative number");
       }
   if (n.onComplete !== void 0)
-    if (!q(n.onComplete))
+    if (!R(n.onComplete))
       t.error("$.onComplete", "must be an object");
     else {
       const { startTour: i, emit: r, navigate: o } = n.onComplete;
       i !== void 0 && typeof i != "string" && t.error("$.onComplete.startTour", "must be a tour id string"), r !== void 0 && typeof r != "string" && t.error("$.onComplete.emit", "must be an event name string"), o !== void 0 && (typeof o != "string" || !o.startsWith("/")) && t.error("$.onComplete.navigate", "must be a same-origin path starting with /");
     }
-  if (Et(n.theme, "$.theme", t), !Array.isArray(n.steps))
+  if (Nt(n.theme, "$.theme", t), !Array.isArray(n.steps))
     return t.error("$.steps", "required, must be an array"), { ok: !1, errors: t.errors, warnings: t.warnings };
-  n.steps.length < 1 && t.error("$.steps", "must contain at least 1 step"), n.steps.length > kt.steps ? t.error("$.steps", `must contain ≤ ${kt.steps} steps (got ${n.steps.length})`) : n.steps.length > F.steps && t.warn("$.steps", `${n.steps.length} steps is a lot; consider splitting into several tours`);
+  n.steps.length < 1 && t.error("$.steps", "must contain at least 1 step"), n.steps.length > Lt.steps ? t.error("$.steps", `must contain ≤ ${Lt.steps} steps (got ${n.steps.length})`) : n.steps.length > F.steps && t.warn("$.steps", `${n.steps.length} steps is a lot; consider splitting into several tours`);
   const s = /* @__PURE__ */ new Set();
   return n.steps.forEach((i, r) => {
     const o = `$.steps[${r}]`;
-    if (!q(i)) {
+    if (!R(i)) {
       t.error(o, "step must be an object");
       return;
     }
     for (const h of Object.keys(i))
-      oe.has(h) || t.warn(`${o}.${h}`, `unknown step key "${h}" (ignored)`);
+      Se.has(h) || t.warn(`${o}.${h}`, `unknown step key "${h}" (ignored)`);
     typeof i.id != "string" || !i.id ? t.error(`${o}.id`, "required") : s.has(i.id) ? t.error(`${o}.id`, `duplicate step id "${i.id}"`) : s.add(i.id);
     const a = i.display;
-    a !== void 0 && !yt.has(a) && t.error(`${o}.display`, `must be one of: ${[...yt].join(" | ")}`), ue(i.target, o, t), i.placement !== void 0 && !vt.has(i.placement) && t.error(`${o}.placement`, `must be one of: ${[...vt].join(" | ")}`), i.interaction !== void 0 && !xt.has(i.interaction) && t.error(`${o}.interaction`, 'must be "free" | "target-only" | "blocked"');
-    const l = tt(i.title, `${o}.title`, t);
+    a !== void 0 && !St.has(a) && t.error(`${o}.display`, `must be one of: ${[...St].join(" | ")}`), Ne(i.target, o, t), i.placement !== void 0 && !$t.has(i.placement) && t.error(`${o}.placement`, `must be one of: ${[...$t].join(" | ")}`), i.interaction !== void 0 && !It.has(i.interaction) && t.error(`${o}.interaction`, 'must be "free" | "target-only" | "blocked"'), i.density !== void 0 && !Tt.has(i.density) && t.error(`${o}.density`, 'must be "compact" | "comfortable" | "spacious"');
+    const l = et(i.title, `${o}.title`, t);
     l === void 0 ? t.error(`${o}.title`, "required (string or i18n object with key)") : l === 0 ? t.error(`${o}.title`, "must not be empty") : l > F.stepTitle && t.warn(`${o}.title`, `longer than ${F.stepTitle} chars (got ${l})`);
-    const c = tt(i.content, `${o}.content`, t);
+    const c = et(i.content, `${o}.content`, t);
     if (c === void 0 ? t.error(`${o}.content`, "required (string, i18n object, or { blocks: [...] })") : c > F.content && t.warn(`${o}.content`, `longer than ${F.content} chars (got ${c}); long copy hurts completion`), i.buttons !== void 0)
-      if (!q(i.buttons)) t.error(`${o}.buttons`, "must be an object");
+      if (!R(i.buttons)) t.error(`${o}.buttons`, "must be an object");
       else
         for (const h of Object.keys(i.buttons))
           ["next", "back", "skip", "done"].includes(h) || t.warn(`${o}.buttons.${h}`, `unknown button "${h}" (ignored)`);
     const u = i.advanceOn ?? "button";
-    bt.has(u) || t.error(`${o}.advanceOn`, `must be one of: ${[...bt].join(" | ")}`), u === "event" && typeof i.event != "string" && t.error(`${o}.event`, 'required when advanceOn === "event"'), u === "auto" && (typeof i.duration != "number" || i.duration <= 0) && t.error(`${o}.duration`, 'required positive number (ms) when advanceOn === "auto"'), u === "target-click" && i.target === void 0 && t.error(`${o}.target`, 'required when advanceOn === "target-click"'), u === "input-match" && (i.target === void 0 && t.error(`${o}.target`, 'required when advanceOn === "input-match"'), typeof i.match != "string" && t.error(`${o}.match`, 'required when advanceOn === "input-match"')), u === "form-submit" && i.target === void 0 && t.error(`${o}.target`, 'required when advanceOn === "form-submit"'), (u === "element-appears" || u === "element-disappears") && typeof i.watch != "string" && t.error(`${o}.watch`, `required when advanceOn === "${u}"`), u === "url-match" && typeof i.urlPattern != "string" && t.error(`${o}.urlPattern`, 'required when advanceOn === "url-match"'), a === "beacon" && i.duration !== void 0 && typeof i.duration != "number" && t.error(`${o}.duration`, "must be a number (ms)"), i.next !== void 0 && (typeof i.next == "string" || (Array.isArray(i.next) ? (i.next.length === 0 && t.warn(`${o}.next`, "empty branch list falls through to the next step"), i.next.forEach((h, f) => {
+    At.has(u) || t.error(`${o}.advanceOn`, `must be one of: ${[...At].join(" | ")}`), u === "event" && typeof i.event != "string" && t.error(`${o}.event`, 'required when advanceOn === "event"'), u === "auto" && (typeof i.duration != "number" || i.duration <= 0) && t.error(`${o}.duration`, 'required positive number (ms) when advanceOn === "auto"'), u === "target-click" && i.target === void 0 && t.error(`${o}.target`, 'required when advanceOn === "target-click"'), u === "input-match" && (i.target === void 0 && t.error(`${o}.target`, 'required when advanceOn === "input-match"'), typeof i.match != "string" && t.error(`${o}.match`, 'required when advanceOn === "input-match"')), u === "form-submit" && i.target === void 0 && t.error(`${o}.target`, 'required when advanceOn === "form-submit"'), (u === "element-appears" || u === "element-disappears") && typeof i.watch != "string" && t.error(`${o}.watch`, `required when advanceOn === "${u}"`), u === "url-match" && typeof i.urlPattern != "string" && t.error(`${o}.urlPattern`, 'required when advanceOn === "url-match"'), a === "beacon" && i.duration !== void 0 && typeof i.duration != "number" && t.error(`${o}.duration`, "must be a number (ms)"), i.next !== void 0 && (typeof i.next == "string" || (Array.isArray(i.next) ? (i.next.length === 0 && t.warn(`${o}.next`, "empty branch list falls through to the next step"), i.next.forEach((h, f) => {
       const k = `${o}.next[${f}]`;
-      if (!q(h)) {
+      if (!R(h)) {
         t.error(k, "branch must be an object { if, to }");
         return;
       }
-      ot(h.if, `${k}.if`, t), typeof h.to != "string" && t.error(`${k}.to`, "must be a step id string");
-    })) : t.error(`${o}.next`, "must be a step id string or an array of { if, to } branches"))), ot(i.showIf, `${o}.showIf`, t), Et(i.theme, `${o}.theme`, t), St(i.onEnter, `${o}.onEnter`, t), St(i.onExit, `${o}.onExit`, t);
+      ht(h.if, `${k}.if`, t), typeof h.to != "string" && t.error(`${k}.to`, "must be a step id string");
+    })) : t.error(`${o}.next`, "must be a step id string or an array of { if, to } branches"))), ht(i.showIf, `${o}.showIf`, t), Nt(i.theme, `${o}.theme`, t), Mt(i.onEnter, `${o}.onEnter`, t), Mt(i.onExit, `${o}.onExit`, t);
   }), n.steps.forEach((i, r) => {
-    if (!q(i)) return;
+    if (!R(i)) return;
     const o = `$.steps[${r}].next`;
     typeof i.next == "string" && !s.has(i.next) ? t.error(o, `points to unknown step id "${i.next}"`) : Array.isArray(i.next) && i.next.forEach((a, l) => {
-      q(a) && typeof a.to == "string" && !s.has(a.to) && t.error(`${o}[${l}].to`, `points to unknown step id "${a.to}"`);
+      R(a) && typeof a.to == "string" && !s.has(a.to) && t.error(`${o}[${l}].to`, `points to unknown step id "${a.to}"`);
     });
   }), t.errors.length ? { ok: !1, errors: t.errors, warnings: t.warnings } : { ok: !0, errors: [], warnings: t.warnings };
 }
-function Le(n) {
-  const t = ut(n);
+function Ze(n) {
+  const t = yt(n);
   if (!t.ok) {
     const e = t.errors.map((s) => `  • ${s.path}: ${s.message}`).join(`
 `);
@@ -962,15 +1139,15 @@ ${e}`);
   }
   return n;
 }
-function Ne(n) {
+function ts(n) {
   const t = [], e = /* @__PURE__ */ new Set();
   return n.forEach((s, i) => {
-    const r = q(s) && typeof s.id == "string" ? s.id : void 0, o = ut(s);
+    const r = R(s) && typeof s.id == "string" ? s.id : void 0, o = yt(s);
     for (const a of [...o.errors, ...o.warnings])
       t.push({ ...a, path: `[${i}]${a.path.slice(1)}`, specId: r });
     r && (e.has(r) && t.push({ path: `[${i}].id`, message: `duplicate tour id "${r}"`, severity: "error", specId: r }), e.add(r));
   }), n.forEach((s, i) => {
-    if (!q(s) || !q(s.onComplete)) return;
+    if (!R(s) || !R(s.onComplete)) return;
     const r = s.onComplete.startTour;
     typeof r == "string" && !e.has(r) && t.push({
       path: `[${i}].onComplete.startTour`,
@@ -980,14 +1157,14 @@ function Ne(n) {
     });
   }), { ok: !t.some((s) => s.severity === "error"), issues: t };
 }
-const pe = ["zero", "one", "two", "few", "many", "other"];
-function $t(n, t) {
+const Me = ["zero", "one", "two", "few", "many", "other"];
+function Rt(n, t) {
   return t.split(".").reduce(
     (e, s) => e && typeof e == "object" ? e[s] : void 0,
     n
   );
 }
-function fe(n, t, e = "en") {
+function Re(n, t, e = "en") {
   let s;
   try {
     s = new Intl.PluralRules(e).select(n);
@@ -996,16 +1173,16 @@ function fe(n, t, e = "en") {
   }
   return t[s] ?? t.other ?? "";
 }
-function me(n) {
+function Pe(n) {
   const t = {}, e = /(\w+)\s*\{([^{}]*)\}/g;
   let s;
   for (; (s = e.exec(n)) !== null; ) {
     const i = s[1];
-    pe.includes(i) && (t[i] = s[2]);
+    Me.includes(i) && (t[i] = s[2]);
   }
   return t;
 }
-function ge(n, t) {
+function De(n, t) {
   let e = 0;
   for (let s = t; s < n.length; s += 1) {
     const i = n[s];
@@ -1017,14 +1194,14 @@ function ge(n, t) {
   }
   return -1;
 }
-function At(n, t) {
+function Pt(n, t) {
   try {
     return new Intl.NumberFormat(t).format(n);
   } catch {
     return String(n);
   }
 }
-function at(n, t, e = "en") {
+function dt(n, t, e = "en") {
   if (!n.includes("{{")) return n;
   let s = "", i = 0;
   for (; i < n.length; ) {
@@ -1033,43 +1210,43 @@ function at(n, t, e = "en") {
       s += n.slice(i);
       break;
     }
-    const o = ge(n, r + 2);
+    const o = De(n, r + 2);
     if (o === -1) {
       s += n.slice(i);
       break;
     }
     s += n.slice(i, r);
     const a = n.slice(r + 2, o).trim();
-    s += ve(a, t, e), i = o + 2;
+    s += qe(a, t, e), i = o + 2;
   }
   return s;
 }
-function ve(n, t, e) {
+function qe(n, t, e) {
   const s = `{{${n}}}`, i = n.indexOf(",");
   if (i !== -1) {
     const o = n.slice(0, i).trim(), a = n.slice(i + 1).trim();
     if (!a.startsWith("plural")) return s;
-    const l = t ? $t(t, o) : void 0, c = typeof l == "number" ? l : Number(l);
+    const l = t ? Rt(t, o) : void 0, c = typeof l == "number" ? l : Number(l);
     if (!Number.isFinite(c)) return s;
-    const u = me(a.slice(6).replace(/^\s*,\s*/, ""));
-    return fe(c, u, e).replace(/#/g, At(c, e));
+    const u = Pe(a.slice(6).replace(/^\s*,\s*/, ""));
+    return Re(c, u, e).replace(/#/g, Pt(c, e));
   }
   if (!/^[\w.$]+$/.test(n)) return s;
-  const r = t ? $t(t, n) : void 0;
-  return r == null ? s : typeof r == "number" ? At(r, e) : String(r);
+  const r = t ? Rt(t, n) : void 0;
+  return r == null ? s : typeof r == "number" ? Pt(r, e) : String(r);
 }
-function Z(n, t, e, s) {
-  if (typeof n == "string") return at(n, s, t);
+function tt(n, t, e, s) {
+  if (typeof n == "string") return dt(n, s, t);
   if (n && typeof n.key == "string") {
     const i = e?.(n.key, t);
-    return at(i !== void 0 ? i : n.fallback ?? n.key, s, t);
+    return dt(i !== void 0 ? i : n.fallback ?? n.key, s, t);
   }
   return String(n);
 }
-function Pe(n) {
+function es(n) {
   return (t) => n[t];
 }
-function qe(n, t = "en") {
+function ss(n, t = "en") {
   return (e, s) => {
     for (const i of [s, s.split("-")[0], t]) {
       const r = n[i]?.[e];
@@ -1077,25 +1254,25 @@ function qe(n, t = "en") {
     }
   };
 }
-const ye = {
+const Be = {
   next: "Next",
   back: "Back",
   done: "Done",
   skip: "Skip tour"
 };
-function be(n, t, e) {
-  return e?.(`opentutorial.${n}`, t) ?? ye[n];
+function Oe(n, t, e) {
+  return e?.(`opentutorial.${n}`, t) ?? Be[n];
 }
-const we = /* @__PURE__ */ new Set(["ar", "he", "fa", "ur", "ps", "sd", "ug", "yi", "dv", "ckb"]);
-function Be(n) {
+const He = /* @__PURE__ */ new Set(["ar", "he", "fa", "ur", "ps", "sd", "ug", "yi", "dv", "ckb"]);
+function is(n) {
   try {
     const t = new Intl.Locale(n), e = t.getTextInfo?.().direction ?? t.textInfo?.direction;
     if (e === "rtl" || e === "ltr") return e;
   } catch {
   }
-  return we.has(n.split("-")[0].toLowerCase()) ? "rtl" : "ltr";
+  return He.has(n.split("-")[0].toLowerCase()) ? "rtl" : "ltr";
 }
-const xe = {
+const je = {
   accent: "--ot-accent",
   bg: "--ot-bg",
   fg: "--ot-fg",
@@ -1115,8 +1292,13 @@ const xe = {
   z: "--ot-z",
   spotlightRing: "--ot-spotlight-ring",
   popoverWidth: "--ot-popover-width"
-}, ke = /* @__PURE__ */ new Set(["radius", "popoverWidth", "fontSize", "spacing", "arrowSize", "overlayBlur"]), Ee = /* @__PURE__ */ new Set(["animationMs"]), Se = 200;
-class qt {
+};
+function _e(n) {
+  const t = Math.min(...n.map((r) => r.x)), e = Math.min(...n.map((r) => r.y)), s = Math.max(...n.map((r) => r.x + r.width)), i = Math.max(...n.map((r) => r.y + r.height));
+  return { x: t, y: e, width: s - t, height: i - e };
+}
+const ze = /* @__PURE__ */ new Set(["radius", "popoverWidth", "fontSize", "spacing", "arrowSize", "overlayBlur"]), Fe = /* @__PURE__ */ new Set(["animationMs"]), We = 200;
+class Vt {
   constructor(t, e = {}) {
     d(this, "spec");
     d(this, "errors", []);
@@ -1142,12 +1324,13 @@ class qt {
     d(this, "stepEnteredAt", 0);
     d(this, "startedAt", 0);
     d(this, "advancing", !1);
-    this.spec = t, this.opts = e, this.context = { ...e.context ?? {} }, this.persistence = new Pt(
+    d(this, "sampleDecision", null);
+    this.spec = t, this.opts = e, this.context = { ...e.context ?? {} }, this.persistence = new Gt(
       e.persistence?.storage,
       e.persistence?.keyPrefix ?? "ot",
       e.userId
     );
-    const s = ut(t);
+    const s = yt(t);
     if (this.warnings = s.warnings, !s.ok || e.strict && s.warnings.length > 0) {
       this.errors = s.ok ? s.warnings : s.errors;
       const i = this.errors.map((r) => `  • ${r.path}: ${r.message}`).join(`
@@ -1220,10 +1403,14 @@ ${i}`);
     return this.context;
   }
   setContext(t) {
-    if (Object.assign(this.context, t), this.status === "running") {
-      const e = this.currentStep();
-      e?.showIf && !et(e.showIf, this.context) && this.next();
+    const e = this.visibleSteps().length;
+    if (Object.assign(this.context, t), this.status !== "running") return;
+    const s = this.currentStep();
+    if (s?.showIf && !st(s.showIf, this.context)) {
+      this.next();
+      return;
     }
+    this.visibleSteps().length !== e && this.rerenderCurrent();
   }
   setGlobalTheme(t) {
     this.opts = { ...this.opts, theme: t }, this.layer && this.applyThemeChain(this.currentStep()?.theme);
@@ -1286,7 +1473,7 @@ ${i}`);
   resolveNextId(t) {
     if (Array.isArray(t.next)) {
       for (const o of t.next)
-        if (o && typeof o.if == "string" && et(o.if, this.context)) return o.to;
+        if (o && typeof o.if == "string" && st(o.if, this.context)) return o.to;
     } else if (typeof t.next == "string")
       return t.next;
     const e = this.visibleSteps(), s = e.findIndex((o) => o.id === t.id);
@@ -1328,7 +1515,7 @@ ${i}`);
   // Internals
   // -------------------------------------------------------------------------
   visibleSteps() {
-    return this.spec.steps.filter((t) => !t.showIf || et(t.showIf, this.context));
+    return this.spec.steps.filter((t) => !t.showIf || st(t.showIf, this.context));
   }
   currentStep() {
     return this.spec.steps.find((t) => t.id === this.currentId) ?? null;
@@ -1337,21 +1524,21 @@ ${i}`);
     return this.stepEnteredAt ? Date.now() - this.stepEnteredAt : 0;
   }
   text(t) {
-    return Z(t, this.opts.locale ?? "en", this.opts.i18nResolver, this.context);
+    return tt(t, this.opts.locale ?? "en", this.opts.i18nResolver, this.context);
   }
   blocks(t) {
-    return ht(t, (e) => this.text(e));
+    return gt(t, (e) => this.text(e));
   }
   interactionFor(t) {
     return t.interaction ?? this.spec.interaction ?? this.opts.interaction ?? "free";
   }
   buildDom() {
     const t = this.opts.zIndex ?? 9999;
-    this.layer = new jt(t, {
+    this.layer = new mt(t, {
       container: this.opts.container,
       isolate: this.opts.isolate,
       dir: this.opts.dir
-    }), this.layer.attach(), this.opts.renderStep ? (this.customHost = document.createElement("div"), this.customHost.className = "ot-custom-host", this.layer.mountPopover(this.customHost)) : (this.popover = new Jt(
+    }), this.layer.attach(), (this.opts.renderStep || this.opts.renderIndicator) && (this.customHost = document.createElement("div"), this.customHost.className = "ot-custom-host", this.layer.mountPopover(this.customHost)), this.opts.renderStep || (this.popover = new ge(
       {
         onNext: () => {
           this.next();
@@ -1360,7 +1547,7 @@ ${i}`);
         onSkip: () => this.skip("user")
       },
       this.opts.dir ?? "ltr",
-      { swipe: this.opts.swipe }
+      { swipe: this.opts.swipe, autoSize: this.opts.autoSize }
     ), this.layer.mountPopover(this.popover.el)), this.applyThemeChain(void 0);
   }
   teardownDom() {
@@ -1384,7 +1571,7 @@ ${i}`);
   }
   async goToInternal(t, e) {
     if (this.status !== "running") return;
-    if (this.transitions += 1, this.transitions > Se) {
+    if (this.transitions += 1, this.transitions > We) {
       this.emit("error", { message: "transition limit reached (possible next-loop)" }), this.complete("loop-guard");
       return;
     }
@@ -1403,10 +1590,10 @@ ${i}`);
     const i = t.display ?? "spotlight", r = this.visibleSteps(), o = Math.max(0, r.findIndex((c) => c.id === t.id));
     let a = null;
     if (t.target) {
-      if (a = Q(t.target), !a && t.target.waitFor && (this.renderStep(t, o, r.length, "Looking for the interface element…"), a = await lt(t.target, t.target.timeout ?? 5e3), !s()))
+      if (a = Q(t.target), !a && t.target.waitFor && (this.renderStep(t, o, r.length, "Looking for the interface element…"), a = await ut(t.target, t.target.timeout ?? 5e3), !s()))
         return;
       if (!a) {
-        const c = Ht(t.target);
+        const c = Qt(t.target);
         this.emit("target-not-found", { stepId: t.id, selector: c, message: `target not found: ${c}` }), this.next();
         return;
       }
@@ -1428,7 +1615,7 @@ ${i}`);
       const c = this.customHost ?? this.popover?.el;
       if (c) {
         const u = i === "modal" || this.interactionFor(t) !== "free";
-        this.releaseFocus = ee(c, {
+        this.releaseFocus = we(c, {
           trap: u,
           onEscape: () => {
             t.skippable !== !1 && this.skip("escape");
@@ -1445,9 +1632,26 @@ ${i}`);
   showIndicator(t, e, s) {
     if (!this.layer) return;
     const i = this.viewportRect(s);
-    if (this.popover && (this.popover.el.style.display = "none"), this.customHost && (this.customHost.style.display = "none"), this.hotspot = new Qt(), this.hotspot.render({
+    if (this.popover && (this.popover.el.style.display = "none"), this.opts.renderIndicator && this.customHost) {
+      this.customHost.style.display = "", this.customHost.classList.add("ot-custom-indicator"), this.customHost.style.position = "fixed", this.customHost.style.left = `${i.x + i.width / 2}px`, this.customHost.style.top = `${i.y + i.height / 2}px`, this.cleanupRender?.();
+      const r = this.visibleSteps(), o = r.findIndex((l) => l.id === t.id), a = this.opts.renderIndicator(
+        {
+          ...this.renderContext(t, Math.max(0, o), r.length, this.blocks(t.content)),
+          display: e
+        },
+        this.customHost
+      );
+      if (this.cleanupRender = typeof a == "function" ? a : null, e === "beacon") {
+        const l = window.setTimeout(() => {
+          this.next();
+        }, t.duration ?? 5e3);
+        this.cleanupAdvance = () => window.clearTimeout(l);
+      }
+      return;
+    }
+    if (this.customHost && (this.customHost.style.display = "none"), this.hotspot = new ve(), this.hotspot.render({
       display: e,
-      content: zt(this.blocks(t.content)),
+      content: re(this.blocks(t.content)),
       showDismiss: e === "hotspot" || t.advanceOn === "button",
       onDismiss: () => {
         this.next();
@@ -1463,27 +1667,31 @@ ${i}`);
     const r = i ? [{ type: "text", value: i }] : this.blocks(t.content);
     if (this.opts.renderStep && this.customHost) {
       this.cleanupRender?.();
-      const o = {
-        tourId: this.spec.id,
-        step: t,
-        index: e,
-        total: s,
-        title: this.text(t.title),
-        blocks: r,
-        canGoBack: t.canGoBack !== !1 && this.history.length > 0,
-        canSkip: t.skippable !== !1,
-        isLast: !t.next && e >= s - 1,
-        next: () => {
-          this.next();
-        },
-        prev: () => this.prev(),
-        skip: () => this.skip("user"),
-        goTo: (l) => this.goTo(l)
-      }, a = this.opts.renderStep(o, this.customHost);
+      const o = this.renderContext(t, e, s, r), a = this.opts.renderStep(o, this.customHost);
       this.cleanupRender = typeof a == "function" ? a : null, this.customHost.style.display = "";
       return;
     }
     this.popover && (this.popover.el.style.display = "", this.popover.render(this.makeModel(t, e, s, r)));
+  }
+  /** Shared by `renderStep` and `renderIndicator`. */
+  renderContext(t, e, s, i) {
+    return {
+      tourId: this.spec.id,
+      step: t,
+      index: e,
+      total: s,
+      title: this.text(t.title),
+      blocks: i,
+      canGoBack: t.canGoBack !== !1 && this.history.length > 0,
+      canSkip: t.skippable !== !1,
+      isLast: !t.next && e >= s - 1,
+      next: () => {
+        this.next();
+      },
+      prev: () => this.prev(),
+      skip: () => this.skip("user"),
+      goTo: (r) => this.goTo(r)
+    };
   }
   rerenderCurrent() {
     const t = this.currentStep();
@@ -1492,7 +1700,7 @@ ${i}`);
     this.renderStep(t, s, e.length), this.reposition();
   }
   makeModel(t, e, s, i) {
-    const r = this.opts.locale ?? "en", o = this.opts.i18nResolver, a = (u, h) => h === !1 || h === void 0 ? be(u, r, o) : this.text(h), l = t.buttons ?? {}, c = t.advanceOn ?? "button";
+    const r = this.opts.locale ?? "en", o = this.opts.i18nResolver, a = (u, h) => h === !1 || h === void 0 ? Oe(u, r, o) : this.text(h), l = t.buttons ?? {}, c = t.advanceOn ?? "button";
     return {
       stepId: t.id,
       title: this.text(t.title),
@@ -1514,8 +1722,13 @@ ${i}`);
       showNext: l.next !== !1 && (c === "button" || e >= s - 1),
       showBack: l.back !== !1,
       modal: (t.display ?? "spotlight") === "modal" || this.interactionFor(t) === "blocked",
-      allowHtml: this.opts.allowHtml
+      allowHtml: this.opts.allowHtml,
+      density: this.densityFor(t)
     };
+  }
+  /** Step overrides spec, which overrides the global option. */
+  densityFor(t) {
+    return t.density ?? this.spec.density ?? this.opts.density ?? "comfortable";
   }
   /** Element rect mapped into the top-level viewport (adds the iframe offset). */
   viewportRect(t) {
@@ -1538,7 +1751,12 @@ ${i}`);
         r && (this.resolved = r);
       }
       const i = this.viewportRect(this.resolved);
-      this.hotspot ? (this.hotspot.reposition(i), this.layer.setInteraction(this.interactionFor(t))) : (this.layer.updateSpotlight(i, e, this.mergedRadius()), s && this.popover?.position(i, t.placement ?? "auto", e));
+      if (this.hotspot)
+        this.hotspot.reposition(i), this.layer.setInteraction(this.interactionFor(t));
+      else {
+        const r = t.target?.all ? Zt(t.target).map((a) => this.viewportRect(a)) : [i], o = r.length > 1 ? _e(r) : i;
+        this.layer.updateSpotlight(r.length > 0 ? r : i, e, this.mergedRadius()), s && this.popover?.position(o, t.placement ?? "auto", e);
+      }
     } else
       this.layer.showBackdrop(), s && this.popover?.position(null, "center", 0);
   }
@@ -1623,7 +1841,7 @@ ${i}`);
       case "element-appears": {
         if (typeof t.watch != "string") return;
         let r = !1;
-        lt({ selector: t.watch, visible: !0 }, t.duration ?? 6e4).then((o) => {
+        ut({ selector: t.watch, visible: !0 }, t.duration ?? 6e4).then((o) => {
           o && !r && i();
         }), this.cleanupAdvance = () => {
           r = !0;
@@ -1641,8 +1859,8 @@ ${i}`);
       case "url-match": {
         if (typeof t.urlPattern != "string") return;
         const r = t.urlPattern, o = () => {
-          Tt(r, It()) && i();
-        }, a = Lt(o);
+          zt(r, _t()) && i();
+        }, a = Ft(o);
         this.cleanupAdvance = a, o();
         return;
       }
@@ -1699,9 +1917,9 @@ ${i}`);
     const s = { ...this.opts.theme, ...this.spec.theme, ...t };
     for (const [i, r] of Object.entries(s)) {
       if (r === void 0) continue;
-      const o = xe[i];
+      const o = je[i];
       if (!o) continue;
-      const a = ke.has(i) ? `${r}px` : Ee.has(i) ? `${r}ms` : String(r);
+      const a = ze.has(i) ? `${r}px` : Fe.has(i) ? `${r}ms` : String(r);
       e.setProperty(o, a), this.appliedVars.push(o);
     }
     s.z !== void 0 && (this.layer.root.style.zIndex = String(s.z));
@@ -1713,17 +1931,23 @@ ${i}`);
       timestamp: Date.now(),
       ...e
     }, i = Object.freeze({ ...s });
-    try {
-      this.opts.onEvent?.(i);
-    } catch {
-    }
+    if (this.sampled())
+      try {
+        this.opts.onEvent?.(i);
+      } catch {
+      }
     try {
       window.dispatchEvent(new CustomEvent("opentutorial", { detail: i }));
     } catch {
     }
   }
+  /** Cached per engine: one hash per tour, not one per event. */
+  sampled() {
+    const t = this.opts.sampleRate;
+    return t === void 0 || t >= 1 ? !0 : (this.sampleDecision === null && (this.sampleDecision = te(this.spec?.id ?? "unknown", t)), this.sampleDecision);
+  }
 }
-function $e(n, t) {
+function Ge(n, t) {
   if (!n || n.type === "manual") return { dispose: () => {
   } };
   const e = n.delay ?? 0, s = [], i = [];
@@ -1743,14 +1967,14 @@ function $e(n, t) {
     }
     case "route": {
       const l = () => {
-        Tt(n.path, It(), n.exact) ? a() : o || (r = !1);
+        zt(n.path, _t(), n.exact) ? a() : o || (r = !1);
       };
-      i.push(Lt(l)), l();
+      i.push(Ft(l)), l();
       break;
     }
     case "element": {
       let l = !1;
-      lt({ selector: n.selector, visible: !0 }, n.timeout ?? 3e4).then((c) => {
+      ut({ selector: n.selector, visible: !0 }, n.timeout ?? 3e4).then((c) => {
         c && !l && a();
       }), i.push(() => {
         l = !0;
@@ -1788,7 +2012,7 @@ function $e(n, t) {
     }
   };
 }
-class Bt {
+class Ut {
   constructor(t, e = {}) {
     d(this, "engines", /* @__PURE__ */ new Map());
     d(this, "specs");
@@ -1802,7 +2026,7 @@ class Bt {
     d(this, "sessionCounts", /* @__PURE__ */ new Map());
     this.specs = t, this.opts = e;
     for (const s of t)
-      this.engines.set(s.id, new qt(s, {
+      this.engines.set(s.id, new Vt(s, {
         ...e,
         onEvent: (i) => this.handleEvent(i)
       }));
@@ -1839,7 +2063,7 @@ class Bt {
     if (!e) return "unknown tour";
     if (!e.isValid()) return "spec failed validation";
     const s = e.spec, i = e.getContext();
-    if (s.audience?.showIf && !et(s.audience.showIf, i))
+    if (s.audience?.showIf && !st(s.audience.showIf, i))
       return "audience rule did not match";
     const r = s.frequency;
     if (r) {
@@ -1949,7 +2173,7 @@ class Bt {
       const e = this.engines.get(t.id);
       if (!e || !e.isValid()) continue;
       const s = t.trigger;
-      !s || s.type === "manual" || (s.once ?? !0) && e.hasSeen() || this.triggers.push($e(s, () => {
+      !s || s.type === "manual" || (s.once ?? !0) && e.hasSeen() || this.triggers.push(Ge(s, () => {
         (s.once ?? !0) && e.hasSeen() || this.request(t.id);
       }));
     }
@@ -2003,19 +2227,19 @@ class Bt {
     }), this.triggers = [], this.disposers = [], this.queue = [], this.engines.forEach((t) => t.destroy()), this.activeId = null;
   }
 }
-function Re(n, t = {}) {
-  return new qt(n, t);
+function ns(n, t = {}) {
+  return new Vt(n, t);
 }
-function Me(n, t = {}) {
-  return new Bt(n, t);
+function rs(n, t = {}) {
+  return new Ut(n, t);
 }
-function Oe(n) {
+function os(n) {
   return n;
 }
-function De(n) {
+function as(n) {
   return n;
 }
-function He(n, t) {
+function ls(n, t) {
   const { steps: e, ...s } = t;
   return {
     ...n,
@@ -2023,7 +2247,29 @@ function He(n, t) {
     steps: n.steps.map((i) => e?.[i.id] ? { ...i, ...e[i.id] } : i)
   };
 }
-function je(n = {}) {
+function Ve(n) {
+  return n.map((t) => typeof t == "string" ? { name: t, weight: 1 } : { name: t.name, weight: t.weight ?? 1 });
+}
+function Ue(n, t, e, s = {}) {
+  const i = Ve(e).filter((c) => c.weight > 0);
+  if (i.length === 0) return null;
+  const r = s.holdout ?? 0;
+  if (r > 0 && xt(`holdout:${n}:${t}`) < r) return null;
+  const o = i.reduce((c, u) => c + u.weight, 0), a = xt(`${n}:${t}`) * o;
+  let l = 0;
+  for (const c of i)
+    if (l += c.weight, a < l) return c.name;
+  return i[i.length - 1].name;
+}
+function cs(n, t) {
+  const e = {};
+  for (const [s, i] of Object.entries(t)) {
+    const { variants: r, holdout: o } = Array.isArray(i) ? { variants: i, holdout: void 0 } : i;
+    e[s] = Ue(s, n, r, { holdout: o });
+  }
+  return e;
+}
+function hs(n = {}) {
   const { days: t = 365, path: e = "/", domain: s, sameSite: i = "Lax", secure: r } = n, o = () => {
     const l = {};
     if (typeof document > "u") return l;
@@ -2048,8 +2294,8 @@ function je(n = {}) {
     removeItem: (l) => a(l, "", -1)
   };
 }
-function _e(n = "opentutorial", t = "kv") {
-  const e = new st();
+function ds(n = "opentutorial", t = "kv") {
+  const e = new rt();
   if (typeof indexedDB > "u") return e;
   let s = null;
   const i = () => s || (s = new Promise((o) => {
@@ -2086,25 +2332,25 @@ function _e(n = "opentutorial", t = "kv") {
     }
   };
 }
-function Fe(n) {
+function us(n) {
   const {
     endpoint: t,
     headers: e,
     debounceMs: s = 400,
     fetchImpl: i,
     onError: r
-  } = n, o = n.cache === !1 ? new st() : n.cache ?? Nt(), a = i ?? (typeof fetch == "function" ? fetch.bind(globalThis) : void 0), l = t.replace(/\/$/, ""), c = (w) => `${l}/${encodeURIComponent(w)}`, u = () => ({
+  } = n, o = n.cache === !1 ? new rt() : n.cache ?? Wt(), a = i ?? (typeof fetch == "function" ? fetch.bind(globalThis) : void 0), l = t.replace(/\/$/, ""), c = (b) => `${l}/${encodeURIComponent(b)}`, u = () => ({
     "content-type": "application/json",
     ...typeof e == "function" ? e() : e ?? {}
   }), h = /* @__PURE__ */ new Map();
   let f = null;
   const k = async () => {
     if (!a || h.size === 0) return;
-    const w = [...h.entries()];
+    const b = [...h.entries()];
     h.clear();
-    for (const [b, m] of w)
+    for (const [x, m] of b)
       try {
-        const y = await a(c(b), {
+        const y = await a(c(x), {
           method: m === null ? "DELETE" : "PUT",
           headers: u(),
           body: m === null ? void 0 : JSON.stringify({ value: m }),
@@ -2112,9 +2358,9 @@ function Fe(n) {
         });
         if (!y.ok) throw new Error(`HTTP ${y.status}`);
       } catch (y) {
-        h.has(b) || h.set(b, m), r?.(y, m === null ? "delete" : "put", b);
+        h.has(x) || h.set(x, m), r?.(y, m === null ? "delete" : "put", x);
       }
-  }, x = () => {
+  }, w = () => {
     f && clearTimeout(f), f = setTimeout(() => {
       f = null, k();
     }, s);
@@ -2124,22 +2370,22 @@ function Fe(n) {
   }), window.addEventListener("pagehide", () => {
     k();
   })), {
-    getItem(w) {
-      const b = o.getItem(w);
-      return b ?? (a ? a(c(w), { headers: u(), credentials: "include" }).then((m) => m.ok ? m.json() : null).then((m) => {
+    getItem(b) {
+      const x = o.getItem(b);
+      return x ?? (a ? a(c(b), { headers: u(), credentials: "include" }).then((m) => m.ok ? m.json() : null).then((m) => {
         const y = m?.value ?? null;
-        return typeof y == "string" && o.setItem(w, y), y;
-      }).catch((m) => (r?.(m, "get", w), null)) : null);
+        return typeof y == "string" && o.setItem(b, y), y;
+      }).catch((m) => (r?.(m, "get", b), null)) : null);
     },
-    setItem(w, b) {
-      o.setItem(w, b), h.set(w, b), x();
+    setItem(b, x) {
+      o.setItem(b, x), h.set(b, x), w();
     },
-    removeItem(w) {
-      o.removeItem(w), h.set(w, null), x();
+    removeItem(b) {
+      o.removeItem(b), h.set(b, null), w();
     }
   };
 }
-const Ae = {
+const Ke = {
   start: ["started", "resumed"],
   stop: ["completed", "skipped"],
   skip: ["skipped"],
@@ -2150,21 +2396,21 @@ const Ae = {
   destroy: []
   // emitted locally by destroy()
 };
-function ze(n) {
+function ps(n) {
   const { specs: t, autoMount: e = !0, storage: s, keyPrefix: i, ...r } = n, o = /* @__PURE__ */ new Map(), a = s !== void 0 || i !== void 0 ? { storage: s, keyPrefix: i, ...r.persistence ?? {} } : r.persistence, l = (h, f) => {
     const k = o.get(h);
     if (k)
-      for (const x of k)
+      for (const w of k)
         try {
-          x(f);
+          w(f);
         } catch {
         }
-  }, c = new Bt(t, {
+  }, c = new Ut(t, {
     ...r,
     persistence: a,
     onEvent: (h) => {
       l("event", h);
-      for (const [f, k] of Object.entries(Ae))
+      for (const [f, k] of Object.entries(Ke))
         k.includes(h.type) && l(f, h);
       r.onEvent?.(h);
     }
@@ -2233,7 +2479,7 @@ function G(n, t, e) {
   const s = p("button", n, { type: "button", text: t });
   return s.addEventListener("click", e), s;
 }
-class V {
+class U {
   constructor() {
     d(this, "fns", []);
   }
@@ -2252,11 +2498,11 @@ class V {
     this.fns = [];
   }
 }
-class pt {
+class bt {
   constructor(t, e, s) {
     d(this, "ready");
     d(this, "persistence");
-    this.persistence = new Pt(t, e, s), this.ready = this.persistence.ready;
+    this.persistence = new Gt(t, e, s), this.ready = this.persistence.ready;
   }
   /** True when the surface should be shown. */
   shouldShow(t, e = {}) {
@@ -2275,10 +2521,10 @@ class pt {
     this.persistence.reset(t);
   }
 }
-function U(n, t) {
+function K(n, t) {
   t !== null && (t ?? document.body).appendChild(n);
 }
-function K(n, t) {
+function X(n, t) {
   return {
     el: n,
     mount(e) {
@@ -2289,7 +2535,7 @@ function K(n, t) {
     }
   };
 }
-function We(n) {
+function fs(n) {
   const {
     id: t,
     message: e,
@@ -2303,32 +2549,32 @@ function We(n) {
     container: u,
     className: h = "",
     onDismiss: f
-  } = n, k = new V(), x = new pt(a, l, c), w = p("div", `ot-banner ot-banner--${s} ${h}`.trim());
-  w.setAttribute("role", "status"), w.hidden = !0;
-  const b = p("span", "ot-banner-content", { html: J(e) });
-  w.appendChild(b), i && w.appendChild(G("ot-banner-action", i.label, i.onClick));
+  } = n, k = new U(), w = new bt(a, l, c), b = p("div", `ot-banner ot-banner--${s} ${h}`.trim());
+  b.setAttribute("role", "status"), b.hidden = !0;
+  const x = p("span", "ot-banner-content", { html: V(e) });
+  b.appendChild(x), i && b.appendChild(G("ot-banner-action", i.label, i.onClick));
   const m = () => {
-    x.markDismissed(t), w.hidden = !0, f?.();
+    w.markDismissed(t), b.hidden = !0, f?.();
   };
   if (r) {
     const g = G("ot-banner-dismiss", "×", m);
-    g.setAttribute("aria-label", "Dismiss"), w.appendChild(g);
+    g.setAttribute("aria-label", "Dismiss"), b.appendChild(g);
   }
-  U(w, u);
+  K(b, u);
   let y = !0;
   return k.add(() => {
     y = !1;
-  }), x.ready.then(() => {
-    y && (w.hidden = !x.shouldShow(t, { resurfaceAfter: o }));
+  }), w.ready.then(() => {
+    y && (b.hidden = !w.shouldShow(t, { resurfaceAfter: o }));
   }), {
-    ...K(w, k),
+    ...X(b, k),
     setMessage(g) {
-      b.innerHTML = J(g);
+      x.innerHTML = V(g);
     },
     dismiss: m
   };
 }
-function Ge(n) {
+function ms(n) {
   const {
     id: t,
     title: e,
@@ -2343,37 +2589,37 @@ function Ge(n) {
     storage: h,
     keyPrefix: f = "ot-announce",
     userId: k,
-    container: x,
-    className: w = "",
-    onDismiss: b
-  } = n, m = new V(), y = new pt(h, f, k), g = p("div", "ot-root");
+    container: w,
+    className: b = "",
+    onDismiss: x
+  } = n, m = new U(), y = new bt(h, f, k), g = p("div", "ot-root");
   g.setAttribute("data-opentutorial", ""), g.hidden = !0;
   const E = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   E.setAttribute("class", "ot-backdrop"), E.setAttribute("width", "100%"), E.setAttribute("height", "100%"), E.setAttribute("aria-hidden", "true");
   const I = document.createElementNS("http://www.w3.org/2000/svg", "rect");
   I.setAttribute("class", "ot-dim"), I.setAttribute("width", "100%"), I.setAttribute("height", "100%"), E.appendChild(I);
-  const P = `ot-announce-${t}`, N = p("div", `ot-popover ot-modal ot-popover--modal-step ${w}`.trim());
-  N.setAttribute("role", "dialog"), N.setAttribute("aria-modal", "true"), N.setAttribute("aria-labelledby", P), N.style.left = "50%", N.style.top = "50%", N.style.transform = "translate(-50%, -50%)";
-  const T = p("div", "ot-body"), $ = (v) => {
-    i && (v ? y.markActed(t) : y.markDismissed(t)), g.hidden = !0, v || b?.();
+  const M = `ot-announce-${t}`, N = p("div", `ot-popover ot-modal ot-popover--modal-step ${b}`.trim());
+  N.setAttribute("role", "dialog"), N.setAttribute("aria-modal", "true"), N.setAttribute("aria-labelledby", M), N.style.left = "50%", N.style.top = "50%", N.style.transform = "translate(-50%, -50%)";
+  const T = p("div", "ot-body"), S = (v) => {
+    i && (v ? y.markActed(t) : y.markDismissed(t)), g.hidden = !0, v || x?.();
   };
   if (a) {
-    const v = G("ot-skip", "×", () => $(!1));
+    const v = G("ot-skip", "×", () => S(!1));
     v.setAttribute("aria-label", "Dismiss"), T.appendChild(v);
   }
-  const R = p("h2", "ot-title", { text: e });
-  R.id = P, T.appendChild(R);
-  const M = p("div", "ot-content-wrap"), O = ht(s, (v) => Z(v, c, u));
-  M.appendChild(dt(O, { allowHtml: l })), T.appendChild(M);
+  const D = p("h2", "ot-title", { text: e });
+  D.id = M, T.appendChild(D);
+  const q = p("div", "ot-content-wrap"), B = gt(s, (v) => tt(v, c, u));
+  q.appendChild(vt(B, { allowHtml: l })), T.appendChild(q);
   const C = p("div", "ot-footer");
   C.appendChild(p("span"));
-  const S = p("div", "ot-btns");
-  o && S.appendChild(G("ot-btn ot-btn-ghost", o.label, () => {
-    $(!0), o.onClick();
-  })), S.appendChild(G("ot-btn ot-btn-primary", r?.label ?? "Got it", () => {
-    $(!0), r?.onClick();
-  })), C.appendChild(S), T.appendChild(C), N.appendChild(T), g.appendChild(E), g.appendChild(N), U(g, x), a && m.listen(window, "keydown", (v) => {
-    !g.hidden && v.key === "Escape" && $(!1);
+  const $ = p("div", "ot-btns");
+  o && $.appendChild(G("ot-btn ot-btn-ghost", o.label, () => {
+    S(!0), o.onClick();
+  })), $.appendChild(G("ot-btn ot-btn-primary", r?.label ?? "Got it", () => {
+    S(!0), r?.onClick();
+  })), C.appendChild($), T.appendChild(C), N.appendChild(T), g.appendChild(E), g.appendChild(N), K(g, w), a && m.listen(window, "keydown", (v) => {
+    !g.hidden && v.key === "Escape" && S(!1);
   });
   let A = !0;
   return m.add(() => {
@@ -2381,11 +2627,11 @@ function Ge(n) {
   }), y.ready.then(() => {
     A && (g.hidden = !y.shouldShow(t, { once: i }), g.hidden || N.focus?.());
   }), {
-    ...K(g, m),
-    close: () => $(!1)
+    ...X(g, m),
+    close: () => S(!1)
   };
 }
-function Ve(n) {
+function gs(n) {
   const {
     target: t,
     content: e,
@@ -2394,18 +2640,18 @@ function Ve(n) {
     zIndex: r,
     container: o,
     className: a = ""
-  } = n, l = new V(), c = typeof t == "string" ? { selector: t } : t, u = p("div", `ot-hint ${a}`.trim());
+  } = n, l = new U(), c = typeof t == "string" ? { selector: t } : t, u = p("div", `ot-hint ${a}`.trim());
   r !== void 0 && (u.style.zIndex = String(r)), u.hidden = !0;
   const h = p("button", "ot-hint-dot", { type: "button", text: s });
   h.setAttribute("aria-expanded", "false"), h.setAttribute("aria-label", "Show hint");
-  const f = p("div", "ot-hint-panel", { html: J(e) });
+  const f = p("div", "ot-hint-panel", { html: V(e) });
   f.setAttribute("role", "tooltip"), f.hidden = !0;
   const k = (m) => {
     f.hidden = !m, h.setAttribute("aria-expanded", String(m)), h.setAttribute("aria-label", m ? "Hide hint" : "Show hint");
   };
-  h.addEventListener("click", () => k(f.hidden)), i && (u.addEventListener("mouseenter", () => k(!0)), u.addEventListener("mouseleave", () => k(!1))), u.appendChild(h), u.appendChild(f), U(u, o);
-  let x = 0;
-  const w = () => {
+  h.addEventListener("click", () => k(f.hidden)), i && (u.addEventListener("mouseenter", () => k(!0)), u.addEventListener("mouseleave", () => k(!1))), u.appendChild(h), u.appendChild(f), K(u, o);
+  let w = 0;
+  const b = () => {
     const m = Q(c);
     if (!m) {
       u.hidden = !0;
@@ -2413,21 +2659,21 @@ function Ve(n) {
     }
     const y = m.element.getBoundingClientRect();
     u.hidden = !1, u.style.left = `${y.x + m.frameOffset.x + y.width}px`, u.style.top = `${y.y + m.frameOffset.y}px`;
-  }, b = () => {
-    cancelAnimationFrame(x), x = requestAnimationFrame(w);
+  }, x = () => {
+    cancelAnimationFrame(w), w = requestAnimationFrame(b);
   };
-  if (w(), l.listen(window, "resize", b), l.listen(window, "scroll", b, { capture: !0 }), l.add(() => cancelAnimationFrame(x)), typeof ResizeObserver < "u") {
-    const m = new ResizeObserver(b);
+  if (b(), l.listen(window, "resize", x), l.listen(window, "scroll", x, { capture: !0 }), l.add(() => cancelAnimationFrame(w)), typeof ResizeObserver < "u") {
+    const m = new ResizeObserver(x);
     m.observe(document.documentElement), l.add(() => m.disconnect());
   }
   return {
-    ...K(u, l),
+    ...X(u, l),
     open: () => k(!0),
     close: () => k(!1),
-    reposition: w
+    reposition: b
   };
 }
-function Ue(n) {
+function vs(n) {
   const {
     id: t,
     kind: e = "nps",
@@ -2442,25 +2688,25 @@ function Ue(n) {
     container: h,
     className: f = "",
     onSubmit: k,
-    onDismiss: x
-  } = n, w = new V();
-  let b = null, m = null;
+    onDismiss: w
+  } = n, b = new U();
+  let x = null, m = null;
   const y = p("div", `ot-survey ${f}`.trim()), g = `ot-survey-q-${t}`, E = p("p", "ot-survey-question", { text: s });
   E.id = g, y.appendChild(E);
-  const I = e === "nps" ? Array.from({ length: 11 }, (C, S) => S) : e === "rating" ? [1, 2, 3, 4, 5] : null, P = [], N = [], T = p("textarea", "ot-survey-textarea");
+  const I = e === "nps" ? Array.from({ length: 11 }, (C, $) => $) : e === "rating" ? [1, 2, 3, 4, 5] : null, M = [], N = [], T = p("textarea", "ot-survey-textarea");
   T.placeholder = e === "text" ? s : a ?? "", T.setAttribute("aria-label", e === "text" ? s : a ?? "Additional comments"), T.hidden = e !== "text";
-  const $ = p("button", "ot-btn ot-btn-primary", { type: "button", text: l }), R = () => {
-    for (const S of P) {
-      const A = Number(S.dataset.value) === b;
-      S.classList.toggle("ot-survey-score--selected", A), S.setAttribute("aria-checked", String(A));
+  const S = p("button", "ot-btn ot-btn-primary", { type: "button", text: l }), D = () => {
+    for (const $ of M) {
+      const A = Number($.dataset.value) === x;
+      $.classList.toggle("ot-survey-score--selected", A), $.setAttribute("aria-checked", String(A));
     }
-    for (const S of N) {
-      const A = S.dataset.value === m;
-      S.classList.toggle("ot-survey-option--selected", A), S.setAttribute("aria-checked", String(A));
+    for (const $ of N) {
+      const A = $.dataset.value === m;
+      $.classList.toggle("ot-survey-option--selected", A), $.setAttribute("aria-checked", String(A));
     }
-    a && e !== "text" && (T.hidden = b === null && m === null);
-    const C = e === "nps" || e === "rating" ? b !== null : e === "choice" ? m !== null : T.value.trim().length > 0;
-    $.disabled = !C;
+    a && e !== "text" && (T.hidden = x === null && m === null);
+    const C = e === "nps" || e === "rating" ? x !== null : e === "choice" ? m !== null : T.value.trim().length > 0;
+    S.disabled = !C;
   };
   if (I) {
     const C = p("div", "ot-survey-scale");
@@ -2468,45 +2714,45 @@ function Ue(n) {
     for (const A of I) {
       const v = p("button", "ot-survey-score", { type: "button", text: String(A) });
       v.dataset.value = String(A), v.setAttribute("role", "radio"), v.setAttribute("aria-checked", "false"), v.addEventListener("click", () => {
-        b = A, R();
-      }), P.push(v), C.appendChild(v);
+        x = A, D();
+      }), M.push(v), C.appendChild(v);
     }
     y.appendChild(C);
-    const S = p("div", "ot-survey-labels");
-    S.appendChild(p("span", void 0, { text: r })), S.appendChild(p("span", void 0, { text: o })), y.appendChild(S);
+    const $ = p("div", "ot-survey-labels");
+    $.appendChild(p("span", void 0, { text: r })), $.appendChild(p("span", void 0, { text: o })), y.appendChild($);
   }
   if (e === "choice") {
     const C = p("div", "ot-survey-options");
     C.setAttribute("role", "radiogroup"), C.setAttribute("aria-labelledby", g);
-    for (const S of i) {
-      const A = p("button", "ot-survey-option", { type: "button", text: S });
-      A.dataset.value = S, A.setAttribute("role", "radio"), A.setAttribute("aria-checked", "false"), A.addEventListener("click", () => {
-        m = S, R();
+    for (const $ of i) {
+      const A = p("button", "ot-survey-option", { type: "button", text: $ });
+      A.dataset.value = $, A.setAttribute("role", "radio"), A.setAttribute("aria-checked", "false"), A.addEventListener("click", () => {
+        m = $, D();
       }), N.push(A), C.appendChild(A);
     }
     y.appendChild(C);
   }
-  y.appendChild(T), T.addEventListener("input", R);
-  const M = p("div", "ot-footer");
-  x ? M.appendChild(G("ot-btn ot-btn-ghost", c, x)) : M.appendChild(p("span")), M.appendChild($), y.appendChild(M);
-  const O = () => ({
+  y.appendChild(T), T.addEventListener("input", D);
+  const q = p("div", "ot-footer");
+  w ? q.appendChild(G("ot-btn ot-btn-ghost", c, w)) : q.appendChild(p("span")), q.appendChild(S), y.appendChild(q);
+  const B = () => ({
     surveyId: t,
     kind: e,
-    score: b ?? void 0,
+    score: x ?? void 0,
     choice: m ?? void 0,
     comment: T.value.trim() || void 0
   });
-  return $.addEventListener("click", () => {
-    $.disabled || (k({ ...O(), submittedAt: Date.now() }), y.replaceChildren(p("p", "ot-survey-thanks", { text: u })));
-  }), R(), U(y, h), {
-    ...K(y, w),
-    getResponse: O,
+  return S.addEventListener("click", () => {
+    S.disabled || (k({ ...B(), submittedAt: Date.now() }), y.replaceChildren(p("p", "ot-survey-thanks", { text: u })));
+  }), D(), K(y, h), {
+    ...X(y, b),
+    getResponse: B,
     reset() {
-      b = null, m = null, T.value = "", R();
+      x = null, m = null, T.value = "", D();
     }
   };
 }
-function Ke(n) {
+function ys(n) {
   const {
     layer: t,
     specs: e,
@@ -2521,59 +2767,59 @@ function Ke(n) {
     hideWhenComplete: h = !1,
     locale: f = "en",
     i18nResolver: k,
-    container: x,
-    className: w = "",
-    onComplete: b
-  } = n, m = new V();
+    container: w,
+    className: b = "",
+    onComplete: x
+  } = n, m = new U();
   let y = u, g = !1;
-  const E = p("div", "ot-checklist"), I = p("ul", "ot-checklist-items"), P = p("div", "ot-checklist-bar-track"), N = p("div", "ot-checklist-bar-fill"), T = p("span", "ot-checklist-count"), $ = p("button", "ot-checklist-toggle", { type: "button" });
-  if (P.setAttribute("role", "progressbar"), P.setAttribute("aria-valuemin", "0"), P.setAttribute("aria-valuemax", "100"), P.appendChild(N), r) {
+  const E = p("div", "ot-checklist"), I = p("ul", "ot-checklist-items"), M = p("div", "ot-checklist-bar-track"), N = p("div", "ot-checklist-bar-fill"), T = p("span", "ot-checklist-count"), S = p("button", "ot-checklist-toggle", { type: "button" });
+  if (M.setAttribute("role", "progressbar"), M.setAttribute("aria-valuemin", "0"), M.setAttribute("aria-valuemax", "100"), M.appendChild(N), r) {
     const v = p("div", "ot-checklist-header");
-    v.appendChild(p("h3", "ot-checklist-title", { text: r })), v.appendChild(T), c && ($.addEventListener("click", () => A(!y)), v.appendChild($)), E.appendChild(v);
+    v.appendChild(p("h3", "ot-checklist-title", { text: r })), v.appendChild(T), c && (S.addEventListener("click", () => A(!y)), v.appendChild(S)), E.appendChild(v);
   }
-  E.appendChild(P), E.appendChild(I);
-  const R = () => e ?? t.getSpecs(), M = (v) => s ? s(v) : t.getActiveId() === v ? "in_progress" : t.hasSeen(v) ? "completed" : "pending", O = (v) => v === void 0 ? "" : Z(v, f, k, t.getContext());
+  E.appendChild(M), E.appendChild(I);
+  const D = () => e ?? t.getSpecs(), q = (v) => s ? s(v) : t.getActiveId() === v ? "in_progress" : t.hasSeen(v) ? "completed" : "pending", B = (v) => v === void 0 ? "" : tt(v, f, k, t.getContext());
   let C = { completed: 0, total: 0, percent: 0 };
-  const S = () => {
-    const v = R(), j = v.map((D) => M(D.id)), L = j.filter((D) => D === "completed").length, B = v.length > 0 ? Math.round(L / v.length * 100) : 0;
-    C = { completed: L, total: v.length, percent: B }, T.textContent = `${L}/${v.length}`, N.style.width = `${B}%`, P.setAttribute("aria-valuenow", String(B)), P.setAttribute("aria-label", `${L} of ${v.length} complete`), I.replaceChildren(), v.forEach((D, Y) => {
-      const _ = j[Y], X = p("li", `ot-checklist-item ot-checklist-item--${_}`), H = p("span", "ot-checklist-icon", {
+  const $ = () => {
+    const v = D(), j = v.map((O) => q(O.id)), L = j.filter((O) => O === "completed").length, P = v.length > 0 ? Math.round(L / v.length * 100) : 0;
+    C = { completed: L, total: v.length, percent: P }, T.textContent = `${L}/${v.length}`, N.style.width = `${P}%`, M.setAttribute("aria-valuenow", String(P)), M.setAttribute("aria-label", `${L} of ${v.length} complete`), I.replaceChildren(), v.forEach((O, Y) => {
+      const _ = j[Y], J = p("li", `ot-checklist-item ot-checklist-item--${_}`), H = p("span", "ot-checklist-icon", {
         text: _ === "completed" ? "✓" : _ === "in_progress" ? "◌" : "○"
       });
-      H.setAttribute("aria-hidden", "true"), X.appendChild(H);
-      const it = p("div", "ot-checklist-info");
-      it.appendChild(p("span", "ot-checklist-name", { text: O(D.title) }));
-      const ft = O(D.description);
-      if (ft && it.appendChild(p("span", "ot-checklist-desc", { text: ft })), X.appendChild(it), _ !== "completed") {
-        const nt = p("button", "ot-checklist-btn", {
+      H.setAttribute("aria-hidden", "true"), J.appendChild(H);
+      const ot = p("div", "ot-checklist-info");
+      ot.appendChild(p("span", "ot-checklist-name", { text: B(O.title) }));
+      const wt = B(O.description);
+      if (wt && ot.appendChild(p("span", "ot-checklist-desc", { text: wt })), J.appendChild(ot), _ !== "completed") {
+        const at = p("button", "ot-checklist-btn", {
           type: "button",
           text: _ === "in_progress" ? a : o
         });
-        nt.disabled = _ === "in_progress", nt.addEventListener("click", () => {
-          i ? i(D.id) : t.start(D.id);
-        }), X.appendChild(nt);
+        at.disabled = _ === "in_progress", at.addEventListener("click", () => {
+          i ? i(O.id) : t.start(O.id);
+        }), J.appendChild(at);
       }
-      I.appendChild(X);
+      I.appendChild(J);
     });
     const W = v.length > 0 && L === v.length;
-    W && !g && (g = !0, b?.()), W || (g = !1), E.hidden = W && h, E.className = [
+    W && !g && (g = !0, x?.()), W || (g = !1), E.hidden = W && h, E.className = [
       "ot-checklist",
       l ? "ot-checklist--floating" : "",
       y ? "ot-checklist--collapsed" : "",
-      w
+      b
     ].filter(Boolean).join(" ");
   };
   function A(v) {
-    y = v, $.textContent = y ? "▸" : "▾", $.setAttribute("aria-expanded", String(!y)), $.setAttribute("aria-label", y ? "Expand checklist" : "Collapse checklist"), S();
+    y = v, S.textContent = y ? "▸" : "▾", S.setAttribute("aria-expanded", String(!y)), S.setAttribute("aria-label", y ? "Expand checklist" : "Collapse checklist"), $();
   }
-  return A(y), U(E, x), m.add(t.on("event", S)), {
-    ...K(E, m),
-    refresh: S,
+  return A(y), K(E, w), m.add(t.on("event", $)), {
+    ...X(E, m),
+    refresh: $,
     setCollapsed: A,
     getProgress: () => C
   };
 }
-function Ye(n) {
+function bs(n) {
   const {
     layer: t,
     specs: e,
@@ -2587,60 +2833,60 @@ function Ye(n) {
     i18nResolver: u,
     container: h,
     className: f = ""
-  } = n, k = new V();
-  let x = !o, w = "";
-  const b = p("div", "ot-hub-root"), m = p("div", `ot-hub ${o ? "ot-hub--floating" : ""} ${f}`.trim()), y = p("div", "ot-hub-header");
+  } = n, k = new U();
+  let w = !o, b = "";
+  const x = p("div", "ot-hub-root"), m = p("div", `ot-hub ${o ? "ot-hub--floating" : ""} ${f}`.trim()), y = p("div", "ot-hub-header");
   y.appendChild(p("h3", "ot-hub-title", { text: i }));
   const g = p("input", "ot-hub-search");
   g.type = "search", g.placeholder = r, g.setAttribute("aria-label", r), y.appendChild(g), m.appendChild(y);
   const E = p("ul", "ot-hub-list");
-  m.appendChild(E), b.appendChild(m);
+  m.appendChild(E), x.appendChild(m);
   const I = p("button", "ot-hub-launcher", { type: "button", text: a });
-  o && (I.setAttribute("aria-label", i), b.appendChild(I));
-  const P = ($) => $ === void 0 ? "" : Z($, c, u, t.getContext()), N = () => {
-    if (m.hidden = !x, o && (I.textContent = x ? "×" : a, I.setAttribute("aria-label", x ? "Close help" : i), I.setAttribute("aria-expanded", String(x))), !x) return;
-    const $ = w.trim().toLowerCase(), R = e ?? t.getSpecs(), M = (C, S) => !$ || C.toLowerCase().includes($) || S.toLowerCase().includes($);
+  o && (I.setAttribute("aria-label", i), x.appendChild(I));
+  const M = (S) => S === void 0 ? "" : tt(S, c, u, t.getContext()), N = () => {
+    if (m.hidden = !w, o && (I.textContent = w ? "×" : a, I.setAttribute("aria-label", w ? "Close help" : i), I.setAttribute("aria-expanded", String(w))), !w) return;
+    const S = b.trim().toLowerCase(), D = e ?? t.getSpecs(), q = (C, $) => !S || C.toLowerCase().includes(S) || $.toLowerCase().includes(S);
     E.replaceChildren();
-    let O = 0;
-    for (const C of R) {
-      const S = P(C.title), A = P(C.description);
-      if (!M(S, A)) continue;
-      O += 1;
+    let B = 0;
+    for (const C of D) {
+      const $ = M(C.title), A = M(C.description);
+      if (!q($, A)) continue;
+      B += 1;
       const v = p("li"), j = p("button", "ot-hub-item", {
         type: "button",
-        text: `${t.hasSeen(C.id) ? "↻ " : ""}${S}`
+        text: `${t.hasSeen(C.id) ? "↻ " : ""}${$}`
       });
       A && j.appendChild(p("span", "ot-hub-item-desc", { text: A })), j.addEventListener("click", () => {
         t.start(C.id), o && T(!1);
       }), v.appendChild(j), E.appendChild(v);
     }
     for (const C of s) {
-      const S = C.description ?? "";
-      if (!M(C.label, S)) continue;
-      O += 1;
+      const $ = C.description ?? "";
+      if (!q(C.label, $)) continue;
+      B += 1;
       const A = p("li"), v = p("a", "ot-hub-item", { text: `${C.label} ↗` });
-      v.href = C.href, v.target = "_blank", v.rel = "noopener noreferrer", S && v.appendChild(p("span", "ot-hub-item-desc", { text: S })), A.appendChild(v), E.appendChild(A);
+      v.href = C.href, v.target = "_blank", v.rel = "noopener noreferrer", $ && v.appendChild(p("span", "ot-hub-item-desc", { text: $ })), A.appendChild(v), E.appendChild(A);
     }
-    O === 0 && E.appendChild(p("li", "ot-hub-empty", { text: l }));
+    B === 0 && E.appendChild(p("li", "ot-hub-empty", { text: l }));
   };
-  function T($) {
-    x = $, N();
+  function T(S) {
+    w = S, N();
   }
   return g.addEventListener("input", () => {
-    w = g.value, N();
-  }), I.addEventListener("click", () => T(!x)), N(), U(b, h), k.add(t.on("event", () => {
-    x && N();
+    b = g.value, N();
+  }), I.addEventListener("click", () => T(!w)), N(), K(x, h), k.add(t.on("event", () => {
+    w && N();
   })), {
-    ...K(b, k),
+    ...X(x, k),
     open: () => T(!0),
     close: () => T(!1),
-    search($) {
-      w = $, g.value = $, N();
+    search(S) {
+      b = S, g.value = S, N();
     },
     refresh: N
   };
 }
-function Xe(n) {
+function ws(n) {
   const {
     entries: t,
     title: e = "What's new",
@@ -2655,76 +2901,76 @@ function Xe(n) {
     keyPrefix: h = "ot-changelog",
     userId: f,
     container: k,
-    className: x = "",
-    onRead: w
-  } = n, b = new V(), m = new pt(u, h, f);
+    className: w = "",
+    onRead: b
+  } = n, x = new U(), m = new bt(u, h, f);
   let y = t, g = !s, E = !1;
-  const I = p("div", "ot-changelog-root"), P = p("div", `ot-changelog ${s ? "ot-changelog--floating" : ""} ${x}`.trim());
-  P.setAttribute("role", "region"), P.setAttribute("aria-label", e);
+  const I = p("div", "ot-changelog-root"), M = p("div", `ot-changelog ${s ? "ot-changelog--floating" : ""} ${w}`.trim());
+  M.setAttribute("role", "region"), M.setAttribute("aria-label", e);
   const N = p("div", "ot-changelog-header");
-  N.appendChild(p("h3", "ot-changelog-title", { text: e })), P.appendChild(N);
+  N.appendChild(p("h3", "ot-changelog-title", { text: e })), M.appendChild(N);
   const T = p("ul", "ot-changelog-list");
-  P.appendChild(T), I.appendChild(P);
-  const $ = p("button", "ot-changelog-launcher", { type: "button" }), R = p("span", "ot-changelog-badge");
-  if (R.setAttribute("aria-hidden", "true"), s)
-    $.appendChild(p("span", "ot-changelog-glyph", { text: i })), $.appendChild(R), I.appendChild($);
+  M.appendChild(T), I.appendChild(M);
+  const S = p("button", "ot-changelog-launcher", { type: "button" }), D = p("span", "ot-changelog-badge");
+  if (D.setAttribute("aria-hidden", "true"), s)
+    S.appendChild(p("span", "ot-changelog-glyph", { text: i })), S.appendChild(D), I.appendChild(S);
   else {
     const L = G("ot-changelog-close", "×", () => v(!1));
     L.setAttribute("aria-label", "Close"), N.appendChild(L);
   }
-  const M = () => y.slice(0, o), O = () => E ? M().filter((L) => m.shouldShow(L.id)).map((L) => L.id) : [], C = () => {
-    const L = O().length;
-    R.textContent = L > 99 ? "99+" : String(L), R.hidden = L === 0, $.setAttribute(
+  const q = () => y.slice(0, o), B = () => E ? q().filter((L) => m.shouldShow(L.id)).map((L) => L.id) : [], C = () => {
+    const L = B().length;
+    D.textContent = L > 99 ? "99+" : String(L), D.hidden = L === 0, S.setAttribute(
       "aria-label",
       L > 0 ? `${e} (${L} unread)` : e
-    ), $.setAttribute("aria-expanded", String(g));
-  }, S = () => {
+    ), S.setAttribute("aria-expanded", String(g));
+  }, $ = () => {
     T.replaceChildren();
-    const L = M();
+    const L = q();
     if (L.length === 0) {
       T.appendChild(p("li", "ot-changelog-empty", { text: r }));
       return;
     }
-    for (const B of L) {
-      const W = E && m.shouldShow(B.id), D = p("li", `ot-changelog-item${W ? " ot-changelog-item--unread" : ""}`), Y = p("div", "ot-changelog-meta");
-      if (B.tag && Y.appendChild(p("span", "ot-changelog-tag", { text: B.tag })), B.date) {
-        const H = p("time", "ot-changelog-date", { text: B.date });
-        H.dateTime = B.date, Y.appendChild(H);
+    for (const P of L) {
+      const W = E && m.shouldShow(P.id), O = p("li", `ot-changelog-item${W ? " ot-changelog-item--unread" : ""}`), Y = p("div", "ot-changelog-meta");
+      if (P.tag && Y.appendChild(p("span", "ot-changelog-tag", { text: P.tag })), P.date) {
+        const H = p("time", "ot-changelog-date", { text: P.date });
+        H.dateTime = P.date, Y.appendChild(H);
       }
-      Y.childElementCount > 0 && D.appendChild(Y), D.appendChild(p("h4", "ot-changelog-entry-title", { text: B.title }));
-      const _ = p("div", "ot-changelog-body"), X = ht(B.content, (H) => Z(H, l, c));
-      if (_.appendChild(dt(X, { allowHtml: a })), D.appendChild(_), B.href) {
+      Y.childElementCount > 0 && O.appendChild(Y), O.appendChild(p("h4", "ot-changelog-entry-title", { text: P.title }));
+      const _ = p("div", "ot-changelog-body"), J = gt(P.content, (H) => tt(H, l, c));
+      if (_.appendChild(vt(J, { allowHtml: a })), O.appendChild(_), P.href) {
         const H = p("a", "ot-changelog-link", { text: "Read more ↗" });
-        H.href = B.href, H.target = "_blank", H.rel = "noopener noreferrer", D.appendChild(H);
+        H.href = P.href, H.target = "_blank", H.rel = "noopener noreferrer", O.appendChild(H);
       }
-      T.appendChild(D);
+      T.appendChild(O);
     }
   }, A = () => {
-    P.hidden = !g, C(), g && S();
+    M.hidden = !g, C(), g && $();
   };
   function v(L) {
-    if (g = L, P.hidden = !g, g) {
-      const B = O();
-      if (S(), B.length > 0) {
-        for (const W of B) m.markActed(W);
-        w?.(B);
+    if (g = L, M.hidden = !g, g) {
+      const P = B();
+      if ($(), P.length > 0) {
+        for (const W of P) m.markActed(W);
+        b?.(P);
       }
     }
     C();
   }
-  $.addEventListener("click", () => v(!g)), U(I, k), A();
+  S.addEventListener("click", () => v(!g)), K(I, k), A();
   let j = !0;
-  return b.add(() => {
+  return x.add(() => {
     j = !1;
   }), m.ready.then(() => {
     j && (E = !0, A());
   }), {
-    ...K(I, b),
+    ...X(I, x),
     open: () => v(!0),
     close: () => v(!1),
-    unread: O,
+    unread: B,
     markAllRead() {
-      for (const L of M()) m.markActed(L.id);
+      for (const L of q()) m.markActed(L.id);
       A();
     },
     setEntries(L) {
@@ -2733,75 +2979,80 @@ function Xe(n) {
   };
 }
 export {
-  Ot as CSS,
-  ye as DEFAULT_LABELS,
-  st as MemoryStorage,
-  pt as SurfaceState,
-  qt as TourEngine,
-  Bt as TourOrchestrator,
-  Pt as TourPersistence,
-  Le as assertValidSpec,
-  zt as blocksToText,
-  Dt as checkExpression,
-  rs as createAmplitudeAdapter,
-  Ge as createAnnouncement,
-  We as createBanner,
-  Xe as createChangelog,
-  Ke as createChecklist,
-  je as createCookieStorage,
-  os as createDatadogAdapter,
-  as as createDebugAdapter,
-  ls as createEventCollector,
-  cs as createFunnelReport,
-  hs as createGA4Adapter,
-  ds as createHeapAdapter,
-  Ve as createHint,
-  us as createHttpAdapter,
-  _e as createIndexedDBStorage,
-  Pe as createKeyResolver,
-  qe as createLocaleResolver,
-  Te as createMemoryStorage,
-  ps as createMixpanelAdapter,
-  fs as createMultiAdapter,
-  ms as createPostHogAdapter,
-  Fe as createRemoteStorage,
-  Ye as createResourceCenter,
-  gs as createRudderStackAdapter,
-  vs as createSegmentAdapter,
-  Ue as createSurvey,
-  Re as createTour,
-  Me as createTours,
-  ze as createTutorialLayer,
-  It as currentPath,
-  Oe as defineSpec,
-  De as defineStep,
-  Ht as describeTarget,
-  Ct as escapeHtml,
-  Ze as evaluateExpression,
-  et as evaluateShowIf,
-  He as extendSpec,
-  ys as filterEvents,
-  $e as installTrigger,
-  at as interpolate,
-  ts as isVisible,
-  Be as localeDirection,
-  Tt as matchPath,
-  ht as normalizeContent,
-  Lt as onLocationChange,
-  es as queryDeep,
-  dt as renderBlocks,
-  J as renderInline,
-  be as resolveLabel,
+  Yt as CSS,
+  Be as DEFAULT_LABELS,
+  rt as MemoryStorage,
+  bt as SurfaceState,
+  Vt as TourEngine,
+  Ut as TourOrchestrator,
+  Gt as TourPersistence,
+  Ze as assertValidSpec,
+  cs as assignAll,
+  Ue as assignVariant,
+  re as blocksToText,
+  Jt as checkExpression,
+  Ts as createAmplitudeAdapter,
+  ms as createAnnouncement,
+  fs as createBanner,
+  ws as createChangelog,
+  ys as createChecklist,
+  hs as createCookieStorage,
+  Ls as createDatadogAdapter,
+  Ns as createDebugAdapter,
+  Ms as createEventCollector,
+  Rs as createFunnelReport,
+  Ps as createGA4Adapter,
+  Ds as createHeapAdapter,
+  gs as createHint,
+  qs as createHttpAdapter,
+  ds as createIndexedDBStorage,
+  es as createKeyResolver,
+  ss as createLocaleResolver,
+  Qe as createMemoryStorage,
+  Bs as createMixpanelAdapter,
+  Os as createMultiAdapter,
+  Hs as createPostHogAdapter,
+  us as createRemoteStorage,
+  bs as createResourceCenter,
+  js as createRudderStackAdapter,
+  _s as createSegmentAdapter,
+  vs as createSurvey,
+  ns as createTour,
+  rs as createTours,
+  ps as createTutorialLayer,
+  _t as currentPath,
+  os as defineSpec,
+  as as defineStep,
+  Qt as describeTarget,
+  nt as escapeHtml,
+  Es as evaluateExpression,
+  st as evaluateShowIf,
+  ls as extendSpec,
+  zs as filterEvents,
+  ne as hasBlockMarkdown,
+  Ge as installTrigger,
+  dt as interpolate,
+  $s as isVisible,
+  is as localeDirection,
+  zt as matchPath,
+  gt as normalizeContent,
+  Ft as onLocationChange,
+  Ss as queryDeep,
+  vt as renderBlocks,
+  V as renderInline,
+  jt as renderMarkdown,
+  Oe as resolveLabel,
   Q as resolveTarget,
-  Z as resolveText,
-  ss as safeQuery,
-  fe as selectPlural,
-  bs as shouldSample,
-  ut as validateSpec,
-  Ne as validateSpecs,
-  is as waitForElement,
-  lt as waitForTarget,
-  ws as withEventTypes,
-  xs as withSampling
+  Zt as resolveTargets,
+  tt as resolveText,
+  As as safeQuery,
+  Re as selectPlural,
+  te as shouldSample,
+  yt as validateSpec,
+  ts as validateSpecs,
+  Cs as waitForElement,
+  ut as waitForTarget,
+  Fs as withEventTypes,
+  Ws as withSampling
 };
 //# sourceMappingURL=index.js.map

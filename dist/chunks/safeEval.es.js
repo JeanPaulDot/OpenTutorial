@@ -1,7 +1,7 @@
-var O = Object.defineProperty;
-var E = (o, t, e) => t in o ? O(o, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[t] = e;
-var u = (o, t, e) => E(o, typeof t != "symbol" ? t + "" : t, e);
-const D = `
+var E = Object.defineProperty;
+var S = (o, t, e) => t in o ? E(o, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[t] = e;
+var h = (o, t, e) => S(o, typeof t != "symbol" ? t + "" : t, e);
+const _ = `
 /*
  * OpenTutorial styles. Everything is driven by --ot-* custom properties set on
  * .ot-root — override them from host CSS or via spec \`theme\` objects.
@@ -103,6 +103,45 @@ const D = `
 
 .ot-popover--modal-step { --ot-popover-width: 420px; }
 
+/*
+ * Density scales the three things that actually change how roomy a card feels.
+ * Everything else is derived from them, so headings, buttons, code blocks and
+ * the arrow all move together.
+ */
+.ot-popover[data-ot-density="compact"] {
+  --ot-spacing: 11px;
+  --ot-font-size: 12.5px;
+  --ot-radius: 10px;
+}
+
+.ot-popover[data-ot-density="spacious"] {
+  --ot-spacing: 22px;
+  --ot-font-size: 14.5px;
+  --ot-radius: 18px;
+}
+
+/*
+ * The card is capped at a share of the viewport, so a long step scrolls its
+ * body instead of running off the bottom of the screen. Title and footer stay
+ * put — losing the Next button below the fold was the old failure mode.
+ */
+.ot-popover {
+  display: flex;
+  flex-direction: column;
+}
+
+.ot-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.ot-content-wrap {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+}
+
 @keyframes ot-pop-in {
   from { opacity: 0; transform: translateY(4px) scale(0.985); }
   to   { opacity: 1; transform: none; }
@@ -182,6 +221,52 @@ const D = `
 }
 
 .ot-html { font-size: var(--ot-font-size); line-height: 1.55; color: var(--ot-muted); margin-bottom: 10px; }
+
+/* --------------------------------------------------------------------- */
+/* Block markdown                                                         */
+/* --------------------------------------------------------------------- */
+
+.ot-prose { font-size: var(--ot-font-size); line-height: 1.55; color: var(--ot-muted); }
+.ot-prose > *:last-child { margin-bottom: 0; }
+
+.ot-heading {
+  margin: 0 0 6px;
+  color: var(--ot-fg);
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.ot-prose > .ot-heading:not(:first-child) { margin-top: 14px; }
+
+/* Scaled from the body size so a density change moves headings with it. */
+.ot-heading--1 { font-size: calc(var(--ot-font-size) + 4px); }
+.ot-heading--2 { font-size: calc(var(--ot-font-size) + 2.5px); }
+.ot-heading--3 { font-size: calc(var(--ot-font-size) + 1px); }
+.ot-heading--4,
+.ot-heading--5,
+.ot-heading--6 { font-size: var(--ot-font-size); }
+.ot-heading--5,
+.ot-heading--6 { color: var(--ot-muted); text-transform: uppercase; letter-spacing: 0.05em; font-size: calc(var(--ot-font-size) - 2px); }
+
+.ot-quote {
+  margin: 0 0 10px;
+  padding: 2px 0 2px 12px;
+  border-inline-start: 3px solid color-mix(in srgb, var(--ot-accent) 45%, transparent);
+  color: var(--ot-muted);
+}
+
+.ot-quote > *:last-child { margin-bottom: 0; }
+
+.ot-inline-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: calc(var(--ot-radius) * 0.5);
+  vertical-align: middle;
+}
+
+.ot-prose .ot-list { margin-bottom: 10px; }
+.ot-prose .ot-code { margin-bottom: 10px; }
 
 .ot-skip {
   position: absolute;
@@ -951,8 +1036,8 @@ const D = `
   .ot-beacon--beacon { animation: none; }
   .ot-popover { animation: none; }
 }
-`.trim(), S = "button, a, [role], label, summary, h1, h2, h3, h4, h5, h6, p, li, td, th, span, div";
-function A(o, t = document) {
+`.trim(), A = "button, a, [role], label, summary, h1, h2, h3, h4, h5, h6, p, li, td, th, span, div";
+function T(o, t = document) {
   try {
     return t.querySelector(o);
   } catch {
@@ -966,16 +1051,16 @@ function f(o, t = document) {
     return [];
   }
 }
-function C(o, t = document) {
-  const e = f(o, t), r = /* @__PURE__ */ new Set(), s = (n) => {
+function k(o, t = document) {
+  const e = f(o, t), r = /* @__PURE__ */ new Set(), c = (n) => {
     for (const i of f("*", n)) {
-      const p = i.shadowRoot;
-      !p || r.has(p) || (r.add(p), e.push(...f(o, p)), s(p));
+      const a = i.shadowRoot;
+      !a || r.has(a) || (r.add(a), e.push(...f(o, a)), c(a));
     }
   };
-  return s(t), [...new Set(e)];
+  return c(t), [...new Set(e)];
 }
-function h(o) {
+function u(o) {
   const t = o.getBoundingClientRect();
   if (t.width === 0 && t.height === 0) return !1;
   const e = o.ownerDocument?.defaultView;
@@ -983,20 +1068,20 @@ function h(o) {
   const r = e.getComputedStyle(o);
   return r.visibility !== "hidden" && r.display !== "none" && r.opacity !== "0";
 }
-function x(o) {
+function g(o) {
   return o.replace(/\s+/g, " ").trim().toLowerCase();
 }
-function b(o, t, e) {
-  const r = x(o);
+function v(o, t, e) {
+  const r = g(o);
   if (!r) return null;
-  const n = (t ?? f(S, e)).filter((c) => x(c.textContent ?? "").includes(r));
+  const n = (t ?? f(A, e)).filter((p) => g(p.textContent ?? "").includes(r));
   if (n.length === 0) return null;
-  const i = n.filter((c) => x(c.textContent ?? "") === r);
-  return (i.length ? i : n).reduce((c, d) => c.contains(d) ? d : c);
+  const i = n.filter((p) => g(p.textContent ?? "") === r);
+  return (i.length ? i : n).reduce((p, l) => p.contains(l) ? l : p);
 }
-function w(o) {
+function m(o) {
   if (!o.iframe) return { doc: document, offset: { x: 0, y: 0 } };
-  const t = A(o.iframe);
+  const t = T(o.iframe);
   if (!t) return null;
   try {
     const e = t.contentDocument;
@@ -1007,61 +1092,77 @@ function w(o) {
     return null;
   }
 }
-function m(o) {
-  const t = w(o);
+function x(o) {
+  const t = m(o);
   if (!t) return null;
-  const { doc: e, offset: r } = t, s = o.selector ? Array.isArray(o.selector) ? o.selector : [o.selector] : [], n = (i) => {
-    const p = o.visible ? i.filter(h) : i;
-    return p.length === 0 ? null : p[o.index ?? 0] ?? null;
+  const { doc: e, offset: r } = t, c = o.selector ? Array.isArray(o.selector) ? o.selector : [o.selector] : [], n = (i) => {
+    const a = o.visible ? i.filter(u) : i;
+    return a.length === 0 ? null : a[o.index ?? 0] ?? null;
   };
-  for (const i of s) {
-    const p = o.shadow ? C(i, e) : f(i, e);
+  for (const i of c) {
+    const a = o.shadow ? k(i, e) : f(i, e);
     if (o.text) {
-      const d = b(o.text, o.visible ? p.filter(h) : p, e);
-      if (d) return { element: d, doc: e, frameOffset: r, matched: i };
+      const l = v(o.text, o.visible ? a.filter(u) : a, e);
+      if (l) return { element: l, doc: e, frameOffset: r, matched: i };
       continue;
     }
-    const c = n(p);
-    if (c) return { element: c, doc: e, frameOffset: r, matched: i };
+    const p = n(a);
+    if (p) return { element: p, doc: e, frameOffset: r, matched: i };
   }
-  if (s.length === 0 && o.text) {
-    const i = b(o.text, null, e);
-    if (i && (!o.visible || h(i)))
+  if (c.length === 0 && o.text) {
+    const i = v(o.text, null, e);
+    if (i && (!o.visible || u(i)))
       return { element: i, doc: e, frameOffset: r, matched: `text:${o.text}` };
   }
   return null;
 }
 function $(o) {
+  if (!o.all) {
+    const i = x(o);
+    return i ? [i] : [];
+  }
+  const t = m(o);
+  if (!t) return [];
+  const { doc: e, offset: r } = t, c = o.selector ? Array.isArray(o.selector) ? o.selector : [o.selector] : [];
+  for (const i of c) {
+    const a = o.shadow ? k(i, e) : f(i, e), p = o.visible ? a.filter(u) : a;
+    if (p.length > 0)
+      return p.map((l) => ({ element: l, doc: e, frameOffset: r, matched: i }));
+  }
+  const n = x(o);
+  return n ? [n] : [];
+}
+function F(o) {
   const t = [];
   return o.selector && t.push(Array.isArray(o.selector) ? o.selector.join(" | ") : o.selector), o.text && t.push(`text "${o.text}"`), o.iframe && t.push(`in iframe ${o.iframe}`), t.join(" + ") || "(no selector)";
 }
-function T(o, t = 5e3) {
+function C(o, t = 5e3) {
   return new Promise((e) => {
-    const r = m(o);
+    const r = x(o);
     if (r) {
       e(r);
       return;
     }
-    let s = !1, n = null;
-    const i = (l) => {
-      s || (s = !0, n?.disconnect(), clearInterval(c), clearTimeout(d), e(l));
-    }, p = () => {
-      const l = m(o);
-      l && i(l);
+    let c = !1, n = null;
+    const i = (d) => {
+      c || (c = !0, n?.disconnect(), clearInterval(p), clearTimeout(l), e(d));
+    }, a = () => {
+      const d = x(o);
+      d && i(d);
     };
     try {
-      n = new MutationObserver(p);
-      const l = o.iframe ? w(o)?.doc.documentElement ?? document.documentElement : document.documentElement;
-      n.observe(l, { childList: !0, subtree: !0, attributes: !0 });
+      n = new MutationObserver(a);
+      const d = o.iframe ? m(o)?.doc.documentElement ?? document.documentElement : document.documentElement;
+      n.observe(d, { childList: !0, subtree: !0, attributes: !0 });
     } catch {
     }
-    const c = setInterval(p, 100), d = setTimeout(() => i(null), t);
+    const p = setInterval(a, 100), l = setTimeout(() => i(null), t);
   });
 }
-function F(o, t = 5e3) {
-  return T({ selector: o }, t).then((e) => e?.element ?? null);
+function L(o, t = 5e3) {
+  return C({ selector: o }, t).then((e) => e?.element ?? null);
 }
-const R = 500, j = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototype"]), v = {
+const R = 500, j = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototype"]), y = {
   includes: (o, t) => typeof o == "string" ? o.includes(String(t[0])) : Array.isArray(o) ? o.includes(t[0]) : !1,
   startsWith: (o, t) => typeof o == "string" ? o.startsWith(String(t[0])) : !1,
   endsWith: (o, t) => typeof o == "string" ? o.endsWith(String(t[0])) : !1,
@@ -1078,7 +1179,7 @@ const R = 500, j = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototy
       return !1;
     }
   }
-}, M = [
+}, q = [
   "===",
   "!==",
   "==",
@@ -1103,7 +1204,7 @@ const R = 500, j = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototy
   "?",
   ":"
 ];
-function k(o) {
+function z(o) {
   const t = [];
   let e = 0;
   for (; e < o.length; ) {
@@ -1112,9 +1213,9 @@ function k(o) {
       e += 1;
       continue;
     }
-    const s = M.find((i) => r.startsWith(i));
-    if (s) {
-      t.push({ t: "op", v: s }), e += s.length;
+    const c = q.find((i) => r.startsWith(i));
+    if (c) {
+      t.push({ t: "op", v: c }), e += c.length;
       continue;
     }
     if (r[0] === ".") {
@@ -1150,7 +1251,7 @@ function k(o) {
   }
   return t;
 }
-function g(o, t) {
+function b(o, t) {
   if (o != null && !(typeof t == "string" && j.has(t))) {
     if (typeof o == "string")
       return t === "length" ? o.length : typeof t == "number" ? o[t] : void 0;
@@ -1160,17 +1261,17 @@ function g(o, t) {
       return o[String(t)];
   }
 }
-function y(o, t) {
+function w(o, t) {
   return o === t ? !0 : o == null ? t == null : typeof o == "number" || typeof t == "number" ? Number(o) === Number(t) : String(o) === String(t);
 }
-function a(o) {
+function s(o) {
   return typeof o == "number" ? o : Number(o);
 }
-class z {
+class O {
   constructor(t, e) {
-    u(this, "pos", 0);
-    u(this, "tokens");
-    u(this, "ctx");
+    h(this, "pos", 0);
+    h(this, "tokens");
+    h(this, "ctx");
     this.tokens = t, this.ctx = e;
   }
   parse() {
@@ -1227,11 +1328,11 @@ class z {
         continue;
       }
       if (this.eatOp("==")) {
-        t = y(t, this.relational());
+        t = w(t, this.relational());
         continue;
       }
       if (this.eatOp("!=")) {
-        t = !y(t, this.relational());
+        t = !w(t, this.relational());
         continue;
       }
       return t;
@@ -1241,19 +1342,19 @@ class z {
     let t = this.additive();
     for (; ; ) {
       if (this.eatOp("<=")) {
-        t = a(t) <= a(this.additive());
+        t = s(t) <= s(this.additive());
         continue;
       }
       if (this.eatOp(">=")) {
-        t = a(t) >= a(this.additive());
+        t = s(t) >= s(this.additive());
         continue;
       }
       if (this.eatOp("<")) {
-        t = a(t) < a(this.additive());
+        t = s(t) < s(this.additive());
         continue;
       }
       if (this.eatOp(">")) {
-        t = a(t) > a(this.additive());
+        t = s(t) > s(this.additive());
         continue;
       }
       return t;
@@ -1264,11 +1365,11 @@ class z {
     for (; ; ) {
       if (this.eatOp("+")) {
         const e = this.multiplicative();
-        t = typeof t == "string" || typeof e == "string" ? String(t) + String(e) : a(t) + a(e);
+        t = typeof t == "string" || typeof e == "string" ? String(t) + String(e) : s(t) + s(e);
         continue;
       }
       if (this.eatOp("-")) {
-        t = a(t) - a(this.multiplicative());
+        t = s(t) - s(this.multiplicative());
         continue;
       }
       return t;
@@ -1278,22 +1379,22 @@ class z {
     let t = this.unary();
     for (; ; ) {
       if (this.eatOp("*")) {
-        t = a(t) * a(this.unary());
+        t = s(t) * s(this.unary());
         continue;
       }
       if (this.eatOp("/")) {
-        t = a(t) / a(this.unary());
+        t = s(t) / s(this.unary());
         continue;
       }
       if (this.eatOp("%")) {
-        t = a(t) % a(this.unary());
+        t = s(t) % s(this.unary());
         continue;
       }
       return t;
     }
   }
   unary() {
-    return this.eatOp("!") ? !this.unary() : this.eatOp("-") ? -a(this.unary()) : this.postfix();
+    return this.eatOp("!") ? !this.unary() : this.eatOp("-") ? -s(this.unary()) : this.postfix();
   }
   postfix() {
     let t = this.primary();
@@ -1310,17 +1411,17 @@ class z {
               r.push(this.ternary());
             while (this.eatOp(","));
           this.expectOp(")");
-          const s = Object.prototype.hasOwnProperty.call(v, e.v) ? v[e.v] : void 0;
-          if (typeof s != "function") throw new Error(`Method "${e.v}" is not allowed`);
-          t = s(t, r);
+          const c = Object.prototype.hasOwnProperty.call(y, e.v) ? y[e.v] : void 0;
+          if (typeof c != "function") throw new Error(`Method "${e.v}" is not allowed`);
+          t = c(t, r);
           continue;
         }
-        t = g(t, e.v);
+        t = b(t, e.v);
         continue;
       }
       if (this.eatOp("[")) {
         const e = this.ternary();
-        this.expectOp("]"), t = g(t, typeof e == "number" ? e : String(e));
+        this.expectOp("]"), t = b(t, typeof e == "number" ? e : String(e));
         continue;
       }
       return t;
@@ -1355,46 +1456,47 @@ class z {
       case "undef":
         return;
       case "ident":
-        return g(this.ctx, t.v);
+        return b(this.ctx, t.v);
       default:
         throw new Error("Unexpected token");
     }
   }
 }
-function _(o, t, e = {}) {
+function D(o, t, e = {}) {
   try {
     if (typeof o != "string") return;
     if (o.length > (e.maxLength ?? R)) {
       e.onError?.("expression exceeds the maximum length", o);
       return;
     }
-    return new z(k(o), t).parse();
+    return new O(z(o), t).parse();
   } catch (r) {
     e.onError?.(r instanceof Error ? r.message : "invalid expression", o);
     return;
   }
 }
-function L(o, t, e = {}) {
-  return !!_(o, t, e);
+function N(o, t, e = {}) {
+  return !!D(o, t, e);
 }
-function N(o) {
+function B(o) {
   try {
-    return new z(k(o), {}).parse(), { ok: !0 };
+    return new O(z(o), {}).parse(), { ok: !0 };
   } catch (t) {
     return { ok: !1, message: t instanceof Error ? t.message : "invalid expression" };
   }
 }
 export {
-  D as C,
-  L as a,
-  T as b,
-  N as c,
-  $ as d,
-  _ as e,
-  h as i,
-  C as q,
-  m as r,
-  A as s,
-  F as w
+  _ as C,
+  N as a,
+  $ as b,
+  B as c,
+  F as d,
+  D as e,
+  C as f,
+  u as i,
+  k as q,
+  x as r,
+  T as s,
+  L as w
 };
 //# sourceMappingURL=safeEval.es.js.map

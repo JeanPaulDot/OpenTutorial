@@ -179,6 +179,19 @@ withSampling(adapter, {
 | `always` | `[]` | Event types that bypass sampling. |
 | `salt` | `''` | So two adapters at the same rate pick different cohorts. |
 
+### One rate for every adapter
+
+`withSampling` wraps a single adapter. To sample everything at once, set it on
+the layer:
+
+```ts
+createTutorialLayer({ specs, onEvent: adapter, sampleRate: 0.1 });
+```
+
+Same per-run semantics. Note that it gates the **adapter** only — the
+`opentutorial` DOM event still fires for every event, because host UI wired to
+those would be undebuggable if 90% vanished silently.
+
 ### Narrow the event types
 
 ```ts

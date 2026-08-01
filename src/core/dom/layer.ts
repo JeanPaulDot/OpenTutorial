@@ -32,11 +32,16 @@ export class TourLayer {
   private shadow: ShadowRoot | null = null;
   private svg: SVGSVGElement;
   private dimRect: SVGRectElement;
+  private mask!: SVGMaskElement;
   private hole: SVGRectElement;
+  private holes: SVGRectElement[] = [];
   private ring: HTMLDivElement;
+  private rings: HTMLDivElement[] = [];
   private shield: HTMLDivElement;
   private panels: HTMLDivElement[] = [];
   private current: (SpotlightRect & { padding: number; radius: number }) | null = null;
+  /** Every highlighted rect, when a step targets more than one element. */
+  private currentAll: SpotlightRect[] = [];
   private interaction: InteractionMode = 'free';
   private opts: LayerOptions;
 
@@ -89,10 +94,11 @@ export class TourLayer {
     cover.setAttribute('height', '100%');
     cover.setAttribute('fill', 'white');
 
-    this.hole = document.createElementNS(NS, 'rect');
-    this.hole.setAttribute('fill', 'black');
-    this.hole.setAttribute('rx', '12');
-    this.setHole({ x: -9999, y: -9999, width: 0, height: 0 }, 0);
+    // One hole per highlighted element. The pool starts at one — the common
+    // case — and grows on demand so a multi-target step does not rebuild the
+    // whole mask on every reposition.
+    this.mask = mask;
+    this.hole = this.addHole();
 
     mask.appendChild(cover);
     mask.appendChild(this.hole);
@@ -112,6 +118,7 @@ export class TourLayer {
     this.ring = document.createElement('div');
     this.ring.className = 'ot-ring';
     this.ring.style.opacity = '0';
+    this.rings.push(this.ring);
 
     this.shield = document.createElement('div');
     this.shield.className = 'ot-shield';
@@ -130,33 +137,95 @@ export class TourLayer {
     this.svg.style.display = 'none';
   }
 
-  private setHole(rect: SpotlightRect, padding: number): void {
-    this.hole.setAttribute('x', String(rect.x - padding));
-    this.hole.setAttribute('y', String(rect.y - padding));
-    this.hole.setAttribute('width', String(Math.max(0, rect.width + padding * 2)));
-    this.hole.setAttribute('height', String(Math.max(0, rect.height + padding * 2)));
+  /** Add a cutout to the mask pool. */
+  private addHole(): SVGRectElement {
+    const hole = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    hole.setAttribute('fill', 'black');
+    hole.setAttribute('rx', '12');
+    hole.setAttribute('x', '-9999');
+    hole.setAttribute('y', '-9999');
+    hole.setAttribute('width', '0');
+    hole.setAttribute('height', '0');
+    this.holes.push(hole);
+    if (this.mask) this.mask.appendChild(hole);
+    return hole;
+  }
+
+  /** Add a highlight ring to the pool. */
+  private addRing(): HTMLDivElement {
+    const ring = document.createElement('div');
+    ring.className = 'ot-ring';
+    ring.style.opacity = '0';
+    this.rings.push(ring);
+    this.root.appendChild(ring);
+    return ring;
+  }
+
+  private setHole(rect: SpotlightRect, padding: number, hole = this.hole): void {
+    hole.setAttribute('x', String(rect.x - padding));
+    hole.setAttribute('y', String(rect.y - padding));
+    hole.setAttribute('width', String(Math.max(0, rect.width + padding * 2)));
+    hole.setAttribute('height', String(Math.max(0, rect.height + padding * 2)));
+  }
+
+  /** Smallest rect containing every input. Drives the popover and the shield. */
+  private static union(rects: SpotlightRect[]): SpotlightRect {
+    const x = Math.min(...rects.map((r) => r.x));
+    const y = Math.min(...rects.map((r) => r.y));
+    const right = Math.max(...rects.map((r) => r.x + r.width));
+    const bottom = Math.max(...rects.map((r) => r.y + r.height));
+    return { x, y, width: right - x, height: bottom - y };
   }
 
   /** Update the cutout + ring. Pass null to clear the spotlight. */
-  updateSpotlight(rect: SpotlightRect | null, padding = 8, radius = 12): void {
-    this.current = rect ? { ...rect, padding, radius } : null;
-    if (!rect) {
-      this.setHole({ x: -9999, y: -9999, width: 0, height: 0 }, 0);
-      this.ring.style.opacity = '0';
+  /**
+   * Update the cutout(s) and ring(s). Pass null to clear the spotlight.
+   *
+   * An array highlights several elements at once — "these three fields" — with
+   * one cutout and one ring each. The popover and the interaction shield use
+   * their union, because a four-panel shield cannot express a disjoint gap and a
+   * popover has to point somewhere.
+   */
+  updateSpotlight(rect: SpotlightRect | SpotlightRect[] | null, padding = 8, radius = 12): void {
+    const rects = rect === null ? [] : (Array.isArray(rect) ? rect : [rect]);
+    this.currentAll = rects;
+
+    if (rects.length === 0) {
+      this.current = null;
+      for (const hole of this.holes) this.setHole({ x: -9999, y: -9999, width: 0, height: 0 }, 0, hole);
+      for (const ring of this.rings) ring.style.opacity = '0';
       this.svg.style.display = 'none';
       this.applyShield();
       return;
     }
+
+    this.current = { ...TourLayer.union(rects), padding, radius };
     this.svg.style.display = '';
-    this.setHole(rect, padding);
-    this.hole.setAttribute('rx', String(radius));
-    const s = this.ring.style;
-    s.opacity = '1';
-    s.left = `${rect.x - padding}px`;
-    s.top = `${rect.y - padding}px`;
-    s.width = `${rect.width + padding * 2}px`;
-    s.height = `${rect.height + padding * 2}px`;
-    s.borderRadius = `${radius}px`;
+
+    // Grow the pools to fit, then hide whatever is left over from a step that
+    // highlighted more elements than this one.
+    while (this.holes.length < rects.length) this.addHole();
+    while (this.rings.length < rects.length) this.addRing();
+
+    rects.forEach((r, i) => {
+      const hole = this.holes[i];
+      this.setHole(r, padding, hole);
+      hole.setAttribute('rx', String(radius));
+
+      const s = this.rings[i].style;
+      s.opacity = '1';
+      s.left = `${r.x - padding}px`;
+      s.top = `${r.y - padding}px`;
+      s.width = `${r.width + padding * 2}px`;
+      s.height = `${r.height + padding * 2}px`;
+      s.borderRadius = `${radius}px`;
+    });
+
+    for (let i = rects.length; i < this.holes.length; i += 1) {
+      this.setHole({ x: -9999, y: -9999, width: 0, height: 0 }, 0, this.holes[i]);
+      this.rings[i].style.opacity = '0';
+    }
+
     this.applyShield();
   }
 
@@ -211,9 +280,17 @@ export class TourLayer {
   }
 
   refresh(): void {
-    if (this.current) this.updateSpotlight(this.current, this.current.padding, this.current.radius);
-    else this.applyShield();
+    if (this.current) {
+      this.updateSpotlight(
+        this.currentAll.length > 1 ? this.currentAll : this.current,
+        this.current.padding,
+        this.current.radius,
+      );
+    } else this.applyShield();
   }
+
+  /** The rects currently highlighted, for the popover to anchor against. */
+  getSpotlightRects(): SpotlightRect[] { return this.currentAll; }
 
   mountPopover(el: HTMLElement): void { this.root.appendChild(el); }
 

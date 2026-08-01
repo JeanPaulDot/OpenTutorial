@@ -8,6 +8,7 @@
  * and the package promise is `dependencies: {}`.
  */
 
+import { createServer } from 'node:http';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
@@ -274,6 +275,135 @@ async function commandLintSelectors(positional, flags) {
   return missing > 0 ? 1 : 0;
 }
 
+/**
+ * Serve a page that loads your specs against a URL of your choosing.
+ *
+ * The authoring loop without this is: edit JSON → rebuild the app → click
+ * through to the right screen → start the tour. This collapses it to: edit
+ * JSON → refresh.
+ */
+async function commandPreview(positional, flags) {
+  const [target, ...specPatterns] = positional;
+  if (!target) {
+    console.error(red('Usage: opentutorial preview <url> [specs...]'));
+    return 2;
+  }
+
+  const files = (await resolveInputs(specPatterns.length > 0 ? specPatterns : ['.']))
+    .filter((f) => f.endsWith('.json'));
+
+  const specs = [];
+  for (const file of files) {
+    try {
+      const parsed = JSON.parse(await readFile(file, 'utf8'));
+      for (const spec of Array.isArray(parsed) ? parsed : [parsed]) {
+        if (spec && typeof spec.id === 'string') specs.push(spec);
+      }
+    } catch { /* validate reports these properly; preview just skips them */ }
+  }
+
+  if (specs.length === 0) {
+    console.error(red('No valid specs found.'));
+    return 2;
+  }
+
+  const { validateSpec } = await loadCore();
+  const invalid = specs.filter((s) => !validateSpec(s).ok).map((s) => s.id);
+  if (invalid.length > 0) {
+    console.log(yellow(`! ${invalid.length} spec(s) fail validation and will not run: ${invalid.join(', ')}`));
+  }
+
+  const globalBundle = path.join(PKG_ROOT, 'dist', 'opentutorial.global.js');
+  const stylesheet = path.join(PKG_ROOT, 'dist', 'styles.css');
+  const port = Number(flags.has('port') ? positional.at(-1) : 0) || 4180;
+
+  const page = `<!doctype html>
+<meta charset="utf-8">
+<title>OpenTutorial preview</title>
+<style>
+  html, body { margin: 0; height: 100%; font: 14px system-ui, sans-serif; }
+  #bar { display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: #17171f; color: #f2f2f7; }
+  #bar select, #bar button { font: inherit; padding: 4px 10px; border-radius: 6px; border: 1px solid #444; background: #23232e; color: inherit; cursor: pointer; }
+  #frame { width: 100%; height: calc(100% - 41px); border: 0; }
+</style>
+<div id="bar">
+  <strong>OpenTutorial preview</strong>
+  <select id="pick"></select>
+  <button id="start">Start</button>
+  <button id="stop">Stop</button>
+  <span id="note" style="opacity:.6"></span>
+</div>
+<iframe id="frame" src="${escapeAttr(target)}"></iframe>
+<script>
+  // The tour runs in this document, targeting the framed app. Same-origin only —
+  // a cross-origin target cannot be inspected, which the note below explains.
+  window.__SPECS__ = ${JSON.stringify(specs).replace(/</g, '\\u003c')};
+</script>
+<link rel="stylesheet" href="/__ot/styles.css">
+<script src="/__ot/opentutorial.global.js"></script>
+<script>
+  const frame = document.getElementById('frame');
+  const pick = document.getElementById('pick');
+  const note = document.getElementById('note');
+  for (const spec of window.__SPECS__) {
+    const option = document.createElement('option');
+    option.value = spec.id;
+    option.textContent = spec.title || spec.id;
+    pick.appendChild(option);
+  }
+
+  let layer = null;
+  frame.addEventListener('load', () => {
+    try {
+      const doc = frame.contentDocument;
+      if (!doc) throw new Error('cross-origin');
+      layer && layer.destroy();
+      layer = OpenTutorial.createTutorialLayer({ specs: window.__SPECS__, autoMount: false });
+      note.textContent = '';
+    } catch {
+      note.textContent = 'Cross-origin target — selectors cannot be resolved. Serve the app from this origin.';
+    }
+  });
+
+  document.getElementById('start').onclick = () => layer && layer.start(pick.value);
+  document.getElementById('stop').onclick = () => layer && layer.stop();
+</script>`;
+
+  const server = createPreviewServer(page, { globalBundle, stylesheet });
+  await new Promise((resolve) => server.listen(port, '127.0.0.1', resolve));
+
+  console.log(green(`Preview on http://127.0.0.1:${port}`));
+  console.log(dim(`${specs.length} spec(s) · target ${target}`));
+  console.log(dim('Ctrl+C to stop.'));
+
+  // Resolves only on SIGINT, keeping the process alive.
+  await new Promise((resolve) => process.on('SIGINT', () => { server.close(); resolve(); }));
+  return 0;
+}
+
+function escapeAttr(value) {
+  return String(value).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+function createPreviewServer(page, assets) {
+  return createServer(async (req, res) => {
+    const url = (req.url ?? '/').split('?')[0];
+    const send = (code, type, body) => {
+      res.writeHead(code, { 'content-type': type, 'cache-control': 'no-store' });
+      res.end(body);
+    };
+
+    if (url === '/__ot/opentutorial.global.js' || url === '/__ot/styles.css') {
+      const file = url.endsWith('.css') ? assets.stylesheet : assets.globalBundle;
+      if (!existsSync(file)) return send(404, 'text/plain', 'Build the package first');
+      return send(200, url.endsWith('.css') ? 'text/css' : 'text/javascript', await readFile(file));
+    }
+    return send(200, 'text/html; charset=utf-8', page);
+  });
+}
+
 function commandSchema() {
   if (!existsSync(SCHEMA_PATH)) {
     console.error(red('Schema not found. Build the package first.'));
@@ -297,6 +427,7 @@ ${bold('Usage')}
   opentutorial validate [paths...]        Validate spec JSON (default: current directory)
   opentutorial lint-selectors <url> [paths...]
                                           Check every step selector against a live page
+  opentutorial preview <url> [paths...]    Serve a page that runs your specs against a URL
   opentutorial schema                     Print the path to spec.schema.json
   opentutorial version                    Print the package version
 
@@ -305,11 +436,13 @@ ${bold('Options')}
   --json          Machine-readable output (validate)
   --quiet, -q     Only print files with issues (validate)
   --networkidle   Wait for network idle before checking (lint-selectors)
+  --port <n>      Port for the preview server (default 4180)
 
 ${bold('Examples')}
   opentutorial validate specs/**/*.json --strict
   opentutorial validate ./tours
   opentutorial lint-selectors http://localhost:3000 specs/
+  opentutorial preview http://localhost:3000 specs/
 
 ${bold('Exit codes')}
   0  everything passed
@@ -333,6 +466,7 @@ async function main() {
   switch (command) {
     case 'validate': return commandValidate(positional, flags);
     case 'lint-selectors': return commandLintSelectors(positional, flags);
+    case 'preview': return commandPreview(positional, flags);
     case 'schema': return commandSchema();
     default:
       console.error(red(`Unknown command "${command}".`));
