@@ -10,3 +10,5 @@ export { ResourceCenter } from './ResourceCenter';
 export type { ResourceCenterProps, ResourceLink } from './ResourceCenter';
 export { Hint } from './Hint';
 export type { HintProps } from './Hint';
+export { Changelog } from './Changelog';
+export type { ChangelogProps, ChangelogEntry } from './Changelog';

@@ -2,16 +2,9 @@
 
 import { useState } from 'react';
 
-export type SurveyKind = 'nps' | 'rating' | 'choice' | 'text';
-
-export interface SurveyResponse {
-  surveyId: string;
-  kind: SurveyKind;
-  score?: number;
-  choice?: string;
-  comment?: string;
-  submittedAt: number;
-}
+// One definition, shared with the framework-free `createSurvey`.
+export type { SurveyKind, SurveyResponse } from '../surfaces/survey';
+import type { SurveyKind, SurveyResponse } from '../surfaces/survey';
 
 export interface SurveyProps {
   id: string;

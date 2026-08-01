@@ -255,8 +255,15 @@ class Parser {
             do { args.push(this.ternary()); } while (this.eatOp(','));
           }
           this.expectOp(')');
-          const fn = SAFE_METHODS[next.v];
-          if (!fn) throw new Error(`Method "${next.v}" is not allowed`);
+          // Own-property check, not a plain lookup: `SAFE_METHODS['constructor']`
+          // would otherwise resolve through Object.prototype and hand the
+          // expression a real function — `plan.constructor()` used to evaluate
+          // to `Object('pro')`, and `toString`/`valueOf`/`hasOwnProperty` were
+          // all reachable the same way.
+          const fn = Object.prototype.hasOwnProperty.call(SAFE_METHODS, next.v)
+            ? SAFE_METHODS[next.v]
+            : undefined;
+          if (typeof fn !== 'function') throw new Error(`Method "${next.v}" is not allowed`);
           value = fn(value, args);
           continue;
         }

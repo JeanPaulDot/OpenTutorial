@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenTutorial E2E fixture — page two</title>
+  <link rel="stylesheet" href="/dist/styles.css" />
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 40px; }
+    button { padding: 10px 16px; font: inherit; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Page two</h1>
+    <button id="second" data-tour="second">Second page target</button>
+    <a href="/">Back</a>
+  </main>
+
+  <script src="/dist/opentutorial.global.js"></script>
+  <script>
+    // Same spec set and the same `autoResume` flag, which is what lets a tour
+    // interrupted by a full page load pick itself back up here.
+    const resumeSpec = {
+      specVersion: 1,
+      id: 'resume-tour',
+      title: 'Resume tour',
+      trigger: { type: 'manual' },
+      steps: [
+        { id: 'here', title: 'On page one', content: 'Now navigate.', target: { selector: '[data-tour="start"]' } },
+        { id: 'there', title: 'On page two', content: 'Picked up after the navigation.', target: { selector: '[data-tour="second"]' } },
+      ],
+    };
+
+    window.layer = OpenTutorial.createTutorialLayer({
+      specs: [resumeSpec],
+      autoResume: true,
+      keyPrefix: 'ot-e2e',
+    });
+  </script>
+</body>
+</html>

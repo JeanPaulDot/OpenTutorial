@@ -5,20 +5,20 @@ interface CaptureClient { capture: (event: string, properties?: Record<string, u
 interface TrackClient { track: (event: string, properties?: Record<string, unknown>) => void }
 
 export function createPostHogAdapter(client: CaptureClient): AnalyticsAdapter {
-  return (event) => safely(() => client.capture(eventName(event, '[Opentutorial]'), toProperties(event)));
+  return (event) => safely(() => client.capture(eventName(event, '[OpenTutorial]'), toProperties(event)));
 }
 
 export function createMixpanelAdapter(client: TrackClient): AnalyticsAdapter {
-  return (event) => safely(() => client.track(eventName(event, '[Opentutorial]'), toProperties(event)));
+  return (event) => safely(() => client.track(eventName(event, '[OpenTutorial]'), toProperties(event)));
 }
 
 export function createAmplitudeAdapter(client: TrackClient): AnalyticsAdapter {
   return (event) => safely(() =>
-    client.track(eventName(event, '[Opentutorial]'), toProperties(event, { includeTimestamp: false })));
+    client.track(eventName(event, '[OpenTutorial]'), toProperties(event, { includeTimestamp: false })));
 }
 
 export function createSegmentAdapter(client: TrackClient): AnalyticsAdapter {
-  return (event) => safely(() => client.track(eventName(event, 'Opentutorial'), toProperties(event)));
+  return (event) => safely(() => client.track(eventName(event, 'OpenTutorial'), toProperties(event)));
 }
 
 /** RudderStack mirrors Segment's `analytics.track` contract. */
@@ -31,7 +31,7 @@ interface HeapClient { track: (event: string, properties?: Record<string, unknow
 export function createHeapAdapter(client?: HeapClient): AnalyticsAdapter {
   return (event) => safely(() => {
     const heap = client ?? (window as unknown as { heap?: HeapClient }).heap;
-    heap?.track(`Opentutorial ${event.type}`, toProperties(event));
+    heap?.track(`OpenTutorial ${event.type}`, toProperties(event));
   });
 }
 

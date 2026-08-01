@@ -1,4 +1,4 @@
-import { TourPersistence } from './persist';
+import { TourPersistence, type PersistedRoot } from './persist';
 import type { CreateTourOptions, SpecIssue, ThemeOverrides, TourState, TutorialSpec } from './types';
 export declare class TourEngine {
     readonly spec: TutorialSpec;
@@ -36,6 +36,19 @@ export declare class TourEngine {
     /** Clears seen-state and progress for every tour sharing this storage. */
     resetAll(): void;
     resetProgress(): void;
+    /**
+     * Snapshot every persisted record — seen state, resume progress, and the
+     * in-flight tour — as plain JSON. Storage is shared across the tours built
+     * from one options object, so this covers all of them, not just this spec.
+     */
+    exportProgress(): PersistedRoot;
+    /**
+     * Restore a snapshot from `exportProgress()`. `merge` keeps whichever record
+     * is newer per tour, which is what you want when reconciling a server copy
+     * with local activity; `replace` overwrites wholesale. Returns false when the
+     * payload cannot be parsed, leaving existing state untouched.
+     */
+    importProgress(data: PersistedRoot | string, mode?: 'replace' | 'merge'): boolean;
     setUser(userId: string | undefined): Promise<void>;
     getContext(): Record<string, unknown>;
     setContext(patch: Record<string, unknown>): void;

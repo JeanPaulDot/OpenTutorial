@@ -4,7 +4,7 @@ import { TourHotspot } from './dom/hotspot';
 import { trapFocus } from './dom/focus';
 import { resolveTarget, waitForTarget, describeTarget, type ResolvedTarget } from './dom/target';
 import { currentPath, matchPath, onLocationChange } from './dom/navigation';
-import { TourPersistence } from './persist';
+import { TourPersistence, type PersistedRoot } from './persist';
 import { validateSpec } from './schema';
 import { evaluateShowIf } from './safeEval';
 import { resolveText, resolveLabel } from './i18n';
@@ -128,6 +128,23 @@ export class TourEngine {
 
   resetProgress(): void { this.persistence.clearProgress(this.spec.id); }
 
+  /**
+   * Snapshot every persisted record — seen state, resume progress, and the
+   * in-flight tour — as plain JSON. Storage is shared across the tours built
+   * from one options object, so this covers all of them, not just this spec.
+   */
+  exportProgress(): PersistedRoot { return this.persistence.exportAll(); }
+
+  /**
+   * Restore a snapshot from `exportProgress()`. `merge` keeps whichever record
+   * is newer per tour, which is what you want when reconciling a server copy
+   * with local activity; `replace` overwrites wholesale. Returns false when the
+   * payload cannot be parsed, leaving existing state untouched.
+   */
+  importProgress(data: PersistedRoot | string, mode: 'replace' | 'merge' = 'replace'): boolean {
+    return this.persistence.importAll(data, mode);
+  }
+
   setUser(userId: string | undefined): Promise<void> {
     this.opts = { ...this.opts, userId };
     return this.persistence.setUser(userId);
@@ -248,7 +265,16 @@ export class TourEngine {
     }
     const visible = this.visibleSteps();
     const idx = visible.findIndex((s) => s.id === step.id);
-    return idx >= 0 ? visible[idx + 1]?.id : undefined;
+    if (idx >= 0) return visible[idx + 1]?.id;
+
+    // The current step is no longer visible — `setContext` just turned its own
+    // `showIf` false. Walking forward from its position in the spec finds the
+    // next step the user should actually see; returning undefined here would
+    // end the whole tour instead of skipping the one step that dropped out.
+    const specIdx = this.spec.steps.findIndex((s) => s.id === step.id);
+    if (specIdx < 0) return undefined;
+    const visibleIds = new Set(visible.map((s) => s.id));
+    return this.spec.steps.slice(specIdx + 1).find((s) => visibleIds.has(s.id))?.id;
   }
 
   prev(): void {
@@ -348,6 +374,7 @@ export class TourEngine {
           onSkip: () => this.skip('user'),
         },
         this.opts.dir ?? 'ltr',
+        { swipe: this.opts.swipe },
       );
       this.layer.mountPopover(this.popover.el);
     }

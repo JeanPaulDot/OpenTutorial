@@ -5,6 +5,11 @@ node_modules/
 *.tsbuildinfo
 node_modules/.tmp/
 
+# Test output
+coverage/
+playwright-report/
+test-results/
+
 # Editor / OS
 .DS_Store
 *.log

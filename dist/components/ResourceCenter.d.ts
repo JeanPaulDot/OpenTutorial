@@ -1,9 +1,6 @@
 import type { I18nResolver, TutorialSpec } from '../types';
-export interface ResourceLink {
-    label: string;
-    href: string;
-    description?: string;
-}
+export type { ResourceLink } from '../surfaces/resourceCenter';
+import type { ResourceLink } from '../surfaces/resourceCenter';
 export interface ResourceCenterProps {
     /** Defaults to every spec on the provider. */
     specs?: TutorialSpec[];

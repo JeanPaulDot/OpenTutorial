@@ -8,7 +8,7 @@
  * <link rel="stylesheet" href="https://unpkg.com/@opentutorial/core/dist/styles.css">
  * <script src="https://unpkg.com/@opentutorial/core/dist/opentutorial.global.js"></script>
  * <script>
- *   const tl = Opentutorial.createTutorialLayer({ specs: [ ... ] });
+ *   const tl = OpenTutorial.createTutorialLayer({ specs: [ ... ] });
  *   tl.start('welcome');
  * </script>
  * ```
@@ -25,5 +25,6 @@ export { createCookieStorage, createIndexedDBStorage, createRemoteStorage } from
 export { startRecorder, enableRecorderFromUrl, bestSelector, auditSelectors } from './authoring';
 export { createDebugPanel, logEvents } from './authoring/debug';
 export { createPostHogAdapter, createMixpanelAdapter, createAmplitudeAdapter, createSegmentAdapter, createGA4Adapter, createHttpAdapter, createFunnelReport, createEventCollector, createMultiAdapter, } from './analytics';
+export { createBanner, createAnnouncement, createHint, createSurvey, createChecklist, createResourceCenter, createChangelog, } from './surfaces';
 export { defineOpenTutorialElement } from './adapters/webcomponent';
 export { CSS } from './styles';

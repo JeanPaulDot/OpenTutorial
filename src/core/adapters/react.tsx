@@ -16,6 +16,7 @@ import {
 import { createPortal } from 'react-dom';
 import { TourOrchestrator } from '../orchestrator';
 import type { TourEngine } from '../engine';
+import type { PersistedRoot } from '../persist';
 import type {
   Direction, InteractionMode, KeyValueStorage, StepRenderContext, ThemeOverrides,
   TourEvent, TourState, TutorialSpec, I18nResolver,
@@ -43,6 +44,10 @@ export interface TourContextValue {
   resetTours: () => void;
   resetTour: (tourId: string) => void;
   resetProgress: () => void;
+  /** Snapshot persisted state for backup or server sync. */
+  exportProgress: () => PersistedRoot | null;
+  /** Restore a snapshot from `exportProgress()`. */
+  importProgress: (data: PersistedRoot | string, mode?: 'replace' | 'merge') => boolean;
   hasSeen: (tourId: string) => boolean;
   /** Null when the tour may start; otherwise the reason it may not. */
   whyBlocked: (tourId: string) => string | null;
@@ -229,6 +234,8 @@ export function TourProvider({
     resetTours: () => orchestrator.reset(),
     resetTour: (tourId) => orchestrator.resetTour(tourId),
     resetProgress: () => orchestrator.resetProgress(),
+    exportProgress: () => orchestrator.exportProgress(),
+    importProgress: (data, mode) => orchestrator.importProgress(data, mode),
     hasSeen: (tourId) => orchestrator.hasSeen(tourId),
     whyBlocked: (tourId) => orchestrator.checkEligibility(tourId),
     getEngine: (tourId) => orchestrator.getEngine(tourId),

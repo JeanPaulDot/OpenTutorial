@@ -49,8 +49,11 @@ export function createTourStore(options: VanillaOptions): TourStore {
   return Object.assign(layer, {
     subscribe(run: Subscriber) {
       subscribers.add(run);
-      run(value);
-      return () => subscribers.delete(run);
+      // Svelte's contract calls the subscriber immediately. Guard it like the
+      // later notifications, so a component that throws on its first render
+      // cannot take the tour layer down with it.
+      try { run(value); } catch { /* a subscriber must not break the tour */ }
+      return () => { subscribers.delete(run); };
     },
   });
 }

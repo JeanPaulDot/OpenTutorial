@@ -1,123 +1,125 @@
 import { jsx as e, jsxs as b, Fragment as X } from "react/jsx-runtime";
-import { isValidElement as oe, cloneElement as ae, useState as S, useRef as M, useEffect as R, useCallback as ce, useMemo as O, useContext as le, createContext as ie } from "react";
+import { isValidElement as oe, cloneElement as ae, useState as T, useRef as D, useEffect as L, useCallback as ce, useMemo as P, useContext as le, createContext as ie } from "react";
 import { createPortal as ue } from "react-dom";
-import { TourOrchestrator as de, resolveText as z, TourPersistence as Y, renderInline as Z, normalizeContent as he, renderBlocks as me } from "./index.js";
-import { DEFAULT_LABELS as Re, MemoryStorage as De, TourEngine as _e, assertValidSpec as Me, blocksToText as Oe, createCookieStorage as qe, createIndexedDBStorage as Fe, createKeyResolver as He, createLocaleResolver as Be, createMemoryStorage as Ie, createRemoteStorage as Ve, createTour as Pe, createTours as je, createTutorialLayer as ze, currentPath as Ge, defineSpec as Je, defineStep as Ke, escapeHtml as Qe, extendSpec as Ue, installTrigger as We, interpolate as Xe, matchPath as Ye, onLocationChange as Ze, resolveLabel as et, validateSpec as tt, validateSpecs as rt } from "./index.js";
-import { r as pe } from "./chunks/target.es.js";
-import { C as st, c as ot, d as at, e as ct, a as lt, i as it, q as ut, s as dt, w as ht, b as mt } from "./chunks/target.es.js";
-import { createAmplitudeAdapter as bt, createDatadogAdapter as vt, createDebugAdapter as ft, createEventCollector as gt, createFunnelReport as yt, createGA4Adapter as Nt, createHeapAdapter as kt, createHttpAdapter as Ct, createMixpanelAdapter as xt, createMultiAdapter as wt, createPostHogAdapter as St, createRudderStackAdapter as Tt, createSegmentAdapter as Et, filterEvents as Lt } from "./analytics.js";
+import { TourOrchestrator as de, resolveText as z, TourPersistence as Y, renderInline as Z, normalizeContent as he, renderBlocks as me, createChangelog as pe } from "./index.js";
+import { DEFAULT_LABELS as _e, MemoryStorage as Me, SurfaceState as Pe, TourEngine as He, assertValidSpec as Oe, blocksToText as qe, createAnnouncement as Be, createBanner as Fe, createChecklist as Ie, createCookieStorage as Ve, createHint as je, createIndexedDBStorage as ze, createKeyResolver as Ge, createLocaleResolver as Je, createMemoryStorage as Ke, createRemoteStorage as Qe, createResourceCenter as Ue, createSurvey as We, createTour as Xe, createTours as Ye, createTutorialLayer as Ze, currentPath as et, defineSpec as tt, defineStep as rt, escapeHtml as nt, extendSpec as st, installTrigger as ot, interpolate as at, localeDirection as ct, matchPath as lt, onLocationChange as it, resolveLabel as ut, selectPlural as dt, validateSpec as ht, validateSpecs as mt } from "./index.js";
+import { r as be } from "./chunks/safeEval.es.js";
+import { C as bt, c as vt, d as ft, e as gt, a as yt, i as Nt, q as kt, s as Ct, w as xt, b as wt } from "./chunks/safeEval.es.js";
+import { createAmplitudeAdapter as Tt, createDatadogAdapter as Et, createDebugAdapter as Lt, createEventCollector as At, createFunnelReport as $t, createGA4Adapter as Rt, createHeapAdapter as Dt, createHttpAdapter as _t, createMixpanelAdapter as Mt, createMultiAdapter as Pt, createPostHogAdapter as Ht, createRudderStackAdapter as Ot, createSegmentAdapter as qt, filterEvents as Bt, shouldSample as Ft, withEventTypes as It, withSampling as Vt } from "./analytics.js";
 const ee = ie(null);
-function Ne({
+function ke({
   specs: t,
   context: n,
-  theme: u,
-  zIndex: m,
-  storage: d,
-  keyPrefix: x,
-  userId: p,
-  onEvent: k,
-  deepLinkParam: w = "tour",
-  locale: g,
-  i18nResolver: h,
-  dir: T,
-  resume: i,
-  progressTtl: y,
+  theme: i,
+  zIndex: d,
+  storage: u,
+  keyPrefix: g,
+  userId: h,
+  onEvent: C,
+  deepLinkParam: S = "tour",
+  locale: y,
+  i18nResolver: p,
+  dir: E,
+  resume: m,
+  progressTtl: N,
   autoResume: v,
   interaction: o,
-  container: N,
+  container: k,
   isolate: s,
-  allowHtml: C,
-  strict: A,
-  onNavigate: L,
+  allowHtml: x,
+  strict: R,
+  onNavigate: A,
   beforeNext: $,
-  renderStep: a,
-  dev: c,
-  debug: _,
+  renderStep: c,
+  dev: l,
+  debug: M,
   children: f
 }) {
-  const [q, D] = S([]), [F, H] = S(null), [G, re] = S(null), [B, ne] = S(n ?? {}), [P, J] = S(null), K = M(k), j = M($), Q = M(L), U = M(a);
-  K.current = k, j.current = $, Q.current = L, U.current = a;
-  const I = M(null);
-  I.current || (I.current = new de(t, {
+  const [H, _] = T([]), [O, q] = T(null), [G, re] = T(null), [B, ne] = T(n ?? {}), [V, J] = T(null), K = D(C), j = D($), Q = D(A), U = D(c);
+  K.current = C, j.current = $, Q.current = A, U.current = c;
+  const F = D(null);
+  F.current || (F.current = new de(t, {
     context: n,
-    theme: u,
-    zIndex: m,
-    persistence: { storage: d, keyPrefix: x },
-    userId: p,
-    locale: g,
-    i18nResolver: h,
-    dir: T,
-    resume: i,
-    progressTtl: y,
+    theme: i,
+    zIndex: d,
+    persistence: { storage: u, keyPrefix: g },
+    userId: h,
+    locale: y,
+    i18nResolver: p,
+    dir: E,
+    resume: m,
+    progressTtl: N,
     autoResume: v,
     interaction: o,
-    container: N,
+    container: k,
     isolate: s,
-    allowHtml: C,
-    strict: A,
-    deepLinkParam: w,
-    dev: c,
-    debug: _,
+    allowHtml: x,
+    strict: R,
+    deepLinkParam: S,
+    dev: l,
+    debug: M,
     onNavigate: (r) => Q.current?.(r),
     beforeNext: j.current ? (r) => j.current(r) : void 0,
-    renderStep: U.current ? (r, E) => (J({ ctx: r, host: E }), () => J(null)) : void 0,
+    renderStep: U.current ? (r, w) => (J({ ctx: r, host: w }), () => J(null)) : void 0,
     onEvent: (r) => {
-      D((E) => [...E.slice(-99), r]), K.current?.(r);
+      _((w) => [...w.slice(-99), r]), K.current?.(r);
     },
-    onStateChange: (r, E) => {
-      H(r), re(E);
+    onStateChange: (r, w) => {
+      q(r), re(w);
     }
   }));
-  const l = I.current;
-  R(() => (l.mount(), () => {
-    l.destroy(), I.current = null;
-  }), [l]), R(() => {
-    l.setContext(B);
-  }, [B, l]), R(() => {
-    u && l.setTheme(u);
-  }, [u, l]), R(() => {
-    g && l.setLocale(g);
-  }, [g, l]), R(() => {
-    l.setUser(p);
-  }, [p, l]);
-  const V = ce(
+  const a = F.current;
+  L(() => (a.mount(), () => {
+    a.destroy(), F.current = null;
+  }), [a]), L(() => {
+    a.setContext(B);
+  }, [B, a]), L(() => {
+    i && a.setTheme(i);
+  }, [i, a]), L(() => {
+    y && a.setLocale(y);
+  }, [y, a]), L(() => {
+    a.setUser(h);
+  }, [h, a]);
+  const I = ce(
     (r) => {
-      const E = l.getActiveId();
-      if (!E) return;
-      const W = l.getEngine(E);
+      const w = a.getActiveId();
+      if (!w) return;
+      const W = a.getEngine(w);
       W && r(W);
     },
-    [l]
-  ), se = O(() => ({
-    start: (r, E) => l.start(r, E),
-    request: (r, E) => l.request(r, E),
-    stop: () => l.stop("api"),
-    pause: () => l.pause(),
-    resume: () => l.resume(),
-    next: () => V((r) => {
+    [a]
+  ), se = P(() => ({
+    start: (r, w) => a.start(r, w),
+    request: (r, w) => a.request(r, w),
+    stop: () => a.stop("api"),
+    pause: () => a.pause(),
+    resume: () => a.resume(),
+    next: () => I((r) => {
       r.next();
     }),
-    prev: () => V((r) => r.prev()),
-    goTo: (r) => V((E) => E.goTo(r)),
-    activeId: F,
+    prev: () => I((r) => r.prev()),
+    goTo: (r) => I((w) => w.goTo(r)),
+    activeId: O,
     state: G,
-    events: q,
-    clearEvents: () => D([]),
+    events: H,
+    clearEvents: () => _([]),
     context: B,
-    setContext: (r) => ne((E) => ({ ...E, ...r })),
-    setTheme: (r) => l.setTheme(r),
-    setUser: (r) => l.setUser(r),
-    resetTours: () => l.reset(),
-    resetTour: (r) => l.resetTour(r),
-    resetProgress: () => l.resetProgress(),
-    hasSeen: (r) => l.hasSeen(r),
-    whyBlocked: (r) => l.checkEligibility(r),
-    getEngine: (r) => l.getEngine(r),
+    setContext: (r) => ne((w) => ({ ...w, ...r })),
+    setTheme: (r) => a.setTheme(r),
+    setUser: (r) => a.setUser(r),
+    resetTours: () => a.reset(),
+    resetTour: (r) => a.resetTour(r),
+    resetProgress: () => a.resetProgress(),
+    exportProgress: () => a.exportProgress(),
+    importProgress: (r, w) => a.importProgress(r, w),
+    hasSeen: (r) => a.hasSeen(r),
+    whyBlocked: (r) => a.checkEligibility(r),
+    getEngine: (r) => a.getEngine(r),
     specs: t
-  }), [l, t, F, G, q, B, V]);
+  }), [a, t, O, G, H, B, I]);
   return /* @__PURE__ */ b(ee.Provider, { value: se, children: [
     f,
-    P && a ? ue(a(P.ctx), P.host) : null
+    V && c ? ue(c(V.ctx), V.host) : null
   ] });
 }
 function te() {
@@ -125,61 +127,61 @@ function te() {
   if (!t) throw new Error("useTour must be used inside <TourProvider>");
   return t;
 }
-function ke(t) {
-  const n = M(t);
-  n.current = t, R(() => {
-    const u = (m) => {
-      const d = m.detail;
-      d && n.current(d);
+function Ce(t) {
+  const n = D(t);
+  n.current = t, L(() => {
+    const i = (d) => {
+      const u = d.detail;
+      u && n.current(u);
     };
-    return window.addEventListener("opentutorial", u), () => window.removeEventListener("opentutorial", u);
+    return window.addEventListener("opentutorial", i), () => window.removeEventListener("opentutorial", i);
   }, []);
 }
-function Ce({ id: t, children: n }) {
+function xe({ id: t, children: n }) {
   return oe(n) ? ae(n, { "data-tour": t }) : /* @__PURE__ */ e("span", { "data-tour": t, children: n });
 }
-function xe({
+function we({
   specs: t,
   getStatus: n,
-  onStart: u,
-  className: m = "",
-  title: d = "Onboarding",
-  floating: x = !1,
-  collapsible: p = !1,
-  defaultCollapsed: k = !1,
-  hideWhenComplete: w = !1,
-  locale: g,
-  i18nResolver: h,
-  onComplete: T
+  onStart: i,
+  className: d = "",
+  title: u = "Onboarding",
+  floating: g = !1,
+  collapsible: h = !1,
+  defaultCollapsed: C = !1,
+  hideWhenComplete: S = !1,
+  locale: y,
+  i18nResolver: p,
+  onComplete: E
 }) {
-  const i = te(), [y, v] = S(k), o = t ?? i.specs, N = g ?? "en", s = O(() => n || ((f) => i.activeId === f ? "in_progress" : i.hasSeen(f) ? "completed" : "pending"), [n, i]), C = o.map((f) => s(f.id)), A = C.filter((f) => f === "completed").length, L = o.length > 0 ? Math.round(A / o.length * 100) : 0;
-  if (o.length > 0 && A === o.length && w)
-    return T?.(), null;
-  const a = (f) => f === void 0 ? "" : z(f, N, h, i.context), c = (f) => {
-    u ? u(f) : i.start(f);
-  }, _ = [
+  const m = te(), [N, v] = T(C), o = t ?? m.specs, k = y ?? "en", s = P(() => n || ((f) => m.activeId === f ? "in_progress" : m.hasSeen(f) ? "completed" : "pending"), [n, m]), x = o.map((f) => s(f.id)), R = x.filter((f) => f === "completed").length, A = o.length > 0 ? Math.round(R / o.length * 100) : 0;
+  if (o.length > 0 && R === o.length && S)
+    return E?.(), null;
+  const c = (f) => f === void 0 ? "" : z(f, k, p, m.context), l = (f) => {
+    i ? i(f) : m.start(f);
+  }, M = [
     "ot-checklist",
-    x ? "ot-checklist--floating" : "",
-    y ? "ot-checklist--collapsed" : "",
-    m
+    g ? "ot-checklist--floating" : "",
+    N ? "ot-checklist--collapsed" : "",
+    d
   ].filter(Boolean).join(" ");
-  return /* @__PURE__ */ b("div", { className: _, children: [
-    d && /* @__PURE__ */ b("div", { className: "ot-checklist-header", children: [
-      /* @__PURE__ */ e("h3", { className: "ot-checklist-title", children: d }),
+  return /* @__PURE__ */ b("div", { className: M, children: [
+    u && /* @__PURE__ */ b("div", { className: "ot-checklist-header", children: [
+      /* @__PURE__ */ e("h3", { className: "ot-checklist-title", children: u }),
       /* @__PURE__ */ b("span", { className: "ot-checklist-count", children: [
-        A,
+        R,
         "/",
         o.length
       ] }),
-      p && /* @__PURE__ */ e(
+      h && /* @__PURE__ */ e(
         "button",
         {
           type: "button",
           className: "ot-checklist-toggle",
-          "aria-expanded": !y,
-          "aria-label": y ? "Expand checklist" : "Collapse checklist",
+          "aria-expanded": !N,
+          "aria-label": N ? "Expand checklist" : "Collapse checklist",
           onClick: () => v((f) => !f),
-          children: y ? "▸" : "▾"
+          children: N ? "▸" : "▾"
         }
       )
     ] }),
@@ -188,70 +190,70 @@ function xe({
       {
         className: "ot-checklist-bar-track",
         role: "progressbar",
-        "aria-valuenow": L,
+        "aria-valuenow": A,
         "aria-valuemin": 0,
         "aria-valuemax": 100,
-        "aria-label": `${A} of ${o.length} complete`,
-        children: /* @__PURE__ */ e("div", { className: "ot-checklist-bar-fill", style: { width: `${L}%` } })
+        "aria-label": `${R} of ${o.length} complete`,
+        children: /* @__PURE__ */ e("div", { className: "ot-checklist-bar-fill", style: { width: `${A}%` } })
       }
     ),
-    /* @__PURE__ */ e("ul", { className: "ot-checklist-items", children: o.map((f, q) => {
-      const D = C[q], F = D === "completed" ? "✓" : D === "in_progress" ? "◌" : "○", H = a(f.description);
-      return /* @__PURE__ */ b("li", { className: `ot-checklist-item ot-checklist-item--${D}`, children: [
-        /* @__PURE__ */ e("span", { className: "ot-checklist-icon", "aria-hidden": "true", children: F }),
+    /* @__PURE__ */ e("ul", { className: "ot-checklist-items", children: o.map((f, H) => {
+      const _ = x[H], O = _ === "completed" ? "✓" : _ === "in_progress" ? "◌" : "○", q = c(f.description);
+      return /* @__PURE__ */ b("li", { className: `ot-checklist-item ot-checklist-item--${_}`, children: [
+        /* @__PURE__ */ e("span", { className: "ot-checklist-icon", "aria-hidden": "true", children: O }),
         /* @__PURE__ */ b("div", { className: "ot-checklist-info", children: [
-          /* @__PURE__ */ e("span", { className: "ot-checklist-name", children: a(f.title) }),
-          H && /* @__PURE__ */ e("span", { className: "ot-checklist-desc", children: H })
+          /* @__PURE__ */ e("span", { className: "ot-checklist-name", children: c(f.title) }),
+          q && /* @__PURE__ */ e("span", { className: "ot-checklist-desc", children: q })
         ] }),
-        D !== "completed" && /* @__PURE__ */ e(
+        _ !== "completed" && /* @__PURE__ */ e(
           "button",
           {
             type: "button",
             className: "ot-checklist-btn",
-            onClick: () => c(f.id),
-            disabled: D === "in_progress",
-            children: D === "in_progress" ? "Running" : "Start"
+            onClick: () => l(f.id),
+            disabled: _ === "in_progress",
+            children: _ === "in_progress" ? "Running" : "Start"
           }
         )
       ] }, f.id);
     }) })
   ] });
 }
-function we({
+function Se({
   id: t,
   message: n,
-  position: u = "top",
-  action: m,
-  dismissible: d = !0,
-  resurfaceAfter: x,
-  storage: p,
-  keyPrefix: k = "ot-banner",
-  className: w = "",
-  onDismiss: g
+  position: i = "top",
+  action: d,
+  dismissible: u = !0,
+  resurfaceAfter: g,
+  storage: h,
+  keyPrefix: C = "ot-banner",
+  className: S = "",
+  onDismiss: y
 }) {
-  const h = O(
-    () => new Y(p, k),
-    [p, k]
-  ), [T, i] = S(!1);
-  if (R(() => {
+  const p = P(
+    () => new Y(h, C),
+    [h, C]
+  ), [E, m] = T(!1);
+  if (L(() => {
     let v = !1;
-    return h.ready.then(() => {
+    return p.ready.then(() => {
       if (v) return;
-      const o = h.getRecord(t);
+      const o = p.getRecord(t);
       if (!o?.at) {
-        i(!0);
+        m(!0);
         return;
       }
-      const N = x !== void 0 && Date.now() - o.at > x;
-      i(N);
+      const k = g !== void 0 && Date.now() - o.at > g;
+      m(k);
     }), () => {
       v = !0;
     };
-  }, [h, t, x]), !T) return null;
-  const y = () => {
-    h.mark(t, "skipped"), i(!1), g?.();
+  }, [p, t, g]), !E) return null;
+  const N = () => {
+    p.mark(t, "skipped"), m(!1), y?.();
   };
-  return /* @__PURE__ */ b("div", { className: `ot-banner ot-banner--${u} ${w}`.trim(), role: "status", children: [
+  return /* @__PURE__ */ b("div", { className: `ot-banner ot-banner--${i} ${S}`.trim(), role: "status", children: [
     /* @__PURE__ */ e(
       "span",
       {
@@ -259,77 +261,77 @@ function we({
         dangerouslySetInnerHTML: { __html: Z(n) }
       }
     ),
-    m && /* @__PURE__ */ e("button", { type: "button", className: "ot-banner-action", onClick: m.onClick, children: m.label }),
-    d && /* @__PURE__ */ e("button", { type: "button", className: "ot-banner-dismiss", "aria-label": "Dismiss", onClick: y, children: "×" })
+    d && /* @__PURE__ */ e("button", { type: "button", className: "ot-banner-action", onClick: d.onClick, children: d.label }),
+    u && /* @__PURE__ */ e("button", { type: "button", className: "ot-banner-dismiss", "aria-label": "Dismiss", onClick: N, children: "×" })
   ] });
 }
-function Se({
+function Te({
   id: t,
   title: n,
-  content: u,
-  once: m = !0,
-  primaryAction: d,
-  secondaryAction: x,
-  dismissible: p = !0,
-  allowHtml: k,
-  storage: w,
-  keyPrefix: g = "ot-announce",
-  locale: h = "en",
-  i18nResolver: T,
-  className: i = "",
-  children: y,
+  content: i,
+  once: d = !0,
+  primaryAction: u,
+  secondaryAction: g,
+  dismissible: h = !0,
+  allowHtml: C,
+  storage: S,
+  keyPrefix: y = "ot-announce",
+  locale: p = "en",
+  i18nResolver: E,
+  className: m = "",
+  children: N,
   onDismiss: v
 }) {
-  const o = O(() => new Y(w, g), [w, g]), [N, s] = S(!1), [C, A] = S(null);
-  R(() => {
-    let c = !1;
+  const o = P(() => new Y(S, y), [S, y]), [k, s] = T(!1), [x, R] = T(null);
+  L(() => {
+    let l = !1;
     return o.ready.then(() => {
-      c || s(!m || !o.hasSeen(t));
+      l || s(!d || !o.hasSeen(t));
     }), () => {
-      c = !0;
+      l = !0;
     };
-  }, [o, t, m]);
-  const L = O(
-    () => he(u, (c) => z(c, h, T)),
-    [u, h, T]
+  }, [o, t, d]);
+  const A = P(
+    () => he(i, (l) => z(l, p, E)),
+    [i, p, E]
   ), $ = () => {
-    m && o.mark(t, "skipped"), s(!1), v?.();
-  }, a = (c) => {
-    m && o.mark(t, "completed"), s(!1), c();
+    d && o.mark(t, "skipped"), s(!1), v?.();
+  }, c = (l) => {
+    d && o.mark(t, "completed"), s(!1), l();
   };
-  return R(() => {
-    C && C.replaceChildren(me(L, { allowHtml: k }));
-  }, [C, L, k]), R(() => {
-    if (!N || !p) return;
-    const c = (_) => {
-      _.key === "Escape" && $();
+  return L(() => {
+    x && x.replaceChildren(me(A, { allowHtml: C }));
+  }, [x, A, C]), L(() => {
+    if (!k || !h) return;
+    const l = (M) => {
+      M.key === "Escape" && $();
     };
-    return window.addEventListener("keydown", c), () => window.removeEventListener("keydown", c);
-  }, [N, p]), N ? /* @__PURE__ */ b("div", { className: "ot-root", "data-opentutorial": "", children: [
+    return window.addEventListener("keydown", l), () => window.removeEventListener("keydown", l);
+  }, [k, h]), k ? /* @__PURE__ */ b("div", { className: "ot-root", "data-opentutorial": "", children: [
     /* @__PURE__ */ e("svg", { className: "ot-backdrop", width: "100%", height: "100%", "aria-hidden": "true", children: /* @__PURE__ */ e("rect", { className: "ot-dim", x: "0", y: "0", width: "100%", height: "100%" }) }),
     /* @__PURE__ */ e(
       "div",
       {
-        className: `ot-popover ot-modal ot-popover--modal-step ${i}`.trim(),
+        className: `ot-popover ot-modal ot-popover--modal-step ${m}`.trim(),
         role: "dialog",
         "aria-modal": "true",
         "aria-labelledby": `ot-announce-${t}`,
         style: { left: "50%", top: "50%", transform: "translate(-50%, -50%)" },
         children: /* @__PURE__ */ b("div", { className: "ot-body", children: [
-          p && /* @__PURE__ */ e("button", { type: "button", className: "ot-skip", "aria-label": "Dismiss", onClick: $, children: "×" }),
+          h && /* @__PURE__ */ e("button", { type: "button", className: "ot-skip", "aria-label": "Dismiss", onClick: $, children: "×" }),
           /* @__PURE__ */ e("h2", { className: "ot-title", id: `ot-announce-${t}`, children: n }),
-          /* @__PURE__ */ e("div", { className: "ot-content-wrap", ref: A }),
-          y,
+          /* @__PURE__ */ e("div", { className: "ot-content-wrap", ref: R }),
+          N,
           /* @__PURE__ */ b("div", { className: "ot-footer", children: [
             /* @__PURE__ */ e("span", {}),
             /* @__PURE__ */ b("div", { className: "ot-btns", children: [
-              x && /* @__PURE__ */ e(
+              g && /* @__PURE__ */ e(
                 "button",
                 {
                   type: "button",
                   className: "ot-btn ot-btn-ghost",
-                  onClick: () => a(x.onClick),
-                  children: x.label
+                  onClick: () => c(g.onClick),
+                  children: g.label
                 }
               ),
               /* @__PURE__ */ e(
@@ -337,8 +339,8 @@ function Se({
                 {
                   type: "button",
                   className: "ot-btn ot-btn-primary",
-                  onClick: () => d ? a(d.onClick) : $(),
-                  children: d?.label ?? "Got it"
+                  onClick: () => u ? c(u.onClick) : $(),
+                  children: u?.label ?? "Got it"
                 }
               )
             ] })
@@ -348,145 +350,145 @@ function Se({
     )
   ] }) : null;
 }
-function Te({
+function Ee({
   id: t,
   kind: n = "nps",
-  question: u,
-  options: m = [],
-  lowLabel: d = "Not likely",
-  highLabel: x = "Very likely",
-  followUp: p,
-  submitLabel: k = "Submit",
-  thanksMessage: w = "Thanks for the feedback!",
-  className: g = "",
-  onSubmit: h,
-  onDismiss: T
+  question: i,
+  options: d = [],
+  lowLabel: u = "Not likely",
+  highLabel: g = "Very likely",
+  followUp: h,
+  submitLabel: C = "Submit",
+  thanksMessage: S = "Thanks for the feedback!",
+  className: y = "",
+  onSubmit: p,
+  onDismiss: E
 }) {
-  const [i, y] = S(null), [v, o] = S(null), [N, s] = S(""), [C, A] = S(!1);
-  if (C)
-    return /* @__PURE__ */ e("div", { className: `ot-survey ${g}`.trim(), children: /* @__PURE__ */ e("p", { className: "ot-survey-thanks", children: w }) });
-  const L = n === "nps" ? Array.from({ length: 11 }, (c, _) => _) : n === "rating" ? [1, 2, 3, 4, 5] : null, $ = n === "nps" || n === "rating" ? i !== null : n === "choice" ? v !== null : N.trim().length > 0, a = () => {
-    $ && (h({
+  const [m, N] = T(null), [v, o] = T(null), [k, s] = T(""), [x, R] = T(!1);
+  if (x)
+    return /* @__PURE__ */ e("div", { className: `ot-survey ${y}`.trim(), children: /* @__PURE__ */ e("p", { className: "ot-survey-thanks", children: S }) });
+  const A = n === "nps" ? Array.from({ length: 11 }, (l, M) => M) : n === "rating" ? [1, 2, 3, 4, 5] : null, $ = n === "nps" || n === "rating" ? m !== null : n === "choice" ? v !== null : k.trim().length > 0, c = () => {
+    $ && (p({
       surveyId: t,
       kind: n,
-      score: i ?? void 0,
+      score: m ?? void 0,
       choice: v ?? void 0,
-      comment: N.trim() || void 0,
+      comment: k.trim() || void 0,
       submittedAt: Date.now()
-    }), A(!0));
+    }), R(!0));
   };
-  return /* @__PURE__ */ b("div", { className: `ot-survey ${g}`.trim(), children: [
-    /* @__PURE__ */ e("p", { className: "ot-survey-question", id: `ot-survey-q-${t}`, children: u }),
-    L && /* @__PURE__ */ b(X, { children: [
-      /* @__PURE__ */ e("div", { className: "ot-survey-scale", role: "radiogroup", "aria-labelledby": `ot-survey-q-${t}`, children: L.map((c) => /* @__PURE__ */ e(
+  return /* @__PURE__ */ b("div", { className: `ot-survey ${y}`.trim(), children: [
+    /* @__PURE__ */ e("p", { className: "ot-survey-question", id: `ot-survey-q-${t}`, children: i }),
+    A && /* @__PURE__ */ b(X, { children: [
+      /* @__PURE__ */ e("div", { className: "ot-survey-scale", role: "radiogroup", "aria-labelledby": `ot-survey-q-${t}`, children: A.map((l) => /* @__PURE__ */ e(
         "button",
         {
           type: "button",
           role: "radio",
-          "aria-checked": i === c,
-          className: `ot-survey-score${i === c ? " ot-survey-score--selected" : ""}`,
-          onClick: () => y(c),
-          children: c
+          "aria-checked": m === l,
+          className: `ot-survey-score${m === l ? " ot-survey-score--selected" : ""}`,
+          onClick: () => N(l),
+          children: l
         },
-        c
+        l
       )) }),
       /* @__PURE__ */ b("div", { className: "ot-survey-labels", children: [
-        /* @__PURE__ */ e("span", { children: d }),
-        /* @__PURE__ */ e("span", { children: x })
+        /* @__PURE__ */ e("span", { children: u }),
+        /* @__PURE__ */ e("span", { children: g })
       ] })
     ] }),
-    n === "choice" && /* @__PURE__ */ e("div", { className: "ot-survey-options", role: "radiogroup", "aria-labelledby": `ot-survey-q-${t}`, children: m.map((c) => /* @__PURE__ */ e(
+    n === "choice" && /* @__PURE__ */ e("div", { className: "ot-survey-options", role: "radiogroup", "aria-labelledby": `ot-survey-q-${t}`, children: d.map((l) => /* @__PURE__ */ e(
       "button",
       {
         type: "button",
         role: "radio",
-        "aria-checked": v === c,
-        className: `ot-survey-option${v === c ? " ot-survey-option--selected" : ""}`,
-        onClick: () => o(c),
-        children: c
+        "aria-checked": v === l,
+        className: `ot-survey-option${v === l ? " ot-survey-option--selected" : ""}`,
+        onClick: () => o(l),
+        children: l
       },
-      c
+      l
     )) }),
-    (n === "text" || p && (i !== null || v !== null)) && /* @__PURE__ */ e(
+    (n === "text" || h && (m !== null || v !== null)) && /* @__PURE__ */ e(
       "textarea",
       {
         className: "ot-survey-textarea",
-        placeholder: n === "text" ? u : p,
-        "aria-label": n === "text" ? u : p ?? "Additional comments",
-        value: N,
-        onChange: (c) => s(c.target.value)
+        placeholder: n === "text" ? i : h,
+        "aria-label": n === "text" ? i : h ?? "Additional comments",
+        value: k,
+        onChange: (l) => s(l.target.value)
       }
     ),
     /* @__PURE__ */ b("div", { className: "ot-footer", children: [
-      T ? /* @__PURE__ */ e("button", { type: "button", className: "ot-btn ot-btn-ghost", onClick: T, children: "Not now" }) : /* @__PURE__ */ e("span", {}),
-      /* @__PURE__ */ e("button", { type: "button", className: "ot-btn ot-btn-primary", disabled: !$, onClick: a, children: k })
+      E ? /* @__PURE__ */ e("button", { type: "button", className: "ot-btn ot-btn-ghost", onClick: E, children: "Not now" }) : /* @__PURE__ */ e("span", {}),
+      /* @__PURE__ */ e("button", { type: "button", className: "ot-btn ot-btn-primary", disabled: !$, onClick: c, children: C })
     ] })
   ] });
 }
-function Ee({
+function Le({
   specs: t,
   links: n = [],
-  title: u = "Help & guides",
-  searchPlaceholder: m = "Search…",
-  floating: d = !1,
-  launcherGlyph: x = "?",
-  emptyMessage: p = "Nothing matches that search.",
-  locale: k = "en",
-  i18nResolver: w,
-  className: g = ""
+  title: i = "Help & guides",
+  searchPlaceholder: d = "Search…",
+  floating: u = !1,
+  launcherGlyph: g = "?",
+  emptyMessage: h = "Nothing matches that search.",
+  locale: C = "en",
+  i18nResolver: S,
+  className: y = ""
 }) {
-  const h = te(), [T, i] = S(""), [y, v] = S(!d), o = t ?? h.specs, N = O(() => {
-    const s = (a) => a === void 0 ? "" : z(a, k, w, h.context), C = T.trim().toLowerCase(), A = o.map((a) => ({
+  const p = te(), [E, m] = T(""), [N, v] = T(!u), o = t ?? p.specs, k = P(() => {
+    const s = (c) => c === void 0 ? "" : z(c, C, S, p.context), x = E.trim().toLowerCase(), R = o.map((c) => ({
       kind: "tour",
-      id: a.id,
-      label: s(a.title),
-      description: s(a.description),
-      seen: h.hasSeen(a.id)
-    })), L = n.map((a) => ({
+      id: c.id,
+      label: s(c.title),
+      description: s(c.description),
+      seen: p.hasSeen(c.id)
+    })), A = n.map((c) => ({
       kind: "link",
-      id: a.href,
-      label: a.label,
-      description: a.description ?? "",
-      href: a.href
-    })), $ = [...A, ...L];
-    return C ? $.filter(
-      (a) => a.label.toLowerCase().includes(C) || a.description.toLowerCase().includes(C)
+      id: c.href,
+      label: c.label,
+      description: c.description ?? "",
+      href: c.href
+    })), $ = [...R, ...A];
+    return x ? $.filter(
+      (c) => c.label.toLowerCase().includes(x) || c.description.toLowerCase().includes(x)
     ) : $;
-  }, [o, n, T, k, w, h]);
-  return d && !y ? /* @__PURE__ */ e(
+  }, [o, n, E, C, S, p]);
+  return u && !N ? /* @__PURE__ */ e(
     "button",
     {
       type: "button",
       className: "ot-hub-launcher",
-      "aria-label": u,
+      "aria-label": i,
       onClick: () => v(!0),
-      children: x
+      children: g
     }
   ) : /* @__PURE__ */ b(X, { children: [
-    /* @__PURE__ */ b("div", { className: `ot-hub ${d ? "ot-hub--floating" : ""} ${g}`.trim(), children: [
+    /* @__PURE__ */ b("div", { className: `ot-hub ${u ? "ot-hub--floating" : ""} ${y}`.trim(), children: [
       /* @__PURE__ */ b("div", { className: "ot-hub-header", children: [
-        /* @__PURE__ */ e("h3", { className: "ot-hub-title", children: u }),
+        /* @__PURE__ */ e("h3", { className: "ot-hub-title", children: i }),
         /* @__PURE__ */ e(
           "input",
           {
             type: "search",
             className: "ot-hub-search",
-            placeholder: m,
-            "aria-label": m,
-            value: T,
-            onChange: (s) => i(s.target.value)
+            placeholder: d,
+            "aria-label": d,
+            value: E,
+            onChange: (s) => m(s.target.value)
           }
         )
       ] }),
       /* @__PURE__ */ b("ul", { className: "ot-hub-list", children: [
-        N.length === 0 && /* @__PURE__ */ e("li", { className: "ot-hub-empty", children: p }),
-        N.map((s) => /* @__PURE__ */ e("li", { children: s.kind === "tour" ? /* @__PURE__ */ b(
+        k.length === 0 && /* @__PURE__ */ e("li", { className: "ot-hub-empty", children: h }),
+        k.map((s) => /* @__PURE__ */ e("li", { children: s.kind === "tour" ? /* @__PURE__ */ b(
           "button",
           {
             type: "button",
             className: "ot-hub-item",
             onClick: () => {
-              h.start(s.id), d && v(!1);
+              p.start(s.id), u && v(!1);
             },
             children: [
               s.seen ? "↻ " : "",
@@ -510,7 +512,7 @@ function Ee({
         ) }, `${s.kind}-${s.id}`))
       ] })
     ] }),
-    d && /* @__PURE__ */ e(
+    u && /* @__PURE__ */ e(
       "button",
       {
         type: "button",
@@ -522,57 +524,57 @@ function Ee({
     )
   ] });
 }
-function Le({
+function Ae({
   target: t,
   content: n,
-  glyph: u = "?",
-  openOnHover: m = !1,
-  zIndex: d,
-  className: x = ""
+  glyph: i = "?",
+  openOnHover: d = !1,
+  zIndex: u,
+  className: g = ""
 }) {
-  const [p, k] = S(null), [w, g] = S(!1), h = M(0), i = JSON.stringify(typeof t == "string" ? { selector: t } : t);
-  return R(() => {
-    let y = !0;
+  const [h, C] = T(null), [S, y] = T(!1), p = D(0), m = JSON.stringify(typeof t == "string" ? { selector: t } : t);
+  return L(() => {
+    let N = !0;
     const v = () => {
-      if (!y) return;
-      const s = pe(JSON.parse(i));
+      if (!N) return;
+      const s = be(JSON.parse(m));
       if (!s) {
-        k(null);
+        C(null);
         return;
       }
-      const C = s.element.getBoundingClientRect();
-      k({
-        x: C.x + s.frameOffset.x + C.width,
-        y: C.y + s.frameOffset.y
+      const x = s.element.getBoundingClientRect();
+      C({
+        x: x.x + s.frameOffset.x + x.width,
+        y: x.y + s.frameOffset.y
       });
     }, o = () => {
-      cancelAnimationFrame(h.current), h.current = requestAnimationFrame(v);
+      cancelAnimationFrame(p.current), p.current = requestAnimationFrame(v);
     };
     v(), window.addEventListener("resize", o), window.addEventListener("scroll", o, !0);
-    const N = new ResizeObserver(o);
-    return N.observe(document.documentElement), () => {
-      y = !1, cancelAnimationFrame(h.current), window.removeEventListener("resize", o), window.removeEventListener("scroll", o, !0), N.disconnect();
+    const k = new ResizeObserver(o);
+    return k.observe(document.documentElement), () => {
+      N = !1, cancelAnimationFrame(p.current), window.removeEventListener("resize", o), window.removeEventListener("scroll", o, !0), k.disconnect();
     };
-  }, [i]), p ? /* @__PURE__ */ b(
+  }, [m]), h ? /* @__PURE__ */ b(
     "div",
     {
-      className: `ot-hint ${x}`.trim(),
-      style: { left: p.x, top: p.y, ...d ? { zIndex: d } : {} },
-      onMouseEnter: m ? () => g(!0) : void 0,
-      onMouseLeave: m ? () => g(!1) : void 0,
+      className: `ot-hint ${g}`.trim(),
+      style: { left: h.x, top: h.y, ...u ? { zIndex: u } : {} },
+      onMouseEnter: d ? () => y(!0) : void 0,
+      onMouseLeave: d ? () => y(!1) : void 0,
       children: [
         /* @__PURE__ */ e(
           "button",
           {
             type: "button",
             className: "ot-hint-dot",
-            "aria-expanded": w,
-            "aria-label": w ? "Hide hint" : "Show hint",
-            onClick: () => g((y) => !y),
-            children: u
+            "aria-expanded": S,
+            "aria-label": S ? "Hide hint" : "Show hint",
+            onClick: () => y((N) => !N),
+            children: i
           }
         ),
-        w && /* @__PURE__ */ e(
+        S && /* @__PURE__ */ e(
           "div",
           {
             className: "ot-hint-panel",
@@ -584,73 +586,106 @@ function Le({
     }
   ) : null;
 }
+function $e({ entries: t, ...n }) {
+  const i = D(null), d = D(null), u = D(n);
+  return L(() => {
+    u.current = n;
+  }), L(() => {
+    const g = i.current;
+    if (!g) return;
+    const h = pe({
+      ...u.current,
+      entries: [],
+      container: g
+    });
+    return d.current = h, () => {
+      h.destroy(), d.current = null;
+    };
+  }, []), L(() => {
+    d.current?.setEntries(t);
+  }, [t]), /* @__PURE__ */ e("div", { ref: i });
+}
 export {
-  Se as Announcement,
-  we as Banner,
-  st as CSS,
-  Re as DEFAULT_LABELS,
-  Le as Hint,
-  De as MemoryStorage,
-  Ee as ResourceCenter,
-  Te as Survey,
-  Ce as TourAnchor,
-  xe as TourChecklist,
-  _e as TourEngine,
+  Te as Announcement,
+  Se as Banner,
+  bt as CSS,
+  $e as Changelog,
+  _e as DEFAULT_LABELS,
+  Ae as Hint,
+  Me as MemoryStorage,
+  Le as ResourceCenter,
+  Pe as SurfaceState,
+  Ee as Survey,
+  xe as TourAnchor,
+  we as TourChecklist,
+  He as TourEngine,
   de as TourOrchestrator,
   Y as TourPersistence,
-  Ne as TourProvider,
-  Me as assertValidSpec,
-  Oe as blocksToText,
-  ot as checkExpression,
-  bt as createAmplitudeAdapter,
-  qe as createCookieStorage,
-  vt as createDatadogAdapter,
-  ft as createDebugAdapter,
-  gt as createEventCollector,
-  yt as createFunnelReport,
-  Nt as createGA4Adapter,
-  kt as createHeapAdapter,
-  Ct as createHttpAdapter,
-  Fe as createIndexedDBStorage,
-  He as createKeyResolver,
-  Be as createLocaleResolver,
-  Ie as createMemoryStorage,
-  xt as createMixpanelAdapter,
-  wt as createMultiAdapter,
-  St as createPostHogAdapter,
-  Ve as createRemoteStorage,
-  Tt as createRudderStackAdapter,
-  Et as createSegmentAdapter,
-  Pe as createTour,
-  je as createTours,
-  ze as createTutorialLayer,
-  Ge as currentPath,
-  Je as defineSpec,
-  Ke as defineStep,
-  at as describeTarget,
-  Qe as escapeHtml,
-  ct as evaluateExpression,
-  lt as evaluateShowIf,
-  Ue as extendSpec,
-  Lt as filterEvents,
-  We as installTrigger,
-  Xe as interpolate,
-  it as isVisible,
-  Ye as matchPath,
+  ke as TourProvider,
+  Oe as assertValidSpec,
+  qe as blocksToText,
+  vt as checkExpression,
+  Tt as createAmplitudeAdapter,
+  Be as createAnnouncement,
+  Fe as createBanner,
+  pe as createChangelog,
+  Ie as createChecklist,
+  Ve as createCookieStorage,
+  Et as createDatadogAdapter,
+  Lt as createDebugAdapter,
+  At as createEventCollector,
+  $t as createFunnelReport,
+  Rt as createGA4Adapter,
+  Dt as createHeapAdapter,
+  je as createHint,
+  _t as createHttpAdapter,
+  ze as createIndexedDBStorage,
+  Ge as createKeyResolver,
+  Je as createLocaleResolver,
+  Ke as createMemoryStorage,
+  Mt as createMixpanelAdapter,
+  Pt as createMultiAdapter,
+  Ht as createPostHogAdapter,
+  Qe as createRemoteStorage,
+  Ue as createResourceCenter,
+  Ot as createRudderStackAdapter,
+  qt as createSegmentAdapter,
+  We as createSurvey,
+  Xe as createTour,
+  Ye as createTours,
+  Ze as createTutorialLayer,
+  et as currentPath,
+  tt as defineSpec,
+  rt as defineStep,
+  ft as describeTarget,
+  nt as escapeHtml,
+  gt as evaluateExpression,
+  yt as evaluateShowIf,
+  st as extendSpec,
+  Bt as filterEvents,
+  ot as installTrigger,
+  at as interpolate,
+  Nt as isVisible,
+  ct as localeDirection,
+  lt as matchPath,
   he as normalizeContent,
-  Ze as onLocationChange,
-  ut as queryDeep,
+  it as onLocationChange,
+  kt as queryDeep,
   me as renderBlocks,
   Z as renderInline,
-  et as resolveLabel,
-  pe as resolveTarget,
+  ut as resolveLabel,
+  be as resolveTarget,
   z as resolveText,
-  dt as safeQuery,
+  Ct as safeQuery,
+  dt as selectPlural,
+  Ft as shouldSample,
   te as useTour,
-  ke as useTourEvents,
-  tt as validateSpec,
-  rt as validateSpecs,
-  ht as waitForElement,
-  mt as waitForTarget
+  Ce as useTourEvents,
+  ht as validateSpec,
+  mt as validateSpecs,
+  xt as waitForElement,
+  wt as waitForTarget,
+  It as withEventTypes,
+  Vt as withSampling
 };
 //# sourceMappingURL=react.js.map

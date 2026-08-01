@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenTutorial E2E fixture</title>
+  <link rel="stylesheet" href="/dist/styles.css" />
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 40px; }
+    main { max-width: 720px; margin: 0 auto; display: grid; gap: 24px; }
+    .spacer { height: 1200px; }
+    button { padding: 10px 16px; font: inherit; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>OpenTutorial fixture</h1>
+
+    <button id="start" data-tour="start">Start tour</button>
+    <button id="save" data-tour="save">Save</button>
+    <button id="publish" data-tour="publish">Publish</button>
+    <a id="next-page" href="/page-two.html">Go to page two</a>
+
+    <div id="counter" data-count="0">clicks: 0</div>
+    <div class="spacer"></div>
+  </main>
+
+  <script src="/dist/opentutorial.global.js"></script>
+  <script>
+    const spec = {
+      specVersion: 1,
+      id: 'e2e-tour',
+      title: 'E2E tour',
+      trigger: { type: 'manual' },
+      steps: [
+        {
+          id: 'intro',
+          title: 'Welcome',
+          content: 'This is the **first** step.',
+          target: { selector: '[data-tour="start"]' },
+          placement: 'bottom',
+        },
+        {
+          id: 'gated',
+          title: 'Only this is clickable',
+          content: 'Interaction is limited to the highlighted control.',
+          target: { selector: '[data-tour="save"]' },
+          placement: 'top',
+          interaction: 'target-only',
+        },
+        {
+          id: 'click-to-advance',
+          title: 'Click Publish',
+          content: 'The tour waits for the click.',
+          target: { selector: '[data-tour="publish"]' },
+          advanceOn: 'target-click',
+        },
+        {
+          id: 'done',
+          title: 'All set',
+          content: 'Last step.',
+          placement: 'center',
+        },
+      ],
+    };
+
+    const resumeSpec = {
+      specVersion: 1,
+      id: 'resume-tour',
+      title: 'Resume tour',
+      trigger: { type: 'manual' },
+      steps: [
+        {
+          id: 'here',
+          title: 'On page one',
+          content: 'Now navigate.',
+          target: { selector: '[data-tour="start"]' },
+        },
+        {
+          id: 'there',
+          title: 'On page two',
+          content: 'Picked up after the navigation.',
+          target: { selector: '[data-tour="second"]' },
+        },
+      ],
+    };
+
+    window.layer = OpenTutorial.createTutorialLayer({
+      specs: [spec, resumeSpec],
+      autoResume: true,
+      keyPrefix: 'ot-e2e',
+    });
+
+    document.getElementById('counter').addEventListener('click', () => {});
+    document.getElementById('save').addEventListener('click', (e) => {
+      const counter = document.getElementById('counter');
+      const next = Number(counter.dataset.count) + 1;
+      counter.dataset.count = String(next);
+      counter.textContent = `clicks: ${next}`;
+    });
+  </script>
+</body>
+</html>

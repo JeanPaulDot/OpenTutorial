@@ -8,7 +8,7 @@
  * <link rel="stylesheet" href="https://unpkg.com/@opentutorial/core/dist/styles.css">
  * <script src="https://unpkg.com/@opentutorial/core/dist/opentutorial.global.js"></script>
  * <script>
- *   const tl = Opentutorial.createTutorialLayer({ specs: [ ... ] });
+ *   const tl = OpenTutorial.createTutorialLayer({ specs: [ ... ] });
  *   tl.start('welcome');
  * </script>
  * ```
@@ -36,6 +36,15 @@ export {
   createEventCollector,
   createMultiAdapter,
 } from './analytics';
+export {
+  createBanner,
+  createAnnouncement,
+  createHint,
+  createSurvey,
+  createChecklist,
+  createResourceCenter,
+  createChangelog,
+} from './surfaces';
 export { defineOpenTutorialElement } from './adapters/webcomponent';
 export { CSS } from './styles';
 
@@ -46,3 +55,14 @@ import { enableRecorderFromUrl } from './authoring/recorder';
 // without extra wiring; both are no-ops when unused.
 defineOpenTutorialElement();
 enableRecorderFromUrl();
+
+// The global was `Opentutorial` in 0.2.0. Alias it rather than break every
+// script-tag page that already shipped.
+//
+// Deferred to a microtask because the IIFE wrapper assigns `window.OpenTutorial`
+// only after this module body has finished running — reading it here directly
+// would always see `undefined`.
+queueMicrotask(() => {
+  const scope = globalThis as Record<string, unknown>;
+  if (scope.OpenTutorial && !scope.Opentutorial) scope.Opentutorial = scope.OpenTutorial;
+});

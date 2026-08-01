@@ -1,6 +1,6 @@
 {
   "name": "@opentutorial/core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Spec-driven in-app tour engine. Zero runtime deps, React + vanilla adapters, spotlight/hotspot/beacon modes.",
   "type": "module",
   "exports": {
@@ -23,6 +23,16 @@
       "types": "./dist/svelte.d.ts",
       "import": "./dist/svelte.js",
       "require": "./dist/svelte.cjs"
+    },
+    "./angular": {
+      "types": "./dist/angular.d.ts",
+      "import": "./dist/angular.js",
+      "require": "./dist/angular.cjs"
+    },
+    "./solid": {
+      "types": "./dist/solid.d.ts",
+      "import": "./dist/solid.js",
+      "require": "./dist/solid.cjs"
     },
     "./webcomponent": {
       "types": "./dist/webcomponent.d.ts",
@@ -62,27 +72,37 @@
     "./dist/global.js",
     "./dist/opentutorial.global.js"
   ],
+  "bin": {
+    "opentutorial": "./bin/opentutorial.mjs"
+  },
   "files": [
+    "bin",
     "dist",
     "README.md"
   ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/build.mjs",
+    "build:lib": "vite build",
     "build:types": "tsc -p tsconfig.lib.json --emitDeclarationOnly",
-    "preview": "vite preview",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepare": "npm run build && npm run build:types"
+    "test:coverage": "vitest run --coverage",
+    "size": "node scripts/size-budget.mjs",
+    "e2e": "playwright test",
+    "prepare": "npm run build"
   },
-  "dependencies": {},
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@changesets/changelog-github": "^0.7.0",
+    "@changesets/cli": "^2.31.1",
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
@@ -100,8 +120,12 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "peerDependenciesMeta": {
-    "react": { "optional": true },
-    "react-dom": { "optional": true }
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
   },
   "license": "MIT",
   "engines": {

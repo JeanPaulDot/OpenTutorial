@@ -57,7 +57,7 @@ export default defineConfig({
       ? {
           lib: {
             entry: path.resolve(__dirname, 'src/core/global.ts'),
-            name: 'Opentutorial',
+            name: 'OpenTutorial',
             formats: ['iife' as const],
             fileName: () => 'opentutorial.global.js',
           },
@@ -73,6 +73,8 @@ export default defineConfig({
               react: path.resolve(__dirname, 'src/core/react.ts'),
               vue: path.resolve(__dirname, 'src/core/vue.ts'),
               svelte: path.resolve(__dirname, 'src/core/svelte.ts'),
+              angular: path.resolve(__dirname, 'src/core/angular.ts'),
+              solid: path.resolve(__dirname, 'src/core/solid.ts'),
               webcomponent: path.resolve(__dirname, 'src/core/webcomponent.ts'),
               authoring: path.resolve(__dirname, 'src/core/authoring/index.ts'),
               analytics: path.resolve(__dirname, 'src/core/analytics/index.ts'),

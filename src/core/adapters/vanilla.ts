@@ -1,6 +1,7 @@
 import { TourOrchestrator, type OrchestratorOptions } from '../orchestrator';
 import type { TourEngine } from '../engine';
-import type { ThemeOverrides, TourEvent, TourState, TutorialSpec } from '../types';
+import type { PersistedRoot } from '../persist';
+import type { KeyValueStorage, ThemeOverrides, TourEvent, TourState, TutorialSpec } from '../types';
 
 export type VanillaEventName =
   | 'start' | 'stop' | 'skip' | 'complete' | 'step' | 'event' | 'destroy';
@@ -17,8 +18,10 @@ export interface VanillaTutorialLayer {
   goTo: (stepId: string) => void;
   getState: (tourId?: string) => TourState | null;
   getActiveId: () => string | null;
+  getSpecs: () => TutorialSpec[];
   hasSeen: (tourId: string) => boolean;
   whyBlocked: (tourId: string) => string | null;
+  getContext: () => Record<string, unknown>;
   setContext: (patch: Record<string, unknown>) => void;
   setTheme: (theme: ThemeOverrides) => void;
   setLocale: (locale: string) => void;
@@ -26,6 +29,8 @@ export interface VanillaTutorialLayer {
   reset: () => void;
   resetTour: (tourId: string) => void;
   resetProgress: () => void;
+  exportProgress: () => PersistedRoot | null;
+  importProgress: (data: PersistedRoot | string, mode?: 'replace' | 'merge') => boolean;
   getEngine: (tourId: string) => TourEngine | undefined;
   on: (event: VanillaEventName, handler: (detail: TourEvent) => void) => () => void;
   off: (event: VanillaEventName, handler: (detail: TourEvent) => void) => void;
@@ -37,6 +42,17 @@ export interface VanillaOptions extends OrchestratorOptions {
   specs: TutorialSpec[];
   /** Install triggers and deep links immediately. Default true. */
   autoMount?: boolean;
+  /**
+   * Shorthand for `persistence.storage`.
+   *
+   * `TourProvider` has accepted a top-level `storage` prop since 0.1, so the
+   * nested-only form here was a trap: passing `storage` to a non-React adapter
+   * silently fell through to localStorage. Both spellings work now; the nested
+   * one wins if you somehow pass both.
+   */
+  storage?: KeyValueStorage;
+  /** Shorthand for `persistence.keyPrefix`. Default `"ot"`. */
+  keyPrefix?: string;
 }
 
 /** Which engine events feed each named channel. */
@@ -51,8 +67,12 @@ const CHANNELS: Record<VanillaEventName, ReadonlyArray<TourEvent['type']>> = {
 };
 
 export function createTutorialLayer(opts: VanillaOptions): VanillaTutorialLayer {
-  const { specs, autoMount = true, ...rest } = opts;
+  const { specs, autoMount = true, storage, keyPrefix, ...rest } = opts;
   const listeners = new Map<VanillaEventName, Set<(detail: TourEvent) => void>>();
+
+  const persistence = (storage !== undefined || keyPrefix !== undefined)
+    ? { storage, keyPrefix, ...(rest.persistence ?? {}) }
+    : rest.persistence;
 
   const dispatch = (name: VanillaEventName, detail: TourEvent): void => {
     const handlers = listeners.get(name);
@@ -64,6 +84,7 @@ export function createTutorialLayer(opts: VanillaOptions): VanillaTutorialLayer 
 
   const orchestrator = new TourOrchestrator(specs, {
     ...rest,
+    persistence,
     onEvent: (e) => {
       // Previously these were dispatched on `window` under names the engine
       // never emitted, so nothing ever fired. Now they are delivered directly.
@@ -99,8 +120,10 @@ export function createTutorialLayer(opts: VanillaOptions): VanillaTutorialLayer 
     goTo: (stepId) => active((e) => e.goTo(stepId)),
     getState: (tourId) => orchestrator.getState(tourId),
     getActiveId: () => orchestrator.getActiveId(),
+    getSpecs: () => orchestrator.getSpecs(),
     hasSeen: (tourId) => orchestrator.hasSeen(tourId),
     whyBlocked: (tourId) => orchestrator.checkEligibility(tourId),
+    getContext: () => orchestrator.getContext(),
     setContext: (patch) => orchestrator.setContext(patch),
     setTheme: (theme) => orchestrator.setTheme(theme),
     setLocale: (locale) => orchestrator.setLocale(locale),
@@ -108,6 +131,8 @@ export function createTutorialLayer(opts: VanillaOptions): VanillaTutorialLayer 
     reset: () => orchestrator.reset(),
     resetTour: (tourId) => orchestrator.resetTour(tourId),
     resetProgress: () => orchestrator.resetProgress(),
+    exportProgress: () => orchestrator.exportProgress(),
+    importProgress: (data, mode) => orchestrator.importProgress(data, mode),
     getEngine: (tourId) => orchestrator.getEngine(tourId),
     ready: orchestrator.ready,
 

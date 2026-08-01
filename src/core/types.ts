@@ -344,6 +344,8 @@ export interface CreateTourOptions {
   isolate?: boolean;
   /** Permit `{ type: 'html' }` content blocks. Off by default. */
   allowHtml?: boolean;
+  /** Advance/rewind on horizontal touch swipes. Default true. */
+  swipe?: boolean;
   /** Reject specs that only produced warnings. Default false. */
   strict?: boolean;
   /** Called instead of `location.assign` for `navigate` actions — hand off to your router. */

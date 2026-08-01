@@ -57,7 +57,7 @@ export function createDebugPanel(opts: DebugPanelOptions): DebugPanelHandle {
     panel.replaceChildren();
 
     const heading = document.createElement('h4');
-    heading.textContent = 'Opentutorial debug';
+    heading.textContent = 'OpenTutorial debug';
     panel.appendChild(heading);
 
     panel.appendChild(row('tour', activeId ?? '(none)'));

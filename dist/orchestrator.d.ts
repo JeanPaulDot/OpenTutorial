@@ -8,6 +8,7 @@
  * priority for when the current one ends.
  */
 import { TourEngine } from './engine';
+import type { PersistedRoot } from './persist';
 import type { CreateTourOptions, ThemeOverrides, TourState, TutorialSpec } from './types';
 export interface OrchestratorOptions extends CreateTourOptions {
     /** URL parameter that deep-links a tour. `false` disables deep linking. */
@@ -52,6 +53,8 @@ export declare class TourOrchestrator {
     pause(): void;
     resume(): void;
     setContext(patch: Record<string, unknown>): void;
+    /** The shared tour context. Every engine holds the same keys. */
+    getContext(): Record<string, unknown>;
     setTheme(theme: ThemeOverrides): void;
     setLocale(locale: string): void;
     setUser(userId: string | undefined): Promise<void>;
@@ -59,6 +62,10 @@ export declare class TourOrchestrator {
     reset(): void;
     resetProgress(): void;
     resetTour(tourId: string): void;
+    /** Snapshot persisted state for every tour. See `TourEngine.exportProgress`. */
+    exportProgress(): PersistedRoot | null;
+    /** Restore a snapshot. All engines share one store, so one call covers them all. */
+    importProgress(data: PersistedRoot | string, mode?: 'replace' | 'merge'): boolean;
     /** Install triggers, deep-link handling, chaining and cross-page resume. */
     mount(): void;
     private installTriggers;

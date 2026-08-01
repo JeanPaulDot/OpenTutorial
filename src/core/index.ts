@@ -48,6 +48,30 @@ export { currentPath, matchPath, onLocationChange } from './dom/navigation';
 export { createTutorialLayer } from './adapters/vanilla';
 export type { VanillaTutorialLayer, VanillaOptions, VanillaEventName } from './adapters/vanilla';
 
+// Guidance surfaces — framework-free factories, usable from any adapter
+export {
+  createBanner,
+  createAnnouncement,
+  createHint,
+  createSurvey,
+  createChecklist,
+  createResourceCenter,
+  createChangelog,
+  SurfaceState,
+} from './surfaces';
+export type {
+  AnnouncementHandle, AnnouncementOptions,
+  BannerHandle, BannerOptions,
+  ChangelogEntry, ChangelogHandle, ChangelogOptions,
+  ChecklistHandle, ChecklistOptions, ChecklistStatus,
+  DismissibleOptions,
+  HintHandle, HintOptions,
+  ResourceCenterHandle, ResourceCenterOptions, ResourceLink,
+  SurfaceHandle,
+  SurveyHandle, SurveyKind, SurveyOptions, SurveyResponse,
+  TourController,
+} from './surfaces';
+
 // Analytics
 export {
   createPostHogAdapter,
@@ -64,11 +88,18 @@ export {
   createFunnelReport,
   createEventCollector,
   filterEvents,
+  withSampling,
+  withEventTypes,
+  shouldSample,
 } from './analytics';
-export type { HttpAdapterOptions, FunnelReport, FunnelStep } from './analytics';
+export type { HttpAdapterOptions, FunnelReport, FunnelStep, SamplingOptions } from './analytics';
 
 // i18n
-export { resolveText, interpolate, createKeyResolver, createLocaleResolver, resolveLabel, DEFAULT_LABELS } from './i18n';
+export {
+  resolveText, interpolate, createKeyResolver, createLocaleResolver,
+  resolveLabel, selectPlural, localeDirection, DEFAULT_LABELS,
+} from './i18n';
+export type { PluralCategory, PluralForms, LabelKey } from './i18n';
 
 // Styles, for shadow-DOM hosts that inject them manually
 export { CSS } from './styles';

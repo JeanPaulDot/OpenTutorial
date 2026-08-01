@@ -20,9 +20,9 @@
 <h3 align="center">OpenTutorial</h3>
 
   <p align="center">
-    Spec-driven in-app guidance engine. Zero runtime dependencies. Adapters for React, Vue 3, Svelte, a universal Web Component, and plain vanilla JS.
+    Spec-driven in-app guidance engine. Zero runtime dependencies. Adapters for React, Vue 3, Svelte, Angular, Solid, a universal Web Component, and plain vanilla JS.
     <br />
-    <a href="#usage"><strong>Explore the usage guide »</strong></a>
+    <a href="docs/README.md"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://www.npmjs.com/package/@opentutorial/core">npm package</a>
@@ -69,7 +69,12 @@
 
 OpenTutorial is a spec-driven in-app tour and guidance engine. A `TutorialSpec` is a plain JSON object validated against a strict schema — editors get autocomplete from the published schema (`dist/spec.schema.json`), and a bad spec never crashes the host app.
 
-It ships with adapters for React, Vue 3, Svelte, a universal Web Component (works in Angular, Solid, Lit, Astro, Rails, Django, or a static page — no bundler needed), and plain vanilla JS. All from a single, React-free core with zero runtime dependencies.
+It ships with adapters for React, Vue 3, Svelte, Angular, Solid, a universal Web Component (works in Lit, Astro, Rails, Django, or a static page — no bundler needed), and plain vanilla JS. All from a single, React-free core with zero runtime dependencies.
+
+Full documentation lives in [docs/](docs/README.md) — including an
+[API reference](docs/api-reference.md), a [spec reference](docs/spec-reference.md),
+per-framework guides, and migration guides from intro.js, Shepherd, driver.js
+and react-joyride.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -100,11 +105,11 @@ It ships with adapters for React, Vue 3, Svelte, a universal Web Component (work
 - **Advance conditions** — `button`, `target-click`, `event`, `auto`, `input-match`, `form-submit`, `element-appears`, `element-disappears`, `url-match`, plus a `beforeNext` guard
 - **Branching** — `next: [{ if: "plan === 'pro'", to: 'pro-step' }]` rule lists
 - **Custom rendering** — replace the built-in popover with your own component via `renderStep`
-- **Persistence** — sync or async storage; ships localStorage, cookie, IndexedDB and remote (REST) adapters, with per-user namespacing via `userId`
-- **Analytics** — PostHog, Mixpanel, Amplitude, Segment, RudderStack, Heap, GA4, Datadog RUM, a batched HTTP adapter with offline queue, and `createFunnelReport` for drop-off analysis
-- **Guidance surfaces** — `Announcement`, `Banner`, `Survey`/NPS, `ResourceCenter`, `Hint`, and a self-managing `TourChecklist` (React)
-- **Authoring** — point-and-click recorder with selector stability scoring, debug overlay, published JSON Schema
-- **i18n** — key-based localization with interpolation, RTL support
+- **Persistence** — sync or async storage; ships localStorage, cookie, IndexedDB and remote (REST) adapters, per-user namespacing via `userId`, and progress export/import
+- **Analytics** — PostHog, Mixpanel, Amplitude, Segment, RudderStack, Heap, GA4, Datadog RUM, a batched HTTP adapter with offline queue, run-level sampling, and `createFunnelReport` for drop-off analysis
+- **Guidance surfaces** — announcement, banner, survey/NPS, resource centre, hint, changelog and a self-managing checklist — as framework-free factories *and* React components
+- **Authoring** — point-and-click recorder with selector stability scoring, debug overlay, published JSON Schema, and an `opentutorial` CLI for CI-time validation
+- **i18n** — key-based localization with interpolation, ICU-style pluralization, RTL support
 - **Theming** — 20 CSS custom properties, dark mode via `prefers-color-scheme` or `data-ot-theme`, reduced-motion support, optional shadow-DOM isolation and a `container` portal
 - **Validation** — fail-closed schema checks with error/warning severity (90+ checks)
 - **CSP-safe** — `showIf`, `next` branches and `audience` rules run through a hand-written parser; no `eval`, no `new Function`
@@ -142,6 +147,12 @@ To get a local copy up and running follow these simple steps.
 React is an optional peer dependency — install it only if you use the React
 adapter. The root entry, the Web Component and the vanilla adapter need nothing
 beyond the package itself.
+
+Validate your specs in CI with the bundled CLI:
+
+```sh
+npx opentutorial validate specs/**/*.json --strict
+```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the build commands and project layout.
 
@@ -253,6 +264,8 @@ Works in Angular, Solid, Lit, Astro, Rails, Django, or a static page — no bund
 | `@opentutorial/core/react` | Everything + `TourProvider`, `useTour`, `TourAnchor`, all components |
 | `@opentutorial/core/vue` | Everything + Vue plugin / `TOUR_KEY` injection |
 | `@opentutorial/core/svelte` | Everything + Svelte store + `tourAnchor` action |
+| `@opentutorial/core/angular` | Everything + `provideOpenTutorial`, `OpenTutorialService` |
+| `@opentutorial/core/solid` | Everything + `createTourLayer` + `tourAnchor` directive |
 | `@opentutorial/core/webcomponent` | `<open-tutorial>` custom element |
 | `@opentutorial/core/analytics` | All analytics adapters + funnel reports |
 | `@opentutorial/core/authoring` | Tour recorder, debug overlay, selector scoring |

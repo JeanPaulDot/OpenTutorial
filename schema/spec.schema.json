@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://unpkg.com/@opentutorial/core/dist/spec.schema.json",
   "title": "TutorialSpec",
-  "description": "An Opentutorial tour definition. Add \"$schema\" to a spec file for editor autocomplete.",
+  "description": "An OpenTutorial tour definition. Add \"$schema\" to a spec file for editor autocomplete.",
   "type": "object",
   "required": ["specVersion", "id", "title", "steps"],
   "additionalProperties": false,

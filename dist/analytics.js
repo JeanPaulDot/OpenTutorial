@@ -1,208 +1,242 @@
-function d(t, n = {}) {
+function y(t, e = {}) {
   const o = {
     tour_id: t.tourId,
     event_type: t.type
   };
-  return t.stepId !== void 0 && (o.step_id = t.stepId), t.index !== void 0 && (o.step_index = t.index), t.total !== void 0 && (o.step_total = t.total), t.duration !== void 0 && (o.duration_ms = t.duration), t.reason !== void 0 && (o.reason = t.reason), t.selector !== void 0 && (o.selector = t.selector), t.message !== void 0 && (o.message = t.message), t.meta && Object.assign(o, t.meta), n.includeTimestamp !== !1 && (o.timestamp = t.timestamp), o;
+  return t.stepId !== void 0 && (o.step_id = t.stepId), t.index !== void 0 && (o.step_index = t.index), t.total !== void 0 && (o.step_total = t.total), t.duration !== void 0 && (o.duration_ms = t.duration), t.reason !== void 0 && (o.reason = t.reason), t.selector !== void 0 && (o.selector = t.selector), t.message !== void 0 && (o.message = t.message), t.meta && Object.assign(o, t.meta), e.includeTimestamp !== !1 && (o.timestamp = t.timestamp), o;
 }
-function k(t, n = "Opentutorial") {
-  return `${n} ${t.type}`;
+function S(t, e = "OpenTutorial") {
+  return `${e} ${t.type}`;
 }
-function c(t) {
+function u(t) {
   try {
     t();
   } catch {
   }
 }
-function $(t) {
-  return (n) => c(() => t.capture(k(n, "[Opentutorial]"), d(n)));
-}
-function T(t) {
-  return (n) => c(() => t.track(k(n, "[Opentutorial]"), d(n)));
-}
-function D(t) {
-  return (n) => c(() => t.track(k(n, "[Opentutorial]"), d(n, { includeTimestamp: !1 })));
-}
-function S(t) {
-  return (n) => c(() => t.track(k(n, "Opentutorial"), d(n)));
+function E(t) {
+  return (e) => u(() => t.capture(S(e, "[OpenTutorial]"), y(e)));
 }
 function R(t) {
-  return S(t);
-}
-function E(t) {
-  return (n) => c(() => {
-    (t ?? window.heap)?.track(`Opentutorial ${n.type}`, d(n));
-  });
+  return (e) => u(() => t.track(S(e, "[OpenTutorial]"), y(e)));
 }
 function N(t) {
-  return (n) => c(() => {
+  return (e) => u(() => t.track(S(e, "[OpenTutorial]"), y(e, { includeTimestamp: !1 })));
+}
+function k(t) {
+  return (e) => u(() => t.track(S(e, "OpenTutorial"), y(e)));
+}
+function P(t) {
+  return k(t);
+}
+function B(t) {
+  return (e) => u(() => {
+    (t ?? window.heap)?.track(`OpenTutorial ${e.type}`, y(e));
+  });
+}
+function F(t) {
+  return (e) => u(() => {
     const o = window.gtag;
-    typeof o == "function" && o("event", `opentutorial_${n.type.replace(/-/g, "_")}`, {
-      ...d(n, { includeTimestamp: !1 }),
+    typeof o == "function" && o("event", `opentutorial_${e.type.replace(/-/g, "_")}`, {
+      ...y(e, { includeTimestamp: !1 }),
       send_to: t
     });
   });
 }
-function P(t) {
-  return (n) => c(() => {
-    (t ?? window.DD_RUM)?.addAction(`opentutorial.${n.type}`, d(n));
+function H(t) {
+  return (e) => u(() => {
+    (t ?? window.DD_RUM)?.addAction(`opentutorial.${e.type}`, y(e));
   });
 }
-function B(t = console.log) {
-  return (n) => c(() => t(`[opentutorial] ${n.type}`, d(n)));
+function J(t = console.log) {
+  return (e) => u(() => t(`[opentutorial] ${e.type}`, y(e)));
 }
-function F(...t) {
-  const n = t.filter((o) => typeof o == "function");
+function j(...t) {
+  const e = t.filter((o) => typeof o == "function");
   return (o) => {
-    for (const r of n) c(() => r(o));
+    for (const r of e) u(() => r(o));
   };
 }
-function H(t, n) {
-  const o = new Set(n);
+function q(t, e) {
+  const o = new Set(e);
   return (r) => {
     o.has(r.type) && t(r);
   };
 }
-function J(t) {
+function C(t) {
   const {
-    endpoint: n,
+    endpoint: e,
     headers: o,
     batchSize: r = 20,
-    flushMs: f = 5e3,
-    storage: l,
-    storageKey: M = "ot:analytics:queue",
+    flushMs: l = 5e3,
+    storage: h,
+    storageKey: w = "ot:analytics:queue",
     maxQueue: g = 500,
-    transform: h,
-    fetchImpl: m,
-    onError: I
-  } = t, y = m ?? (typeof fetch == "function" ? fetch.bind(globalThis) : void 0);
-  let i = [], w = null, O = !1;
-  const A = () => ({
+    transform: a,
+    fetchImpl: p,
+    onError: f
+  } = t, I = p ?? (typeof fetch == "function" ? fetch.bind(globalThis) : void 0);
+  let i = [], A = null, O = !1;
+  const M = () => ({
     "content-type": "application/json",
     ...typeof o == "function" ? o() : o ?? {}
-  }), e = () => {
-    l && c(() => l.setItem(M, JSON.stringify(i)));
+  }), n = () => {
+    h && u(() => h.setItem(w, JSON.stringify(i)));
   };
-  l && Promise.resolve(l.getItem(M)).then((a) => {
-    if (typeof a == "string")
+  h && Promise.resolve(h.getItem(w)).then((c) => {
+    if (typeof c == "string")
       try {
-        const p = JSON.parse(a);
-        Array.isArray(p) && (i = [...p, ...i].slice(-g));
+        const d = JSON.parse(c);
+        Array.isArray(d) && (i = [...d, ...i].slice(-g));
       } catch {
       }
   });
   const s = async () => {
-    if (O || i.length === 0 || !y) return;
+    if (O || i.length === 0 || !I) return;
     O = !0;
-    const a = i.splice(0, Math.max(r, 1));
-    e();
+    const c = i.splice(0, Math.max(r, 1));
+    n();
     try {
-      const p = await y(n, {
+      const d = await I(e, {
         method: "POST",
-        headers: A(),
-        body: JSON.stringify({ events: a }),
+        headers: M(),
+        body: JSON.stringify({ events: c }),
         keepalive: !0
       });
-      if (!p.ok) throw new Error(`HTTP ${p.status}`);
-    } catch (p) {
-      i = [...a, ...i].slice(-g), e(), I?.(p, a);
+      if (!d.ok) throw new Error(`HTTP ${d.status}`);
+    } catch (d) {
+      i = [...c, ...i].slice(-g), n(), f?.(d, c);
     } finally {
       O = !1;
     }
-  }, u = () => {
-    w || (w = setTimeout(() => {
-      w = null, s();
-    }, f));
+  }, m = () => {
+    A || (A = setTimeout(() => {
+      A = null, s();
+    }, l));
   };
   return typeof window < "u" && (window.addEventListener("online", () => {
     s();
   }), window.addEventListener("pagehide", () => {
     if (i.length === 0) return;
-    _(n, { events: i }) && (i = [], e());
-  })), (a) => c(() => {
-    i.push(h ? h(a) : d(a)), i.length > g && (i = i.slice(-g)), e(), i.length >= r ? s() : u();
+    b(e, { events: i }) && (i = [], n());
+  })), (c) => u(() => {
+    i.push(a ? a(c) : y(c)), i.length > g && (i = i.slice(-g)), n(), i.length >= r ? s() : m();
   });
 }
-function _(t, n) {
+function b(t, e) {
   try {
-    return typeof navigator > "u" || typeof navigator.sendBeacon != "function" ? !1 : navigator.sendBeacon(t, new Blob([JSON.stringify(n)], { type: "application/json" }));
+    return typeof navigator > "u" || typeof navigator.sendBeacon != "function" ? !1 : navigator.sendBeacon(t, new Blob([JSON.stringify(e)], { type: "application/json" }));
   } catch {
     return !1;
   }
 }
-function b(t) {
+function T(t) {
   if (t.length === 0) return 0;
-  const n = [...t].sort((r, f) => r - f), o = Math.floor(n.length / 2);
-  return n.length % 2 === 0 ? Math.round((n[o - 1] + n[o]) / 2) : n[o];
+  const e = [...t].sort((r, l) => r - l), o = Math.floor(e.length / 2);
+  return e.length % 2 === 0 ? Math.round((e[o - 1] + e[o]) / 2) : e[o];
 }
-function x(t, n, o) {
-  const r = t.filter((e) => e.tourId === n), f = r.filter((e) => e.type === "started" || e.type === "resumed").length, l = r.filter((e) => e.type === "completed").length, M = r.filter((e) => e.type === "skipped").length, g = r.filter((e) => (e.type === "completed" || e.type === "skipped") && typeof e.duration == "number").map((e) => e.duration), h = [], m = /* @__PURE__ */ new Map(), I = /* @__PURE__ */ new Map(), y = /* @__PURE__ */ new Map();
-  for (const e of r)
-    if (e.type === "step-shown" && e.stepId && (h.includes(e.stepId) || h.push(e.stepId), m.set(e.stepId, (m.get(e.stepId) ?? 0) + 1)), e.type === "step-completed" && e.stepId && (I.set(e.stepId, (I.get(e.stepId) ?? 0) + 1), typeof e.duration == "number")) {
-      const s = y.get(e.stepId) ?? [];
-      s.push(e.duration), y.set(e.stepId, s);
+function $(t, e, o) {
+  const r = t.filter((n) => n.tourId === e), l = r.filter((n) => n.type === "started" || n.type === "resumed").length, h = r.filter((n) => n.type === "completed").length, w = r.filter((n) => n.type === "skipped").length, g = r.filter((n) => (n.type === "completed" || n.type === "skipped") && typeof n.duration == "number").map((n) => n.duration), a = [], p = /* @__PURE__ */ new Map(), f = /* @__PURE__ */ new Map(), I = /* @__PURE__ */ new Map();
+  for (const n of r)
+    if (n.type === "step-shown" && n.stepId && (a.includes(n.stepId) || a.push(n.stepId), p.set(n.stepId, (p.get(n.stepId) ?? 0) + 1)), n.type === "step-completed" && n.stepId && (f.set(n.stepId, (f.get(n.stepId) ?? 0) + 1), typeof n.duration == "number")) {
+      const s = I.get(n.stepId) ?? [];
+      s.push(n.duration), I.set(n.stepId, s);
     }
-  const w = (o ? o.steps.map((e) => e.id).filter((e) => m.has(e)) : h).map((e, s) => {
-    const u = m.get(e) ?? 0, a = I.get(e) ?? 0, p = Math.max(0, u - a);
+  const A = (o ? o.steps.map((n) => n.id).filter((n) => p.has(n)) : a).map((n, s) => {
+    const m = p.get(n) ?? 0, c = f.get(n) ?? 0, d = Math.max(0, m - c);
     return {
-      stepId: e,
+      stepId: n,
       index: s,
-      views: u,
-      completions: a,
-      dropOffs: p,
-      dropOffRate: u > 0 ? p / u : 0,
-      medianDurationMs: b(y.get(e) ?? [])
+      views: m,
+      completions: c,
+      dropOffs: d,
+      dropOffRate: m > 0 ? d / m : 0,
+      medianDurationMs: T(I.get(n) ?? [])
     };
-  }), O = w.reduce(
-    (e, s) => s.dropOffs > 0 && (!e || s.dropOffRate > e.dropOffRate) ? s : e,
+  }), O = A.reduce(
+    (n, s) => s.dropOffs > 0 && (!n || s.dropOffRate > n.dropOffRate) ? s : n,
     null
-  ), A = /* @__PURE__ */ new Map();
-  for (const e of r) {
-    if (e.type !== "target-not-found" || !e.stepId) continue;
-    const s = `${e.stepId}::${e.selector ?? ""}`, u = A.get(s);
-    u ? u.count += 1 : A.set(s, { stepId: e.stepId, selector: e.selector ?? "", count: 1 });
+  ), M = /* @__PURE__ */ new Map();
+  for (const n of r) {
+    if (n.type !== "target-not-found" || !n.stepId) continue;
+    const s = `${n.stepId}::${n.selector ?? ""}`, m = M.get(s);
+    m ? m.count += 1 : M.set(s, { stepId: n.stepId, selector: n.selector ?? "", count: 1 });
   }
   return {
-    tourId: n,
-    starts: f,
-    completions: l,
-    skips: M,
-    completionRate: f > 0 ? l / f : 0,
-    medianDurationMs: b(g),
-    steps: w,
+    tourId: e,
+    starts: l,
+    completions: h,
+    skips: w,
+    completionRate: l > 0 ? h / l : 0,
+    medianDurationMs: T(g),
+    steps: A,
     worstStep: O,
-    targetsNotFound: [...A.values()].sort((e, s) => s.count - e.count)
+    targetsNotFound: [...M.values()].sort((n, s) => s.count - n.count)
   };
 }
-function j(t = 5e3) {
-  const n = [];
+function L(t = 5e3) {
+  const e = [];
   return {
     adapter: (o) => {
-      n.push(o), n.length > t && n.splice(0, n.length - t);
+      e.push(o), e.length > t && e.splice(0, e.length - t);
     },
-    events: n,
-    report: (o, r) => x(n, o, r),
+    events: e,
+    report: (o, r) => $(e, o, r),
     clear: () => {
-      n.length = 0;
+      e.length = 0;
     }
+  };
+}
+function _(t) {
+  let e = 2166136261;
+  for (let o = 0; o < t.length; o += 1)
+    e ^= t.charCodeAt(o), e = Math.imul(e, 16777619);
+  return e >>> 0;
+}
+function x(t) {
+  return _(t) / 4294967296;
+}
+function D(t, e, o = "") {
+  return e >= 1 ? !0 : e <= 0 ? !1 : x(`${o}:${t}`) < e;
+}
+function v(t, e) {
+  const { rate: o, key: r = (a) => a.tourId, always: l = [], salt: h = "" } = e, w = new Set(l), g = /* @__PURE__ */ new Map();
+  return (a) => {
+    if (w.has(a.type)) {
+      t(a);
+      return;
+    }
+    const p = r(a);
+    let f = g.get(p);
+    f === void 0 && (f = D(p, o, h), g.set(p, f)), f && t(a);
+  };
+}
+function z(t, e) {
+  const o = new Set(e);
+  return (r) => {
+    o.has(r.type) && t(r);
   };
 }
 export {
-  D as createAmplitudeAdapter,
-  P as createDatadogAdapter,
-  B as createDebugAdapter,
-  j as createEventCollector,
-  x as createFunnelReport,
-  N as createGA4Adapter,
-  E as createHeapAdapter,
-  J as createHttpAdapter,
-  T as createMixpanelAdapter,
-  F as createMultiAdapter,
-  $ as createPostHogAdapter,
-  R as createRudderStackAdapter,
-  S as createSegmentAdapter,
-  k as eventName,
-  H as filterEvents,
-  d as toProperties
+  N as createAmplitudeAdapter,
+  H as createDatadogAdapter,
+  J as createDebugAdapter,
+  L as createEventCollector,
+  $ as createFunnelReport,
+  F as createGA4Adapter,
+  B as createHeapAdapter,
+  C as createHttpAdapter,
+  R as createMixpanelAdapter,
+  j as createMultiAdapter,
+  E as createPostHogAdapter,
+  P as createRudderStackAdapter,
+  k as createSegmentAdapter,
+  S as eventName,
+  q as filterEvents,
+  x as sampleValue,
+  D as shouldSample,
+  y as toProperties,
+  z as withEventTypes,
+  v as withSampling
 };
 //# sourceMappingURL=analytics.js.map

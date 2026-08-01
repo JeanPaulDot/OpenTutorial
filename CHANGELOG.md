@@ -6,6 +6,116 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-01
+
+The theme of this release is **parity and proof**: everything React could do,
+every adapter can now do; and everything the docs claim is now covered by a test.
+
+### Added
+
+#### Framework parity
+- **Guidance surfaces as framework-free factories** — `createBanner`,
+  `createAnnouncement`, `createSurvey`, `createHint`, `createChecklist`,
+  `createResourceCenter` and `createChangelog`. Each builds DOM and returns a
+  handle with `destroy()`. Vue, Svelte, Angular, Solid, the Web Component and
+  plain scripts now get the surfaces that were previously React-only. The React
+  components remain and wrap the same primitives, so markup, styling and
+  persistence cannot drift between them.
+- **Changelog / what's-new widget** (`createChangelog`, `<Changelog>`) — the one
+  surface from the original plan that had never shipped. Read state is tracked
+  per entry id rather than by a "last seen" timestamp, so a backdated entry still
+  surfaces and re-ordering the feed never marks anything unread again.
+- **Angular adapter** (`@opentutorial/core/angular`) — `provideOpenTutorial()`
+  and `OpenTutorialService`, with `Observable`-shaped `state$` and `events$` that
+  work directly with `toSignal` and the `async` pipe. `@angular/core` is never
+  imported.
+- **Solid adapter** (`@opentutorial/core/solid`) — `createTourLayer` with
+  `watch`/`watchEvents` for signal wiring, plus a `tourAnchor` directive.
+  `solid-js` is never imported.
+
+#### Features
+- **Progress export/import** — `exportProgress()` and `importProgress(data, mode)`
+  on the engine, orchestrator and every adapter. `merge` keeps whichever record
+  is newer per tour, for reconciling a server copy with local activity.
+- **Pluralization** — ICU-style `{{count, plural, one {# tour} other {# tours}}}`
+  driven by `Intl.PluralRules`, so Slavic `few`/`many` and Arabic `zero`/`two`
+  work without a rules table. Plus `selectPlural()` and `localeDirection()`.
+- **Locale-aware number formatting** in interpolation.
+- **Mobile swipe gestures** — horizontal swipes move between steps, mirrored
+  under RTL, and gated so a swipe can never bypass an `advanceOn: 'target-click'`
+  step. Disable with `swipe: false`.
+- **Analytics sampling** — `withSampling()` samples whole **tour runs** rather
+  than individual events, because per-event sampling destroys funnel analysis.
+  The decision is a stable hash, not `Math.random()`. Plus `withEventTypes()`.
+- **`getSpecs()` and `getContext()`** on the vanilla layer and orchestrator.
+- **Top-level `storage` / `keyPrefix`** on the vanilla layer, matching the React
+  provider (see the fix below).
+
+#### Tooling
+- **`opentutorial` CLI** — `validate` (with `--strict`, `--json`, `--quiet`),
+  `lint-selectors <url>` for Playwright-driven dead-selector detection, `schema`
+  and `version`. Zero dependencies, its own glob expansion so it behaves the same
+  in bash, PowerShell and cmd, and cross-file duplicate-id detection that a
+  per-spec validator cannot do.
+- **Changesets** for versioning and release notes.
+- **`scripts/build.mjs`** — the full three-pass build as one cross-platform
+  command, verifying all 14 published entry points exist afterwards.
+- **`scripts/size-budget.mjs`** — gzipped size budgets per bundle, enforced in CI.
+
+#### Documentation
+- A complete `docs/` set: API reference, spec reference, getting started, six
+  framework guides, an SSR guide, and guides for triggers/orchestration,
+  targeting, content/theming, surfaces, persistence, analytics, authoring, i18n,
+  accessibility, CSP and browser support.
+- Migration guides from **intro.js**, **Shepherd**, **driver.js** and
+  **react-joyride**, each with field mappings and a converter function.
+- The `createRemoteStorage` REST contract is now documented rather than living
+  only in source comments.
+
+#### Tests
+- **529 unit tests** (was 82), covering the orchestrator, triggers, every
+  adapter, the DOM layer, storage adapters, analytics, surfaces, content, i18n,
+  authoring and the React components. Coverage thresholds are enforced in CI
+  (85% lines / 82% statements / 78% functions / 75% branches).
+- **38 Playwright E2E tests** across desktop and mobile, covering placement,
+  interaction gating, cross-page resume, keyboard navigation and swipe gestures.
+- **Automated accessibility gate** — every step of the example tour is checked
+  against axe-core (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`) in light and dark
+  mode, on every CI run.
+
+### Fixed
+- **Expression sandbox escape.** `SAFE_METHODS[name]` resolved through
+  `Object.prototype`, so inherited members were treated as whitelisted methods:
+  `plan.constructor()` evaluated to `Object('pro')`, and `toString`, `valueOf`,
+  `hasOwnProperty`, `isPrototypeOf`, `toLocaleString` and
+  `propertyIsEnumerable` were all reachable. Now an own-property check.
+- **A step whose `showIf` became false ended the tour.** `setContext` correctly
+  left the step, but the next-step lookup could not find the now-hidden step in
+  the visible list and returned nothing, which the engine read as "end of tour".
+  It now walks forward from the step's position in the spec.
+- **Top-level `storage` was silently ignored outside React.** `TourProvider`
+  mapped `storage` into `persistence.storage`; every other adapter required the
+  nested form, so passing `storage` to the vanilla, Vue, Svelte or Web Component
+  layer fell through to `localStorage`. Both spellings now work everywhere.
+- **`npm run prepare` could publish a broken package.** It ran only the first
+  build pass, which empties `dist/` — so a publish relying on it shipped without
+  `dist/opentutorial.global.js`, breaking the `unpkg`, `jsdelivr` and
+  `./opentutorial.global.js` entry points.
+- **A throwing Svelte subscriber took the store down.** The immediate call
+  required by Svelte's store contract was not guarded like later notifications.
+- **Reopening the changelog panel** cleared the unread highlight in the same
+  frame it appeared.
+
+### Changed
+- **`OpenTutorial` is now spelled consistently.** Analytics event prefixes are
+  `OpenTutorial …` rather than `Opentutorial …`, and the IIFE global is
+  `window.OpenTutorial`. **If you have dashboards keyed on the old event names,
+  update them.** `window.Opentutorial` remains as an alias for script-tag users.
+- The React components now import `ChecklistStatus`, `SurveyKind`,
+  `SurveyResponse` and `ResourceLink` from the shared surfaces rather than
+  redeclaring them.
+- CI now runs coverage, the size budget, a CLI smoke test and a separate E2E job.
+
 ## [0.2.0] - 2026-07-31
 
 ### Added

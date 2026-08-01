@@ -1,4 +1,4 @@
-import { C as D, r as B, d as H, e as M } from "./chunks/target.es.js";
+import { C as D, r as B, d as H, e as M } from "./chunks/safeEval.es.js";
 const P = [
   "data-tour",
   "data-testid",
@@ -217,7 +217,7 @@ function X(n) {
     const a = n.getActiveId(), d = n.getState(), m = n.getContext(), o = n.specs.find((l) => l.id === a);
     t.replaceChildren();
     const p = document.createElement("h4");
-    p.textContent = "Opentutorial debug", t.appendChild(p), t.appendChild(e("tour", a ?? "(none)")), t.appendChild(e("status", d?.status ?? "idle")), t.appendChild(e("step", d?.currentStepId ?? "—")), d && t.appendChild(e("position", `${d.index + 1} / ${d.total}`));
+    p.textContent = "OpenTutorial debug", t.appendChild(p), t.appendChild(e("tour", a ?? "(none)")), t.appendChild(e("status", d?.status ?? "idle")), t.appendChild(e("step", d?.currentStepId ?? "—")), d && t.appendChild(e("position", `${d.index + 1} / ${d.total}`));
     const h = o?.steps.find((l) => l.id === d?.currentStepId);
     if (h?.target) {
       const l = B(h.target);

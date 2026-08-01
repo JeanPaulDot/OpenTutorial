@@ -5,7 +5,9 @@ import { useTour } from '../adapters/react';
 import { resolveText } from '../i18n';
 import type { I18nContent, I18nResolver, TutorialSpec } from '../types';
 
-export type ChecklistStatus = 'pending' | 'in_progress' | 'completed';
+// One definition, shared with the framework-free `createChecklist`.
+export type { ChecklistStatus } from '../surfaces/checklist';
+import type { ChecklistStatus } from '../surfaces/checklist';
 
 export interface TourChecklistProps {
   /** Defaults to every spec registered on the provider. */

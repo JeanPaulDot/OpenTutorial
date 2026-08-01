@@ -1,5 +1,5 @@
 /*
- * Opentutorial styles. Everything is driven by --ot-* custom properties set on
+ * OpenTutorial styles. Everything is driven by --ot-* custom properties set on
  * .ot-root — override them from host CSS or via spec `theme` objects.
  */
 
@@ -801,6 +801,136 @@
 .ot-debug-val { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; text-align: end; word-break: break-all; }
 .ot-debug-ok { color: #10b981; }
 .ot-debug-bad { color: #ef4444; }
+
+/* --------------------------------------------------------------------- */
+/* Changelog / what's-new                                                 */
+/* --------------------------------------------------------------------- */
+
+.ot-changelog {
+  font-family: var(--ot-font);
+  width: 360px;
+  max-width: calc(100vw - 40px);
+  background: var(--ot-bg, #fff);
+  color: var(--ot-fg, #181822);
+  border: 1px solid var(--ot-border, rgba(103, 103, 124, 0.22));
+  border-radius: 14px;
+  box-shadow: var(--ot-shadow);
+  overflow: hidden;
+}
+
+.ot-changelog--floating {
+  position: fixed;
+  inset-inline-end: 20px;
+  bottom: 76px;
+  z-index: var(--ot-z, 9999);
+}
+
+.ot-changelog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px 10px;
+}
+
+.ot-changelog-title { margin: 0; font-size: 15px; font-weight: 650; }
+
+.ot-changelog-close {
+  border: 0;
+  background: transparent;
+  color: var(--ot-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  min-width: 28px;
+  min-height: 28px;
+}
+
+.ot-changelog-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px 10px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.ot-changelog-item {
+  padding: 10px;
+  border-radius: 10px;
+  border-bottom: 1px solid var(--ot-border, rgba(103, 103, 124, 0.16));
+}
+
+.ot-changelog-item:last-child { border-bottom: 0; }
+
+.ot-changelog-item--unread {
+  background: color-mix(in srgb, var(--ot-accent) 7%, transparent);
+}
+
+.ot-changelog-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ot-changelog-tag {
+  font-size: 10.5px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ot-accent) 14%, transparent);
+  color: var(--ot-accent);
+}
+
+.ot-changelog-date { font-size: 11.5px; color: var(--ot-muted); }
+.ot-changelog-entry-title { margin: 0 0 4px; font-size: 13.5px; font-weight: 600; }
+.ot-changelog-body { font-size: 12.5px; color: var(--ot-muted); }
+.ot-changelog-body p { margin: 0 0 6px; }
+
+.ot-changelog-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--ot-accent);
+  text-decoration: none;
+}
+
+.ot-changelog-link:hover { text-decoration: underline; }
+.ot-changelog-empty { padding: 18px 10px; text-align: center; font-size: 12.5px; color: var(--ot-muted); }
+
+.ot-changelog-launcher {
+  position: fixed;
+  inset-inline-end: 20px;
+  bottom: 20px;
+  z-index: var(--ot-z, 9999);
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--ot-accent, #6d5cff);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px -6px rgba(10, 10, 25, 0.45);
+}
+
+.ot-changelog-badge {
+  position: absolute;
+  top: -4px;
+  inset-inline-end: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--ot-danger, #ef4444);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 650;
+}
 
 /* --------------------------------------------------------------------- */
 /* Reduced motion                                                         */

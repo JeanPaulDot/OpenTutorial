@@ -23,11 +23,14 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Test
-        run: npm test
+      - name: Test with coverage
+        run: npm run test:coverage
 
       - name: Build library
-        run: npm run build && BUILD_TARGET=iife npm run build && npm run build:types
+        run: npm run build
+
+      - name: Bundle size budget
+        run: npm run size
 
       # Minified identifier names vary across platforms/versions, so a strict
       # byte-for-byte diff false-positives. Compare what actually matters:
@@ -41,3 +44,39 @@ jobs:
             cat /tmp/dist-real.txt
             exit 1
           fi
+
+      - name: Smoke-test the CLI
+        run: |
+          node bin/opentutorial.mjs --version
+          node bin/opentutorial.mjs schema
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build library
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # Covers what jsdom cannot: real layout for placement, real pointer-events
+      # for interaction gating, cross-page resume, and the axe accessibility gate.
+      - name: E2E and accessibility
+        run: npm run e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

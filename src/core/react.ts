@@ -19,16 +19,14 @@ export {
   Survey,
   ResourceCenter,
   Hint,
+  Changelog,
 } from './components';
 export type {
   TourChecklistProps,
-  ChecklistStatus,
   BannerProps,
   AnnouncementProps,
   SurveyProps,
-  SurveyResponse,
-  SurveyKind,
   ResourceCenterProps,
-  ResourceLink,
   HintProps,
+  ChangelogProps,
 } from './components';

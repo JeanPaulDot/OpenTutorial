@@ -1,6 +1,9 @@
-"use strict";var A=Object.defineProperty;var T=(o,t,e)=>t in o?A(o,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):o[t]=e;var u=(o,t,e)=>T(o,typeof t!="symbol"?t+"":t,e);const C=`
+var O = Object.defineProperty;
+var E = (o, t, e) => t in o ? O(o, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[t] = e;
+var u = (o, t, e) => E(o, typeof t != "symbol" ? t + "" : t, e);
+const D = `
 /*
- * Opentutorial styles. Everything is driven by --ot-* custom properties set on
+ * OpenTutorial styles. Everything is driven by --ot-* custom properties set on
  * .ot-root — override them from host CSS or via spec \`theme\` objects.
  */
 
@@ -804,6 +807,136 @@
 .ot-debug-bad { color: #ef4444; }
 
 /* --------------------------------------------------------------------- */
+/* Changelog / what's-new                                                 */
+/* --------------------------------------------------------------------- */
+
+.ot-changelog {
+  font-family: var(--ot-font);
+  width: 360px;
+  max-width: calc(100vw - 40px);
+  background: var(--ot-bg, #fff);
+  color: var(--ot-fg, #181822);
+  border: 1px solid var(--ot-border, rgba(103, 103, 124, 0.22));
+  border-radius: 14px;
+  box-shadow: var(--ot-shadow);
+  overflow: hidden;
+}
+
+.ot-changelog--floating {
+  position: fixed;
+  inset-inline-end: 20px;
+  bottom: 76px;
+  z-index: var(--ot-z, 9999);
+}
+
+.ot-changelog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px 10px;
+}
+
+.ot-changelog-title { margin: 0; font-size: 15px; font-weight: 650; }
+
+.ot-changelog-close {
+  border: 0;
+  background: transparent;
+  color: var(--ot-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  min-width: 28px;
+  min-height: 28px;
+}
+
+.ot-changelog-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px 10px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.ot-changelog-item {
+  padding: 10px;
+  border-radius: 10px;
+  border-bottom: 1px solid var(--ot-border, rgba(103, 103, 124, 0.16));
+}
+
+.ot-changelog-item:last-child { border-bottom: 0; }
+
+.ot-changelog-item--unread {
+  background: color-mix(in srgb, var(--ot-accent) 7%, transparent);
+}
+
+.ot-changelog-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ot-changelog-tag {
+  font-size: 10.5px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ot-accent) 14%, transparent);
+  color: var(--ot-accent);
+}
+
+.ot-changelog-date { font-size: 11.5px; color: var(--ot-muted); }
+.ot-changelog-entry-title { margin: 0 0 4px; font-size: 13.5px; font-weight: 600; }
+.ot-changelog-body { font-size: 12.5px; color: var(--ot-muted); }
+.ot-changelog-body p { margin: 0 0 6px; }
+
+.ot-changelog-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--ot-accent);
+  text-decoration: none;
+}
+
+.ot-changelog-link:hover { text-decoration: underline; }
+.ot-changelog-empty { padding: 18px 10px; text-align: center; font-size: 12.5px; color: var(--ot-muted); }
+
+.ot-changelog-launcher {
+  position: fixed;
+  inset-inline-end: 20px;
+  bottom: 20px;
+  z-index: var(--ot-z, 9999);
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--ot-accent, #6d5cff);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px -6px rgba(10, 10, 25, 0.45);
+}
+
+.ot-changelog-badge {
+  position: absolute;
+  top: -4px;
+  inset-inline-end: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--ot-danger, #ef4444);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 650;
+}
+
+/* --------------------------------------------------------------------- */
 /* Reduced motion                                                         */
 /* --------------------------------------------------------------------- */
 
@@ -818,5 +951,450 @@
   .ot-beacon--beacon { animation: none; }
   .ot-popover { animation: none; }
 }
-`.trim(),R=500,D=new Set(["__proto__","constructor","prototype"]),M={includes:(o,t)=>typeof o=="string"?o.includes(String(t[0])):Array.isArray(o)?o.includes(t[0]):!1,startsWith:(o,t)=>typeof o=="string"?o.startsWith(String(t[0])):!1,endsWith:(o,t)=>typeof o=="string"?o.endsWith(String(t[0])):!1,toLowerCase:o=>typeof o=="string"?o.toLowerCase():o,toUpperCase:o=>typeof o=="string"?o.toUpperCase():o,trim:o=>typeof o=="string"?o.trim():o,indexOf:(o,t)=>typeof o=="string"?o.indexOf(String(t[0])):Array.isArray(o)?o.indexOf(t[0]):-1,matches:(o,t)=>{if(typeof o!="string")return!1;try{return new RegExp(String(t[0])).test(o)}catch{return!1}}},_=["===","!==","==","!=","<=",">=","&&","||","<",">","!","(",")","[","]",",","+","-","*","/","%","?",":"];function y(o){const t=[];let e=0;for(;e<o.length;){const r=o.slice(e);if(/^\s/.test(r)){e+=1;continue}const s=_.find(i=>r.startsWith(i));if(s){t.push({t:"op",v:s}),e+=s.length;continue}if(r[0]==="."){t.push({t:"dot"}),e+=1;continue}let n=r.match(/^'((?:[^'\\]|\\.)*)'/)??r.match(/^"((?:[^"\\]|\\.)*)"/);if(n){t.push({t:"str",v:n[1].replace(/\\(.)/g,"$1")}),e+=n[0].length;continue}if(n=r.match(/^\d+(\.\d+)?/),n){t.push({t:"num",v:Number(n[0])}),e+=n[0].length;continue}if(n=r.match(/^(true|false)\b/),n){t.push({t:"bool",v:n[1]==="true"}),e+=n[0].length;continue}if(n=r.match(/^null\b/),n){t.push({t:"null"}),e+=n[0].length;continue}if(n=r.match(/^undefined\b/),n){t.push({t:"undef"}),e+=n[0].length;continue}if(n=r.match(/^[A-Za-z_$][\w$]*/),n){t.push({t:"ident",v:n[0]}),e+=n[0].length;continue}throw new Error(`Unexpected character "${r[0]}" at ${e}`)}return t}function x(o,t){if(o!=null&&!(typeof t=="string"&&D.has(t))){if(typeof o=="string")return t==="length"?o.length:typeof t=="number"?o[t]:void 0;if(Array.isArray(o))return t==="length"?o.length:o[t];if(typeof o=="object")return o[String(t)]}}function m(o,t){return o===t?!0:o==null?t==null:typeof o=="number"||typeof t=="number"?Number(o)===Number(t):String(o)===String(t)}function a(o){return typeof o=="number"?o:Number(o)}class w{constructor(t,e){u(this,"pos",0);u(this,"tokens");u(this,"ctx");this.tokens=t,this.ctx=e}parse(){const t=this.ternary();if(this.pos!==this.tokens.length)throw new Error("Trailing tokens");return t}peek(){return this.tokens[this.pos]}isOp(t){const e=this.peek();return!!e&&e.t==="op"&&e.v===t}eatOp(t){return this.isOp(t)?(this.pos+=1,!0):!1}expectOp(t){if(!this.eatOp(t))throw new Error(`Expected "${t}"`)}ternary(){const t=this.orExpr();if(!this.eatOp("?"))return t;const e=this.ternary();this.expectOp(":");const r=this.ternary();return t?e:r}orExpr(){let t=this.andExpr();for(;this.eatOp("||");){const e=this.andExpr();t=t||e}return t}andExpr(){let t=this.equality();for(;this.eatOp("&&");){const e=this.equality();t=t&&e}return t}equality(){let t=this.relational();for(;;){if(this.eatOp("===")){t=t===this.relational();continue}if(this.eatOp("!==")){t=t!==this.relational();continue}if(this.eatOp("==")){t=m(t,this.relational());continue}if(this.eatOp("!=")){t=!m(t,this.relational());continue}return t}}relational(){let t=this.additive();for(;;){if(this.eatOp("<=")){t=a(t)<=a(this.additive());continue}if(this.eatOp(">=")){t=a(t)>=a(this.additive());continue}if(this.eatOp("<")){t=a(t)<a(this.additive());continue}if(this.eatOp(">")){t=a(t)>a(this.additive());continue}return t}}additive(){let t=this.multiplicative();for(;;){if(this.eatOp("+")){const e=this.multiplicative();t=typeof t=="string"||typeof e=="string"?String(t)+String(e):a(t)+a(e);continue}if(this.eatOp("-")){t=a(t)-a(this.multiplicative());continue}return t}}multiplicative(){let t=this.unary();for(;;){if(this.eatOp("*")){t=a(t)*a(this.unary());continue}if(this.eatOp("/")){t=a(t)/a(this.unary());continue}if(this.eatOp("%")){t=a(t)%a(this.unary());continue}return t}}unary(){return this.eatOp("!")?!this.unary():this.eatOp("-")?-a(this.unary()):this.postfix()}postfix(){let t=this.primary();for(;;){if(this.peek()?.t==="dot"){this.pos+=1;const e=this.peek();if(!e||e.t!=="ident")throw new Error('Expected identifier after "."');if(this.pos+=1,this.isOp("(")){this.pos+=1;const r=[];if(!this.isOp(")"))do r.push(this.ternary());while(this.eatOp(","));this.expectOp(")");const s=M[e.v];if(!s)throw new Error(`Method "${e.v}" is not allowed`);t=s(t,r);continue}t=x(t,e.v);continue}if(this.eatOp("[")){const e=this.ternary();this.expectOp("]"),t=x(t,typeof e=="number"?e:String(e));continue}return t}}primary(){const t=this.peek();if(!t)throw new Error("Unexpected end of expression");if(t.t==="op"&&t.v==="("){this.pos+=1;const e=this.ternary();return this.expectOp(")"),e}if(t.t==="op"&&t.v==="["){this.pos+=1;const e=[];if(!this.isOp("]"))do e.push(this.ternary());while(this.eatOp(","));return this.expectOp("]"),e}switch(this.pos+=1,t.t){case"str":return t.v;case"num":return t.v;case"bool":return t.v;case"null":return null;case"undef":return;case"ident":return x(this.ctx,t.v);default:throw new Error("Unexpected token")}}}function k(o,t,e={}){try{if(typeof o!="string")return;if(o.length>(e.maxLength??R)){e.onError?.("expression exceeds the maximum length",o);return}return new w(y(o),t).parse()}catch(r){e.onError?.(r instanceof Error?r.message:"invalid expression",o);return}}function j(o,t,e={}){return!!k(o,t,e)}function q(o){try{return new w(y(o),{}).parse(),{ok:!0}}catch(t){return{ok:!1,message:t instanceof Error?t.message:"invalid expression"}}}const F="button, a, [role], label, summary, h1, h2, h3, h4, h5, h6, p, li, td, th, span, div";function z(o,t=document){try{return t.querySelector(o)}catch{return null}}function f(o,t=document){try{return Array.from(t.querySelectorAll(o))}catch{return[]}}function O(o,t=document){const e=f(o,t),r=new Set,s=n=>{for(const i of f("*",n)){const c=i.shadowRoot;!c||r.has(c)||(r.add(c),e.push(...f(o,c)),s(c))}};return s(t),[...new Set(e)]}function h(o){const t=o.getBoundingClientRect();if(t.width===0&&t.height===0)return!1;const e=o.ownerDocument?.defaultView;if(!e)return!0;const r=e.getComputedStyle(o);return r.visibility!=="hidden"&&r.display!=="none"&&r.opacity!=="0"}function b(o){return o.replace(/\s+/g," ").trim().toLowerCase()}function v(o,t,e){const r=b(o);if(!r)return null;const n=(t??f(F,e)).filter(p=>b(p.textContent??"").includes(r));if(n.length===0)return null;const i=n.filter(p=>b(p.textContent??"")===r);return(i.length?i:n).reduce((p,l)=>p.contains(l)?l:p)}function E(o){if(!o.iframe)return{doc:document,offset:{x:0,y:0}};const t=z(o.iframe);if(!t)return null;try{const e=t.contentDocument;if(!e)return null;const r=t.getBoundingClientRect();return{doc:e,offset:{x:r.x,y:r.y}}}catch{return null}}function g(o){const t=E(o);if(!t)return null;const{doc:e,offset:r}=t,s=o.selector?Array.isArray(o.selector)?o.selector:[o.selector]:[],n=i=>{const c=o.visible?i.filter(h):i;return c.length===0?null:c[o.index??0]??null};for(const i of s){const c=o.shadow?O(i,e):f(i,e);if(o.text){const l=v(o.text,o.visible?c.filter(h):c,e);if(l)return{element:l,doc:e,frameOffset:r,matched:i};continue}const p=n(c);if(p)return{element:p,doc:e,frameOffset:r,matched:i}}if(s.length===0&&o.text){const i=v(o.text,null,e);if(i&&(!o.visible||h(i)))return{element:i,doc:e,frameOffset:r,matched:`text:${o.text}`}}return null}function $(o){const t=[];return o.selector&&t.push(Array.isArray(o.selector)?o.selector.join(" | "):o.selector),o.text&&t.push(`text "${o.text}"`),o.iframe&&t.push(`in iframe ${o.iframe}`),t.join(" + ")||"(no selector)"}function S(o,t=5e3){return new Promise(e=>{const r=g(o);if(r){e(r);return}let s=!1,n=null;const i=d=>{s||(s=!0,n?.disconnect(),clearInterval(p),clearTimeout(l),e(d))},c=()=>{const d=g(o);d&&i(d)};try{n=new MutationObserver(c);const d=o.iframe?E(o)?.doc.documentElement??document.documentElement:document.documentElement;n.observe(d,{childList:!0,subtree:!0,attributes:!0})}catch{}const p=setInterval(c,100),l=setTimeout(()=>i(null),t)})}function L(o,t=5e3){return S({selector:o},t).then(e=>e?.element??null)}exports.CSS=C;exports.checkExpression=q;exports.describeTarget=$;exports.evaluateExpression=k;exports.evaluateShowIf=j;exports.isVisible=h;exports.queryDeep=O;exports.resolveTarget=g;exports.safeQuery=z;exports.waitForElement=L;exports.waitForTarget=S;
-//# sourceMappingURL=target.cjs.js.map
+`.trim(), S = "button, a, [role], label, summary, h1, h2, h3, h4, h5, h6, p, li, td, th, span, div";
+function A(o, t = document) {
+  try {
+    return t.querySelector(o);
+  } catch {
+    return null;
+  }
+}
+function f(o, t = document) {
+  try {
+    return Array.from(t.querySelectorAll(o));
+  } catch {
+    return [];
+  }
+}
+function C(o, t = document) {
+  const e = f(o, t), r = /* @__PURE__ */ new Set(), s = (n) => {
+    for (const i of f("*", n)) {
+      const p = i.shadowRoot;
+      !p || r.has(p) || (r.add(p), e.push(...f(o, p)), s(p));
+    }
+  };
+  return s(t), [...new Set(e)];
+}
+function h(o) {
+  const t = o.getBoundingClientRect();
+  if (t.width === 0 && t.height === 0) return !1;
+  const e = o.ownerDocument?.defaultView;
+  if (!e) return !0;
+  const r = e.getComputedStyle(o);
+  return r.visibility !== "hidden" && r.display !== "none" && r.opacity !== "0";
+}
+function x(o) {
+  return o.replace(/\s+/g, " ").trim().toLowerCase();
+}
+function b(o, t, e) {
+  const r = x(o);
+  if (!r) return null;
+  const n = (t ?? f(S, e)).filter((c) => x(c.textContent ?? "").includes(r));
+  if (n.length === 0) return null;
+  const i = n.filter((c) => x(c.textContent ?? "") === r);
+  return (i.length ? i : n).reduce((c, d) => c.contains(d) ? d : c);
+}
+function w(o) {
+  if (!o.iframe) return { doc: document, offset: { x: 0, y: 0 } };
+  const t = A(o.iframe);
+  if (!t) return null;
+  try {
+    const e = t.contentDocument;
+    if (!e) return null;
+    const r = t.getBoundingClientRect();
+    return { doc: e, offset: { x: r.x, y: r.y } };
+  } catch {
+    return null;
+  }
+}
+function m(o) {
+  const t = w(o);
+  if (!t) return null;
+  const { doc: e, offset: r } = t, s = o.selector ? Array.isArray(o.selector) ? o.selector : [o.selector] : [], n = (i) => {
+    const p = o.visible ? i.filter(h) : i;
+    return p.length === 0 ? null : p[o.index ?? 0] ?? null;
+  };
+  for (const i of s) {
+    const p = o.shadow ? C(i, e) : f(i, e);
+    if (o.text) {
+      const d = b(o.text, o.visible ? p.filter(h) : p, e);
+      if (d) return { element: d, doc: e, frameOffset: r, matched: i };
+      continue;
+    }
+    const c = n(p);
+    if (c) return { element: c, doc: e, frameOffset: r, matched: i };
+  }
+  if (s.length === 0 && o.text) {
+    const i = b(o.text, null, e);
+    if (i && (!o.visible || h(i)))
+      return { element: i, doc: e, frameOffset: r, matched: `text:${o.text}` };
+  }
+  return null;
+}
+function $(o) {
+  const t = [];
+  return o.selector && t.push(Array.isArray(o.selector) ? o.selector.join(" | ") : o.selector), o.text && t.push(`text "${o.text}"`), o.iframe && t.push(`in iframe ${o.iframe}`), t.join(" + ") || "(no selector)";
+}
+function T(o, t = 5e3) {
+  return new Promise((e) => {
+    const r = m(o);
+    if (r) {
+      e(r);
+      return;
+    }
+    let s = !1, n = null;
+    const i = (l) => {
+      s || (s = !0, n?.disconnect(), clearInterval(c), clearTimeout(d), e(l));
+    }, p = () => {
+      const l = m(o);
+      l && i(l);
+    };
+    try {
+      n = new MutationObserver(p);
+      const l = o.iframe ? w(o)?.doc.documentElement ?? document.documentElement : document.documentElement;
+      n.observe(l, { childList: !0, subtree: !0, attributes: !0 });
+    } catch {
+    }
+    const c = setInterval(p, 100), d = setTimeout(() => i(null), t);
+  });
+}
+function F(o, t = 5e3) {
+  return T({ selector: o }, t).then((e) => e?.element ?? null);
+}
+const R = 500, j = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototype"]), v = {
+  includes: (o, t) => typeof o == "string" ? o.includes(String(t[0])) : Array.isArray(o) ? o.includes(t[0]) : !1,
+  startsWith: (o, t) => typeof o == "string" ? o.startsWith(String(t[0])) : !1,
+  endsWith: (o, t) => typeof o == "string" ? o.endsWith(String(t[0])) : !1,
+  toLowerCase: (o) => typeof o == "string" ? o.toLowerCase() : o,
+  toUpperCase: (o) => typeof o == "string" ? o.toUpperCase() : o,
+  trim: (o) => typeof o == "string" ? o.trim() : o,
+  indexOf: (o, t) => typeof o == "string" ? o.indexOf(String(t[0])) : Array.isArray(o) ? o.indexOf(t[0]) : -1,
+  /** `value.matches('^pro')` — regex test against the resolved string. */
+  matches: (o, t) => {
+    if (typeof o != "string") return !1;
+    try {
+      return new RegExp(String(t[0])).test(o);
+    } catch {
+      return !1;
+    }
+  }
+}, M = [
+  "===",
+  "!==",
+  "==",
+  "!=",
+  "<=",
+  ">=",
+  "&&",
+  "||",
+  "<",
+  ">",
+  "!",
+  "(",
+  ")",
+  "[",
+  "]",
+  ",",
+  "+",
+  "-",
+  "*",
+  "/",
+  "%",
+  "?",
+  ":"
+];
+function k(o) {
+  const t = [];
+  let e = 0;
+  for (; e < o.length; ) {
+    const r = o.slice(e);
+    if (/^\s/.test(r)) {
+      e += 1;
+      continue;
+    }
+    const s = M.find((i) => r.startsWith(i));
+    if (s) {
+      t.push({ t: "op", v: s }), e += s.length;
+      continue;
+    }
+    if (r[0] === ".") {
+      t.push({ t: "dot" }), e += 1;
+      continue;
+    }
+    let n = r.match(/^'((?:[^'\\]|\\.)*)'/) ?? r.match(/^"((?:[^"\\]|\\.)*)"/);
+    if (n) {
+      t.push({ t: "str", v: n[1].replace(/\\(.)/g, "$1") }), e += n[0].length;
+      continue;
+    }
+    if (n = r.match(/^\d+(\.\d+)?/), n) {
+      t.push({ t: "num", v: Number(n[0]) }), e += n[0].length;
+      continue;
+    }
+    if (n = r.match(/^(true|false)\b/), n) {
+      t.push({ t: "bool", v: n[1] === "true" }), e += n[0].length;
+      continue;
+    }
+    if (n = r.match(/^null\b/), n) {
+      t.push({ t: "null" }), e += n[0].length;
+      continue;
+    }
+    if (n = r.match(/^undefined\b/), n) {
+      t.push({ t: "undef" }), e += n[0].length;
+      continue;
+    }
+    if (n = r.match(/^[A-Za-z_$][\w$]*/), n) {
+      t.push({ t: "ident", v: n[0] }), e += n[0].length;
+      continue;
+    }
+    throw new Error(`Unexpected character "${r[0]}" at ${e}`);
+  }
+  return t;
+}
+function g(o, t) {
+  if (o != null && !(typeof t == "string" && j.has(t))) {
+    if (typeof o == "string")
+      return t === "length" ? o.length : typeof t == "number" ? o[t] : void 0;
+    if (Array.isArray(o))
+      return t === "length" ? o.length : o[t];
+    if (typeof o == "object")
+      return o[String(t)];
+  }
+}
+function y(o, t) {
+  return o === t ? !0 : o == null ? t == null : typeof o == "number" || typeof t == "number" ? Number(o) === Number(t) : String(o) === String(t);
+}
+function a(o) {
+  return typeof o == "number" ? o : Number(o);
+}
+class z {
+  constructor(t, e) {
+    u(this, "pos", 0);
+    u(this, "tokens");
+    u(this, "ctx");
+    this.tokens = t, this.ctx = e;
+  }
+  parse() {
+    const t = this.ternary();
+    if (this.pos !== this.tokens.length) throw new Error("Trailing tokens");
+    return t;
+  }
+  peek() {
+    return this.tokens[this.pos];
+  }
+  isOp(t) {
+    const e = this.peek();
+    return !!e && e.t === "op" && e.v === t;
+  }
+  eatOp(t) {
+    return this.isOp(t) ? (this.pos += 1, !0) : !1;
+  }
+  expectOp(t) {
+    if (!this.eatOp(t)) throw new Error(`Expected "${t}"`);
+  }
+  ternary() {
+    const t = this.orExpr();
+    if (!this.eatOp("?")) return t;
+    const e = this.ternary();
+    this.expectOp(":");
+    const r = this.ternary();
+    return t ? e : r;
+  }
+  orExpr() {
+    let t = this.andExpr();
+    for (; this.eatOp("||"); ) {
+      const e = this.andExpr();
+      t = t || e;
+    }
+    return t;
+  }
+  andExpr() {
+    let t = this.equality();
+    for (; this.eatOp("&&"); ) {
+      const e = this.equality();
+      t = t && e;
+    }
+    return t;
+  }
+  equality() {
+    let t = this.relational();
+    for (; ; ) {
+      if (this.eatOp("===")) {
+        t = t === this.relational();
+        continue;
+      }
+      if (this.eatOp("!==")) {
+        t = t !== this.relational();
+        continue;
+      }
+      if (this.eatOp("==")) {
+        t = y(t, this.relational());
+        continue;
+      }
+      if (this.eatOp("!=")) {
+        t = !y(t, this.relational());
+        continue;
+      }
+      return t;
+    }
+  }
+  relational() {
+    let t = this.additive();
+    for (; ; ) {
+      if (this.eatOp("<=")) {
+        t = a(t) <= a(this.additive());
+        continue;
+      }
+      if (this.eatOp(">=")) {
+        t = a(t) >= a(this.additive());
+        continue;
+      }
+      if (this.eatOp("<")) {
+        t = a(t) < a(this.additive());
+        continue;
+      }
+      if (this.eatOp(">")) {
+        t = a(t) > a(this.additive());
+        continue;
+      }
+      return t;
+    }
+  }
+  additive() {
+    let t = this.multiplicative();
+    for (; ; ) {
+      if (this.eatOp("+")) {
+        const e = this.multiplicative();
+        t = typeof t == "string" || typeof e == "string" ? String(t) + String(e) : a(t) + a(e);
+        continue;
+      }
+      if (this.eatOp("-")) {
+        t = a(t) - a(this.multiplicative());
+        continue;
+      }
+      return t;
+    }
+  }
+  multiplicative() {
+    let t = this.unary();
+    for (; ; ) {
+      if (this.eatOp("*")) {
+        t = a(t) * a(this.unary());
+        continue;
+      }
+      if (this.eatOp("/")) {
+        t = a(t) / a(this.unary());
+        continue;
+      }
+      if (this.eatOp("%")) {
+        t = a(t) % a(this.unary());
+        continue;
+      }
+      return t;
+    }
+  }
+  unary() {
+    return this.eatOp("!") ? !this.unary() : this.eatOp("-") ? -a(this.unary()) : this.postfix();
+  }
+  postfix() {
+    let t = this.primary();
+    for (; ; ) {
+      if (this.peek()?.t === "dot") {
+        this.pos += 1;
+        const e = this.peek();
+        if (!e || e.t !== "ident") throw new Error('Expected identifier after "."');
+        if (this.pos += 1, this.isOp("(")) {
+          this.pos += 1;
+          const r = [];
+          if (!this.isOp(")"))
+            do
+              r.push(this.ternary());
+            while (this.eatOp(","));
+          this.expectOp(")");
+          const s = Object.prototype.hasOwnProperty.call(v, e.v) ? v[e.v] : void 0;
+          if (typeof s != "function") throw new Error(`Method "${e.v}" is not allowed`);
+          t = s(t, r);
+          continue;
+        }
+        t = g(t, e.v);
+        continue;
+      }
+      if (this.eatOp("[")) {
+        const e = this.ternary();
+        this.expectOp("]"), t = g(t, typeof e == "number" ? e : String(e));
+        continue;
+      }
+      return t;
+    }
+  }
+  primary() {
+    const t = this.peek();
+    if (!t) throw new Error("Unexpected end of expression");
+    if (t.t === "op" && t.v === "(") {
+      this.pos += 1;
+      const e = this.ternary();
+      return this.expectOp(")"), e;
+    }
+    if (t.t === "op" && t.v === "[") {
+      this.pos += 1;
+      const e = [];
+      if (!this.isOp("]"))
+        do
+          e.push(this.ternary());
+        while (this.eatOp(","));
+      return this.expectOp("]"), e;
+    }
+    switch (this.pos += 1, t.t) {
+      case "str":
+        return t.v;
+      case "num":
+        return t.v;
+      case "bool":
+        return t.v;
+      case "null":
+        return null;
+      case "undef":
+        return;
+      case "ident":
+        return g(this.ctx, t.v);
+      default:
+        throw new Error("Unexpected token");
+    }
+  }
+}
+function _(o, t, e = {}) {
+  try {
+    if (typeof o != "string") return;
+    if (o.length > (e.maxLength ?? R)) {
+      e.onError?.("expression exceeds the maximum length", o);
+      return;
+    }
+    return new z(k(o), t).parse();
+  } catch (r) {
+    e.onError?.(r instanceof Error ? r.message : "invalid expression", o);
+    return;
+  }
+}
+function L(o, t, e = {}) {
+  return !!_(o, t, e);
+}
+function N(o) {
+  try {
+    return new z(k(o), {}).parse(), { ok: !0 };
+  } catch (t) {
+    return { ok: !1, message: t instanceof Error ? t.message : "invalid expression" };
+  }
+}
+export {
+  D as C,
+  L as a,
+  T as b,
+  N as c,
+  $ as d,
+  _ as e,
+  h as i,
+  C as q,
+  m as r,
+  A as s,
+  F as w
+};
+//# sourceMappingURL=safeEval.es.js.map

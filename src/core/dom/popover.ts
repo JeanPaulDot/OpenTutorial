@@ -41,6 +41,18 @@ export interface PopoverCallbacks {
   onSkip: () => void;
 }
 
+export interface PopoverOptions {
+  /** Advance/rewind on horizontal touch swipes. Default true. */
+  swipe?: boolean;
+}
+
+/** Horizontal travel that counts as a swipe rather than a tap or a scroll. */
+const SWIPE_MIN_X = 56;
+/** Vertical drift above this means the user was scrolling, not swiping. */
+const SWIPE_MAX_Y = 44;
+/** A slow drag is a selection or a scroll, not a gesture. */
+const SWIPE_MAX_MS = 700;
+
 type Side = 'top' | 'bottom' | 'left' | 'right';
 type Align = 'start' | 'center' | 'end';
 
@@ -78,8 +90,11 @@ export class TourPopover {
   private lastSide: Side | 'modal' | null = null;
   private cbs: PopoverCallbacks;
   private dir: Direction;
+  /** The last rendered model, so a swipe honours the same rules as the buttons. */
+  private model: PopoverModel | null = null;
+  private detachSwipe: (() => void) | null = null;
 
-  constructor(cbs: PopoverCallbacks, dir: Direction = 'ltr') {
+  constructor(cbs: PopoverCallbacks, dir: Direction = 'ltr', opts: PopoverOptions = {}) {
     this.cbs = cbs;
     this.dir = dir;
 
@@ -147,11 +162,83 @@ export class TourPopover {
 
     this.el.appendChild(this.arrow);
     this.el.appendChild(body);
+
+    if (opts.swipe !== false) this.installSwipe();
+  }
+
+  /**
+   * Horizontal touch swipes move between steps on mobile, where the popover is
+   * docked as a bottom sheet and the buttons are a thumb-stretch away.
+   *
+   * Gated on the rendered model rather than fired blind: a step that advances on
+   * `target-click` hides its Next button, and a swipe must not be a way around
+   * that. Gestures starting on a control or inside a horizontally scrollable
+   * block are ignored so the popover never eats a legitimate interaction.
+   */
+  private installSwipe(): void {
+    let startX = 0;
+    let startY = 0;
+    let startAt = 0;
+    let tracking = false;
+
+    const onStart = (e: TouchEvent): void => {
+      if (e.touches.length !== 1) { tracking = false; return; }
+      const target = e.target as Element | null;
+      if (target?.closest('button, a, input, textarea, select, video, audio, [data-ot-no-swipe]')) {
+        tracking = false;
+        return;
+      }
+      if (target && this.isScrollableX(target)) { tracking = false; return; }
+      tracking = true;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      startAt = Date.now();
+    };
+
+    const onEnd = (e: TouchEvent): void => {
+      if (!tracking) return;
+      tracking = false;
+      const touch = e.changedTouches[0];
+      if (!touch) return;
+
+      const dx = touch.clientX - startX;
+      const dy = touch.clientY - startY;
+      if (Date.now() - startAt > SWIPE_MAX_MS) return;
+      if (Math.abs(dy) > SWIPE_MAX_Y || Math.abs(dx) < SWIPE_MIN_X) return;
+
+      // In RTL the reading order flips, so "forward" is a swipe to the right.
+      const forward = this.dir === 'rtl' ? dx > 0 : dx < 0;
+      const model = this.model;
+      if (!model) return;
+
+      if (forward) {
+        if (model.showNext) this.cbs.onNext();
+      } else if (model.showBack && model.canGoBack && model.index > 0) {
+        this.cbs.onPrev();
+      }
+    };
+
+    this.el.addEventListener('touchstart', onStart, { passive: true });
+    this.el.addEventListener('touchend', onEnd, { passive: true });
+    this.detachSwipe = () => {
+      this.el.removeEventListener('touchstart', onStart);
+      this.el.removeEventListener('touchend', onEnd);
+    };
+  }
+
+  private isScrollableX(from: Element): boolean {
+    let node: Element | null = from;
+    while (node && node !== this.el) {
+      if (node.scrollWidth > node.clientWidth + 1) return true;
+      node = node.parentElement;
+    }
+    return false;
   }
 
   setDir(dir: Direction): void { this.dir = dir; }
 
   render(model: PopoverModel): void {
+    this.model = model;
     this.titleEl.textContent = model.title;
 
     this.contentEl.replaceChildren(
@@ -278,5 +365,9 @@ export class TourPopover {
 
   getSide(): Side | 'modal' | null { return this.lastSide; }
 
-  destroy(): void { this.el.remove(); }
+  destroy(): void {
+    this.detachSwipe?.();
+    this.detachSwipe = null;
+    this.el.remove();
+  }
 }

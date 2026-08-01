@@ -9,6 +9,7 @@
  */
 
 import { TourEngine } from './engine';
+import type { PersistedRoot } from './persist';
 import { installTrigger, type TriggerHandle } from './triggers';
 import { evaluateShowIf } from './safeEval';
 import type {
@@ -178,6 +179,11 @@ export class TourOrchestrator {
     this.engines.forEach((e) => e.setContext(patch));
   }
 
+  /** The shared tour context. Every engine holds the same keys. */
+  getContext(): Record<string, unknown> {
+    return this.engines.values().next().value?.getContext() ?? {};
+  }
+
   setTheme(theme: ThemeOverrides): void {
     this.engines.forEach((e) => e.setGlobalTheme(theme));
   }
@@ -206,6 +212,16 @@ export class TourOrchestrator {
   resetTour(tourId: string): void {
     this.sessionCounts.delete(tourId);
     this.engines.get(tourId)?.resetSeen();
+  }
+
+  /** Snapshot persisted state for every tour. See `TourEngine.exportProgress`. */
+  exportProgress(): PersistedRoot | null {
+    return this.engines.values().next().value?.exportProgress() ?? null;
+  }
+
+  /** Restore a snapshot. All engines share one store, so one call covers them all. */
+  importProgress(data: PersistedRoot | string, mode: 'replace' | 'merge' = 'replace'): boolean {
+    return this.engines.values().next().value?.importProgress(data, mode) ?? false;
   }
 
   // -------------------------------------------------------------------------

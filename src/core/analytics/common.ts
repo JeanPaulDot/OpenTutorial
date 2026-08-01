@@ -27,7 +27,7 @@ export function toProperties(
   return props;
 }
 
-export function eventName(event: TourEvent, prefix = 'Opentutorial'): string {
+export function eventName(event: TourEvent, prefix = 'OpenTutorial'): string {
   return `${prefix} ${event.type}`;
 }
 

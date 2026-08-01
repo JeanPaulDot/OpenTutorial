@@ -1,5 +1,6 @@
 import type { I18nResolver, TutorialSpec } from '../types';
-export type ChecklistStatus = 'pending' | 'in_progress' | 'completed';
+export type { ChecklistStatus } from '../surfaces/checklist';
+import type { ChecklistStatus } from '../surfaces/checklist';
 export interface TourChecklistProps {
     /** Defaults to every spec registered on the provider. */
     specs?: TutorialSpec[];

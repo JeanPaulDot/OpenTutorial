@@ -5,11 +5,9 @@ import { useTour } from '../adapters/react';
 import { resolveText } from '../i18n';
 import type { I18nContent, I18nResolver, TutorialSpec } from '../types';
 
-export interface ResourceLink {
-  label: string;
-  href: string;
-  description?: string;
-}
+// One definition, shared with the framework-free `createResourceCenter`.
+export type { ResourceLink } from '../surfaces/resourceCenter';
+import type { ResourceLink } from '../surfaces/resourceCenter';
 
 export interface ResourceCenterProps {
   /** Defaults to every spec on the provider. */

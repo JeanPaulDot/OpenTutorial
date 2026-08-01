@@ -35,6 +35,10 @@ export interface PopoverCallbacks {
     onPrev: () => void;
     onSkip: () => void;
 }
+export interface PopoverOptions {
+    /** Advance/rewind on horizontal touch swipes. Default true. */
+    swipe?: boolean;
+}
 type Side = 'top' | 'bottom' | 'left' | 'right';
 interface Rect {
     x: number;
@@ -55,7 +59,21 @@ export declare class TourPopover {
     private lastSide;
     private cbs;
     private dir;
-    constructor(cbs: PopoverCallbacks, dir?: Direction);
+    /** The last rendered model, so a swipe honours the same rules as the buttons. */
+    private model;
+    private detachSwipe;
+    constructor(cbs: PopoverCallbacks, dir?: Direction, opts?: PopoverOptions);
+    /**
+     * Horizontal touch swipes move between steps on mobile, where the popover is
+     * docked as a bottom sheet and the buttons are a thumb-stretch away.
+     *
+     * Gated on the rendered model rather than fired blind: a step that advances on
+     * `target-click` hides its Next button, and a swipe must not be a way around
+     * that. Gestures starting on a control or inside a horizontally scrollable
+     * block are ignored so the popover never eats a legitimate interaction.
+     */
+    private installSwipe;
+    private isScrollableX;
     setDir(dir: Direction): void;
     render(model: PopoverModel): void;
     /** Position relative to a target rect (viewport coords), or centered when null. */

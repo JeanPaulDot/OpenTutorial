@@ -1,34 +1,34 @@
-var tt = Object.defineProperty;
-var et = (n, t, e) => t in n ? tt(n, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : n[t] = e;
-var h = (n, t, e) => et(n, typeof t != "symbol" ? t + "" : t, e);
-import { C as st, c as it, a as T, r as A, b as B, d as nt } from "./chunks/target.es.js";
-import { e as ae, i as ce, q as le, s as he, w as ue } from "./chunks/target.es.js";
-import { createAmplitudeAdapter as pe, createDatadogAdapter as fe, createDebugAdapter as me, createEventCollector as ge, createFunnelReport as ve, createGA4Adapter as ye, createHeapAdapter as be, createHttpAdapter as we, createMixpanelAdapter as xe, createMultiAdapter as Ee, createPostHogAdapter as ke, createRudderStackAdapter as $e, createSegmentAdapter as Se, filterEvents as Ae } from "./analytics.js";
-let D = 0;
-class rt {
+var Rt = Object.defineProperty;
+var Mt = (n, t, e) => t in n ? Rt(n, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : n[t] = e;
+var d = (n, t, e) => Mt(n, typeof t != "symbol" ? t + "" : t, e);
+import { C as Ot, c as Dt, a as et, r as Q, b as lt, d as Ht } from "./chunks/safeEval.es.js";
+import { e as Ze, i as ts, q as es, s as ss, w as is } from "./chunks/safeEval.es.js";
+import { createAmplitudeAdapter as rs, createDatadogAdapter as os, createDebugAdapter as as, createEventCollector as ls, createFunnelReport as cs, createGA4Adapter as hs, createHeapAdapter as ds, createHttpAdapter as us, createMixpanelAdapter as ps, createMultiAdapter as fs, createPostHogAdapter as ms, createRudderStackAdapter as gs, createSegmentAdapter as vs, filterEvents as ys, shouldSample as bs, withEventTypes as ws, withSampling as xs } from "./analytics.js";
+let mt = 0;
+class jt {
   constructor(t, e = {}) {
     /** Children mount here — inside the shadow root when isolated. */
-    h(this, "root");
+    d(this, "root");
     /** The element actually placed in the host document. */
-    h(this, "host");
-    h(this, "shadow", null);
-    h(this, "svg");
-    h(this, "dimRect");
-    h(this, "hole");
-    h(this, "ring");
-    h(this, "shield");
-    h(this, "panels", []);
-    h(this, "current", null);
-    h(this, "interaction", "free");
-    h(this, "opts");
-    D += 1;
-    const s = `ot-mask-${D}`;
+    d(this, "host");
+    d(this, "shadow", null);
+    d(this, "svg");
+    d(this, "dimRect");
+    d(this, "hole");
+    d(this, "ring");
+    d(this, "shield");
+    d(this, "panels", []);
+    d(this, "current", null);
+    d(this, "interaction", "free");
+    d(this, "opts");
+    mt += 1;
+    const s = `ot-mask-${mt}`;
     if (this.opts = e, this.root = document.createElement("div"), this.root.className = "ot-root", this.root.style.setProperty("--ot-z", String(t)), this.root.setAttribute("data-opentutorial", ""), e.dir && this.root.setAttribute("dir", e.dir), e.isolate) {
       this.host = document.createElement("div"), this.host.setAttribute("data-opentutorial-host", ""), this.host.style.cssText = "position:fixed;inset:0;pointer-events:none;", this.host.style.zIndex = String(t);
       try {
         this.shadow = this.host.attachShadow({ mode: "open" });
-        const a = document.createElement("style");
-        a.textContent = st, this.shadow.appendChild(a), this.shadow.appendChild(this.root);
+        const l = document.createElement("style");
+        l.textContent = Ot, this.shadow.appendChild(l), this.shadow.appendChild(this.root);
       } catch {
         this.shadow = null, this.host = this.root;
       }
@@ -36,13 +36,13 @@ class rt {
       this.host = this.root;
     const i = "http://www.w3.org/2000/svg";
     this.svg = document.createElementNS(i, "svg"), this.svg.setAttribute("class", "ot-backdrop"), this.svg.setAttribute("width", "100%"), this.svg.setAttribute("height", "100%"), this.svg.setAttribute("aria-hidden", "true");
-    const o = document.createElementNS(i, "defs"), r = document.createElementNS(i, "mask");
-    r.setAttribute("id", s);
-    const c = document.createElementNS(i, "rect");
-    c.setAttribute("x", "0"), c.setAttribute("y", "0"), c.setAttribute("width", "100%"), c.setAttribute("height", "100%"), c.setAttribute("fill", "white"), this.hole = document.createElementNS(i, "rect"), this.hole.setAttribute("fill", "black"), this.hole.setAttribute("rx", "12"), this.setHole({ x: -9999, y: -9999, width: 0, height: 0 }, 0), r.appendChild(c), r.appendChild(this.hole), o.appendChild(r), this.dimRect = document.createElementNS(i, "rect"), this.dimRect.setAttribute("class", "ot-dim"), this.dimRect.setAttribute("x", "0"), this.dimRect.setAttribute("y", "0"), this.dimRect.setAttribute("width", "100%"), this.dimRect.setAttribute("height", "100%"), this.dimRect.setAttribute("mask", `url(#${s})`), this.svg.appendChild(o), this.svg.appendChild(this.dimRect), this.ring = document.createElement("div"), this.ring.className = "ot-ring", this.ring.style.opacity = "0", this.shield = document.createElement("div"), this.shield.className = "ot-shield", this.shield.style.display = "none";
-    for (let a = 0; a < 4; a += 1) {
-      const l = document.createElement("div");
-      l.className = "ot-shield-panel", this.panels.push(l), this.shield.appendChild(l);
+    const r = document.createElementNS(i, "defs"), o = document.createElementNS(i, "mask");
+    o.setAttribute("id", s);
+    const a = document.createElementNS(i, "rect");
+    a.setAttribute("x", "0"), a.setAttribute("y", "0"), a.setAttribute("width", "100%"), a.setAttribute("height", "100%"), a.setAttribute("fill", "white"), this.hole = document.createElementNS(i, "rect"), this.hole.setAttribute("fill", "black"), this.hole.setAttribute("rx", "12"), this.setHole({ x: -9999, y: -9999, width: 0, height: 0 }, 0), o.appendChild(a), o.appendChild(this.hole), r.appendChild(o), this.dimRect = document.createElementNS(i, "rect"), this.dimRect.setAttribute("class", "ot-dim"), this.dimRect.setAttribute("x", "0"), this.dimRect.setAttribute("y", "0"), this.dimRect.setAttribute("width", "100%"), this.dimRect.setAttribute("height", "100%"), this.dimRect.setAttribute("mask", `url(#${s})`), this.svg.appendChild(r), this.svg.appendChild(this.dimRect), this.ring = document.createElement("div"), this.ring.className = "ot-ring", this.ring.style.opacity = "0", this.shield = document.createElement("div"), this.shield.className = "ot-shield", this.shield.style.display = "none";
+    for (let l = 0; l < 4; l += 1) {
+      const c = document.createElement("div");
+      c.className = "ot-shield-panel", this.panels.push(c), this.shield.appendChild(c);
     }
     this.root.appendChild(this.svg), this.root.appendChild(this.ring), this.root.appendChild(this.shield), this.svg.style.display = "none";
   }
@@ -81,10 +81,10 @@ class rt {
       y: this.current.y - this.current.padding,
       width: this.current.width + this.current.padding * 2,
       height: this.current.height + this.current.padding * 2
-    } : { x: t, y: e, width: 0, height: 0 }, [i, o, r, c] = this.panels, a = (l, u, d, v, x) => {
-      l.style.left = `${u}px`, l.style.top = `${d}px`, l.style.width = `${Math.max(0, v)}px`, l.style.height = `${Math.max(0, x)}px`;
+    } : { x: t, y: e, width: 0, height: 0 }, [i, r, o, a] = this.panels, l = (c, u, h, f, k) => {
+      c.style.left = `${u}px`, c.style.top = `${h}px`, c.style.width = `${Math.max(0, f)}px`, c.style.height = `${Math.max(0, k)}px`;
     };
-    a(i, 0, 0, t, s.y), a(r, 0, s.y + s.height, t, e - (s.y + s.height)), a(c, 0, s.y, s.x, s.height), a(o, s.x + s.width, s.y, t - (s.x + s.width), s.height);
+    l(i, 0, 0, t, s.y), l(o, 0, s.y + s.height, t, e - (s.y + s.height)), l(a, 0, s.y, s.x, s.height), l(r, s.x + s.width, s.y, t - (s.x + s.width), s.height);
   }
   refresh() {
     this.current ? this.updateSpotlight(this.current, this.current.padding, this.current.radius) : this.applyShield();
@@ -105,26 +105,26 @@ class rt {
     this.host.remove();
   }
 }
-const ot = {
+const _t = {
   "&": "&amp;",
   "<": "&lt;",
   ">": "&gt;",
   '"': "&quot;",
   "'": "&#39;"
 };
-function W(n) {
-  return n.replace(/[&<>"']/g, (t) => ot[t] ?? t);
+function Ct(n) {
+  return n.replace(/[&<>"']/g, (t) => _t[t] ?? t);
 }
-const at = /^(https?:\/\/|mailto:)/i;
-function P(n) {
+const Ft = /^(https?:\/\/|mailto:)/i;
+function J(n) {
   if (typeof n != "string") return "";
-  let t = W(n);
+  let t = Ct(n);
   return t = t.replace(
     /\[([^\]]+)\]\(([^\s)]+)\)/g,
-    (e, s, i) => at.test(i) ? `<a href="${i}" target="_blank" rel="noopener noreferrer">${s}</a>` : e
+    (e, s, i) => Ft.test(i) ? `<a href="${i}" target="_blank" rel="noopener noreferrer">${s}</a>` : e
   ), t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>"), t = t.replace(/\*([^*]+)\*/g, "<em>$1</em>"), t = t.replace(/~~([^~]+)~~/g, "<s>$1</s>"), t = t.replace(/`([^`]+)`/g, "<code>$1</code>"), t = t.replace(/\r?\n/g, "<br>"), t;
 }
-function ct(n, t) {
+function ht(n, t) {
   return n && typeof n == "object" && "blocks" in n && Array.isArray(n.blocks) ? n.blocks.map((e) => {
     switch (e.type) {
       case "text":
@@ -136,7 +136,7 @@ function ct(n, t) {
     }
   }) : [{ type: "text", value: t(n) }];
 }
-function lt(n) {
+function zt(n) {
   return n.map((t) => {
     switch (t.type) {
       case "text":
@@ -152,95 +152,146 @@ function lt(n) {
     }
   }).filter(Boolean).join(" ");
 }
-function ht(n, t = {}) {
+function dt(n, t = {}) {
   const e = t.doc ?? document, s = e.createDocumentFragment();
   for (const i of n)
     switch (i.type) {
       case "text": {
-        const o = e.createElement("p");
-        o.className = "ot-content", o.innerHTML = P(typeof i.value == "string" ? i.value : ""), s.appendChild(o);
+        const r = e.createElement("p");
+        r.className = "ot-content", r.innerHTML = J(typeof i.value == "string" ? i.value : ""), s.appendChild(r);
         break;
       }
       case "image": {
-        const o = e.createElement("img");
-        o.className = "ot-media ot-media-image", o.src = i.src, o.alt = i.alt, o.loading = "lazy", i.width && (o.width = i.width), i.height && (o.height = i.height), s.appendChild(o);
+        const r = e.createElement("img");
+        r.className = "ot-media ot-media-image", r.src = i.src, r.alt = i.alt, r.loading = "lazy", i.width && (r.width = i.width), i.height && (r.height = i.height), s.appendChild(r);
         break;
       }
       case "video": {
-        const o = e.createElement("video");
-        o.className = "ot-media ot-media-video", o.src = i.src, i.poster && (o.poster = i.poster), o.controls = i.controls ?? !0, o.loop = i.loop ?? !1, o.muted = i.muted ?? i.autoplay ?? !1, o.playsInline = !0, i.autoplay && (o.autoplay = !0, o.muted = !0), s.appendChild(o);
+        const r = e.createElement("video");
+        r.className = "ot-media ot-media-video", r.src = i.src, i.poster && (r.poster = i.poster), r.controls = i.controls ?? !0, r.loop = i.loop ?? !1, r.muted = i.muted ?? i.autoplay ?? !1, r.playsInline = !0, i.autoplay && (r.autoplay = !0, r.muted = !0), s.appendChild(r);
         break;
       }
       case "list": {
-        const o = e.createElement(i.ordered ? "ol" : "ul");
-        o.className = "ot-list";
-        for (const r of i.items) {
-          const c = e.createElement("li");
-          c.innerHTML = P(typeof r == "string" ? r : ""), o.appendChild(c);
+        const r = e.createElement(i.ordered ? "ol" : "ul");
+        r.className = "ot-list";
+        for (const o of i.items) {
+          const a = e.createElement("li");
+          a.innerHTML = J(typeof o == "string" ? o : ""), r.appendChild(a);
         }
-        s.appendChild(o);
+        s.appendChild(r);
         break;
       }
       case "code": {
-        const o = e.createElement("pre");
-        o.className = "ot-code";
-        const r = e.createElement("code");
-        i.lang && (r.dataset.lang = i.lang), r.textContent = i.value, o.appendChild(r), s.appendChild(o);
+        const r = e.createElement("pre");
+        r.className = "ot-code";
+        const o = e.createElement("code");
+        i.lang && (o.dataset.lang = i.lang), o.textContent = i.value, r.appendChild(o), s.appendChild(r);
         break;
       }
       case "divider": {
-        const o = e.createElement("hr");
-        o.className = "ot-divider", s.appendChild(o);
+        const r = e.createElement("hr");
+        r.className = "ot-divider", s.appendChild(r);
         break;
       }
       case "html": {
-        const o = e.createElement("div");
-        o.className = "ot-html", o.innerHTML = t.allowHtml ? i.value : W(i.value), s.appendChild(o);
+        const r = e.createElement("div");
+        r.className = "ot-html", r.innerHTML = t.allowHtml ? i.value : Ct(i.value), s.appendChild(r);
         break;
       }
     }
   return s;
 }
-const ut = 14, S = 10;
-function dt(n) {
+const Wt = 56, Gt = 44, Vt = 700, Ut = 14, z = 10;
+function Kt(n) {
   if (n === "auto" || n === "center") return { side: "auto", align: "center" };
   const [t, e] = n.split("-");
   return { side: t, align: e ?? "center" };
 }
-function pt(n) {
+function Yt(n) {
   return { top: "bottom", bottom: "top", left: "right", right: "left" }[n];
 }
-function ft(n) {
+function Xt(n) {
   return n === "left" ? "right" : n === "right" ? "left" : n;
 }
-class mt {
-  constructor(t, e = "ltr") {
-    h(this, "el");
-    h(this, "titleEl");
-    h(this, "contentEl");
-    h(this, "progressEl");
-    h(this, "liveEl");
-    h(this, "backBtn");
-    h(this, "nextBtn");
-    h(this, "skipBtn");
-    h(this, "arrow");
-    h(this, "lastSide", null);
-    h(this, "cbs");
-    h(this, "dir");
+class Jt {
+  constructor(t, e = "ltr", s = {}) {
+    d(this, "el");
+    d(this, "titleEl");
+    d(this, "contentEl");
+    d(this, "progressEl");
+    d(this, "liveEl");
+    d(this, "backBtn");
+    d(this, "nextBtn");
+    d(this, "skipBtn");
+    d(this, "arrow");
+    d(this, "lastSide", null);
+    d(this, "cbs");
+    d(this, "dir");
+    /** The last rendered model, so a swipe honours the same rules as the buttons. */
+    d(this, "model", null);
+    d(this, "detachSwipe", null);
     this.cbs = t, this.dir = e, this.el = document.createElement("div"), this.el.className = "ot-popover", this.el.setAttribute("role", "dialog"), this.el.tabIndex = -1, this.arrow = document.createElement("div"), this.arrow.className = "ot-arrow";
-    const s = document.createElement("div");
-    s.className = "ot-body", this.skipBtn = document.createElement("button"), this.skipBtn.type = "button", this.skipBtn.className = "ot-skip", this.skipBtn.setAttribute("aria-label", "Close tour"), this.skipBtn.innerHTML = "&times;", this.skipBtn.addEventListener("click", () => this.cbs.onSkip()), this.titleEl = document.createElement("h2"), this.titleEl.className = "ot-title", this.titleEl.id = `ot-title-${Math.random().toString(36).slice(2, 8)}`, this.el.setAttribute("aria-labelledby", this.titleEl.id), this.contentEl = document.createElement("div"), this.contentEl.className = "ot-content-wrap", this.progressEl = document.createElement("div"), this.progressEl.className = "ot-dots", this.progressEl.setAttribute("aria-hidden", "true"), this.liveEl = document.createElement("span"), this.liveEl.className = "ot-sr-only", this.liveEl.setAttribute("aria-live", "polite"), this.liveEl.setAttribute("aria-atomic", "true"), this.backBtn = document.createElement("button"), this.backBtn.type = "button", this.backBtn.className = "ot-btn ot-btn-ghost", this.backBtn.addEventListener("click", () => this.cbs.onPrev()), this.nextBtn = document.createElement("button"), this.nextBtn.type = "button", this.nextBtn.className = "ot-btn ot-btn-primary", this.nextBtn.addEventListener("click", () => this.cbs.onNext());
     const i = document.createElement("div");
-    i.className = "ot-footer";
+    i.className = "ot-body", this.skipBtn = document.createElement("button"), this.skipBtn.type = "button", this.skipBtn.className = "ot-skip", this.skipBtn.setAttribute("aria-label", "Close tour"), this.skipBtn.innerHTML = "&times;", this.skipBtn.addEventListener("click", () => this.cbs.onSkip()), this.titleEl = document.createElement("h2"), this.titleEl.className = "ot-title", this.titleEl.id = `ot-title-${Math.random().toString(36).slice(2, 8)}`, this.el.setAttribute("aria-labelledby", this.titleEl.id), this.contentEl = document.createElement("div"), this.contentEl.className = "ot-content-wrap", this.progressEl = document.createElement("div"), this.progressEl.className = "ot-dots", this.progressEl.setAttribute("aria-hidden", "true"), this.liveEl = document.createElement("span"), this.liveEl.className = "ot-sr-only", this.liveEl.setAttribute("aria-live", "polite"), this.liveEl.setAttribute("aria-atomic", "true"), this.backBtn = document.createElement("button"), this.backBtn.type = "button", this.backBtn.className = "ot-btn ot-btn-ghost", this.backBtn.addEventListener("click", () => this.cbs.onPrev()), this.nextBtn = document.createElement("button"), this.nextBtn.type = "button", this.nextBtn.className = "ot-btn ot-btn-primary", this.nextBtn.addEventListener("click", () => this.cbs.onNext());
+    const r = document.createElement("div");
+    r.className = "ot-footer";
     const o = document.createElement("div");
-    o.className = "ot-btns", o.appendChild(this.backBtn), o.appendChild(this.nextBtn), i.appendChild(this.progressEl), i.appendChild(o), s.appendChild(this.skipBtn), s.appendChild(this.titleEl), s.appendChild(this.contentEl), s.appendChild(this.liveEl), s.appendChild(i), this.el.appendChild(this.arrow), this.el.appendChild(s);
+    o.className = "ot-btns", o.appendChild(this.backBtn), o.appendChild(this.nextBtn), r.appendChild(this.progressEl), r.appendChild(o), i.appendChild(this.skipBtn), i.appendChild(this.titleEl), i.appendChild(this.contentEl), i.appendChild(this.liveEl), i.appendChild(r), this.el.appendChild(this.arrow), this.el.appendChild(i), s.swipe !== !1 && this.installSwipe();
+  }
+  /**
+   * Horizontal touch swipes move between steps on mobile, where the popover is
+   * docked as a bottom sheet and the buttons are a thumb-stretch away.
+   *
+   * Gated on the rendered model rather than fired blind: a step that advances on
+   * `target-click` hides its Next button, and a swipe must not be a way around
+   * that. Gestures starting on a control or inside a horizontally scrollable
+   * block are ignored so the popover never eats a legitimate interaction.
+   */
+  installSwipe() {
+    let t = 0, e = 0, s = 0, i = !1;
+    const r = (a) => {
+      if (a.touches.length !== 1) {
+        i = !1;
+        return;
+      }
+      const l = a.target;
+      if (l?.closest("button, a, input, textarea, select, video, audio, [data-ot-no-swipe]")) {
+        i = !1;
+        return;
+      }
+      if (l && this.isScrollableX(l)) {
+        i = !1;
+        return;
+      }
+      i = !0, t = a.touches[0].clientX, e = a.touches[0].clientY, s = Date.now();
+    }, o = (a) => {
+      if (!i) return;
+      i = !1;
+      const l = a.changedTouches[0];
+      if (!l) return;
+      const c = l.clientX - t, u = l.clientY - e;
+      if (Date.now() - s > Vt || Math.abs(u) > Gt || Math.abs(c) < Wt) return;
+      const h = this.dir === "rtl" ? c > 0 : c < 0, f = this.model;
+      f && (h ? f.showNext && this.cbs.onNext() : f.showBack && f.canGoBack && f.index > 0 && this.cbs.onPrev());
+    };
+    this.el.addEventListener("touchstart", r, { passive: !0 }), this.el.addEventListener("touchend", o, { passive: !0 }), this.detachSwipe = () => {
+      this.el.removeEventListener("touchstart", r), this.el.removeEventListener("touchend", o);
+    };
+  }
+  isScrollableX(t) {
+    let e = t;
+    for (; e && e !== this.el; ) {
+      if (e.scrollWidth > e.clientWidth + 1) return !0;
+      e = e.parentElement;
+    }
+    return !1;
   }
   setDir(t) {
     this.dir = t;
   }
   render(t) {
-    this.titleEl.textContent = t.title, this.contentEl.replaceChildren(
-      ht(t.blocks, { allowHtml: t.allowHtml })
+    this.model = t, this.titleEl.textContent = t.title, this.contentEl.replaceChildren(
+      dt(t.blocks, { allowHtml: t.allowHtml })
     ), this.liveEl.textContent = `${t.title}. Step ${t.index + 1} of ${t.total}`, this.progressEl.replaceChildren();
     for (let s = 0; s < t.total; s += 1) {
       const i = document.createElement("span");
@@ -251,52 +302,52 @@ class mt {
   }
   /** Position relative to a target rect (viewport coords), or centered when null. */
   position(t, e, s) {
-    const i = window.innerWidth, o = window.innerHeight, r = this.el.offsetWidth, c = this.el.offsetHeight;
+    const i = window.innerWidth, r = window.innerHeight, o = this.el.offsetWidth, a = this.el.offsetHeight;
     if (!t || e === "center") {
-      this.lastSide = "modal", this.el.classList.add("ot-modal"), this.arrow.style.display = "none", this.el.style.left = `${Math.max(S, (i - r) / 2)}px`, this.el.style.top = `${Math.max(S, (o - c) / 2)}px`;
+      this.lastSide = "modal", this.el.classList.add("ot-modal"), this.arrow.style.display = "none", this.el.style.left = `${Math.max(z, (i - o) / 2)}px`, this.el.style.top = `${Math.max(z, (r - a) / 2)}px`;
       return;
     }
     this.el.classList.remove("ot-modal"), this.arrow.style.display = "";
-    const a = dt(e), l = this.dir === "rtl" ? ft(a.side) : a.side, u = a.align, d = ut + s, v = {
+    const l = Kt(e), c = this.dir === "rtl" ? Xt(l.side) : l.side, u = l.align, h = Ut + s, f = {
       top: t.y,
-      bottom: o - (t.y + t.height),
+      bottom: r - (t.y + t.height),
       left: t.x,
       right: i - (t.x + t.width)
     };
-    let b = l === "auto" ? ["bottom", "right", "top", "left"].reduce((E, k) => v[k] > v[E] ? k : E, "bottom") : l;
-    const g = (y) => y === "top" || y === "bottom" ? v[y] >= c + d : v[y] >= r + d;
-    if (!g(b)) {
-      const y = pt(b);
-      g(y) ? b = y : b = Object.keys(v).reduce((E, k) => v[E] >= v[k] ? E : k);
+    let x = c === "auto" ? ["bottom", "right", "top", "left"].reduce((E, I) => f[I] > f[E] ? I : E, "bottom") : c;
+    const w = (g) => g === "top" || g === "bottom" ? f[g] >= a + h : f[g] >= o + h;
+    if (!w(x)) {
+      const g = Yt(x);
+      w(g) ? x = g : x = Object.keys(f).reduce((E, I) => f[E] >= f[I] ? E : I);
     }
-    let m = 0, f = 0;
-    const w = (y, E, k) => u === "start" ? this.dir === "rtl" ? y + E - k : y : u === "end" ? this.dir === "rtl" ? y : y + E - k : y + E / 2 - k / 2;
-    b === "top" || b === "bottom" ? (m = w(t.x, t.width, r), f = b === "top" ? t.y - c - d : t.y + t.height + d) : (f = w(t.y, t.height, c), m = b === "left" ? t.x - r - d : t.x + t.width + d), m = Math.min(Math.max(m, S), Math.max(S, i - r - S)), f = Math.min(Math.max(f, S), Math.max(S, o - c - S)), this.el.style.left = `${m}px`, this.el.style.top = `${f}px`, this.lastSide = b, this.positionArrow(b, t, m, f, r, c);
+    let b = 0, m = 0;
+    const y = (g, E, I) => u === "start" ? this.dir === "rtl" ? g + E - I : g : u === "end" ? this.dir === "rtl" ? g : g + E - I : g + E / 2 - I / 2;
+    x === "top" || x === "bottom" ? (b = y(t.x, t.width, o), m = x === "top" ? t.y - a - h : t.y + t.height + h) : (m = y(t.y, t.height, a), b = x === "left" ? t.x - o - h : t.x + t.width + h), b = Math.min(Math.max(b, z), Math.max(z, i - o - z)), m = Math.min(Math.max(m, z), Math.max(z, r - a - z)), this.el.style.left = `${b}px`, this.el.style.top = `${m}px`, this.lastSide = x, this.positionArrow(x, t, b, m, o, a);
   }
-  positionArrow(t, e, s, i, o, r) {
-    const c = this.arrow.style;
-    c.top = "", c.bottom = "", c.left = "", c.right = "", this.arrow.dataset.side = t;
-    const a = e.x + e.width / 2, l = e.y + e.height / 2;
-    t === "top" ? (c.bottom = "-5px", c.left = `${Math.min(Math.max(a - s, 16), Math.max(16, o - 16))}px`) : t === "bottom" ? (c.top = "-5px", c.left = `${Math.min(Math.max(a - s, 16), Math.max(16, o - 16))}px`) : t === "left" ? (c.right = "-5px", c.top = `${Math.min(Math.max(l - i, 16), Math.max(16, r - 16))}px`) : (c.left = "-5px", c.top = `${Math.min(Math.max(l - i, 16), Math.max(16, r - 16))}px`);
+  positionArrow(t, e, s, i, r, o) {
+    const a = this.arrow.style;
+    a.top = "", a.bottom = "", a.left = "", a.right = "", this.arrow.dataset.side = t;
+    const l = e.x + e.width / 2, c = e.y + e.height / 2;
+    t === "top" ? (a.bottom = "-5px", a.left = `${Math.min(Math.max(l - s, 16), Math.max(16, r - 16))}px`) : t === "bottom" ? (a.top = "-5px", a.left = `${Math.min(Math.max(l - s, 16), Math.max(16, r - 16))}px`) : t === "left" ? (a.right = "-5px", a.top = `${Math.min(Math.max(c - i, 16), Math.max(16, o - 16))}px`) : (a.left = "-5px", a.top = `${Math.min(Math.max(c - i, 16), Math.max(16, o - 16))}px`);
   }
   getSide() {
     return this.lastSide;
   }
   destroy() {
-    this.el.remove();
+    this.detachSwipe?.(), this.detachSwipe = null, this.el.remove();
   }
 }
-class gt {
+class Qt {
   constructor() {
-    h(this, "el");
-    h(this, "beaconEl");
-    h(this, "tooltipEl", null);
-    h(this, "textEl", null);
-    h(this, "dismissBtn", null);
-    h(this, "lastRect", null);
-    h(this, "hasTooltip", !1);
+    d(this, "el");
+    d(this, "beaconEl");
+    d(this, "tooltipEl", null);
+    d(this, "textEl", null);
+    d(this, "dismissBtn", null);
+    d(this, "lastRect", null);
+    d(this, "hasTooltip", !1);
     /** Held in a field so re-rendering never stacks duplicate listeners. */
-    h(this, "onDismiss", null);
+    d(this, "onDismiss", null);
     this.el = document.createElement("div"), this.el.className = "ot-hotspot", this.beaconEl = document.createElement("button"), this.beaconEl.type = "button", this.beaconEl.className = "ot-beacon", this.beaconEl.addEventListener("click", () => this.onDismiss?.()), this.el.appendChild(this.beaconEl);
   }
   render(t, e) {
@@ -305,12 +356,12 @@ class gt {
     this.beaconEl.setAttribute("aria-label", s), t.display === "beacon" ? (this.hasTooltip = !1, this.tooltipEl && (this.tooltipEl.style.display = "none"), this.beaconEl.title = t.content ?? "") : (this.hasTooltip = !0, this.buildTooltip(t), this.positionTooltip(e));
   }
   buildTooltip(t) {
-    this.tooltipEl || (this.tooltipEl = document.createElement("div"), this.tooltipEl.className = "ot-hotspot-tooltip", this.tooltipEl.setAttribute("role", "status"), this.textEl = document.createElement("span"), this.textEl.className = "ot-hotspot-text", this.tooltipEl.appendChild(this.textEl), this.el.appendChild(this.tooltipEl)), this.tooltipEl.style.display = "flex", this.textEl && (this.textEl.innerHTML = P(t.content ?? "")), t.showDismiss || t.display === "hotspot" ? (this.dismissBtn || (this.dismissBtn = document.createElement("button"), this.dismissBtn.type = "button", this.dismissBtn.className = "ot-hotspot-dismiss", this.dismissBtn.textContent = "→", this.dismissBtn.setAttribute("aria-label", "Next step"), this.dismissBtn.addEventListener("click", () => this.onDismiss?.())), this.tooltipEl.appendChild(this.dismissBtn)) : this.dismissBtn?.parentNode && this.dismissBtn.remove();
+    this.tooltipEl || (this.tooltipEl = document.createElement("div"), this.tooltipEl.className = "ot-hotspot-tooltip", this.tooltipEl.setAttribute("role", "status"), this.textEl = document.createElement("span"), this.textEl.className = "ot-hotspot-text", this.tooltipEl.appendChild(this.textEl), this.el.appendChild(this.tooltipEl)), this.tooltipEl.style.display = "flex", this.textEl && (this.textEl.innerHTML = J(t.content ?? "")), t.showDismiss || t.display === "hotspot" ? (this.dismissBtn || (this.dismissBtn = document.createElement("button"), this.dismissBtn.type = "button", this.dismissBtn.className = "ot-hotspot-dismiss", this.dismissBtn.textContent = "→", this.dismissBtn.setAttribute("aria-label", "Next step"), this.dismissBtn.addEventListener("click", () => this.onDismiss?.())), this.tooltipEl.appendChild(this.dismissBtn)) : this.dismissBtn?.parentNode && this.dismissBtn.remove();
   }
   positionTooltip(t) {
     if (!this.tooltipEl) return;
-    const e = window.innerWidth, s = this.tooltipEl.offsetWidth || 200, i = t.x + t.width / 2, o = e - (i + 16), r = i - 16;
-    o > s ? (this.tooltipEl.style.left = "12px", this.tooltipEl.style.right = "auto") : r > s ? (this.tooltipEl.style.right = "12px", this.tooltipEl.style.left = "auto") : (this.tooltipEl.style.left = `${Math.max(8, -(i - 8))}px`, this.tooltipEl.style.right = "auto"), this.tooltipEl.style.top = "16px";
+    const e = window.innerWidth, s = this.tooltipEl.offsetWidth || 200, i = t.x + t.width / 2, r = e - (i + 16), o = i - 16;
+    r > s ? (this.tooltipEl.style.left = "12px", this.tooltipEl.style.right = "auto") : o > s ? (this.tooltipEl.style.right = "12px", this.tooltipEl.style.left = "auto") : (this.tooltipEl.style.left = `${Math.max(8, -(i - 8))}px`, this.tooltipEl.style.right = "auto"), this.tooltipEl.style.top = "16px";
   }
   reposition(t) {
     this.lastRect && (this.lastRect = t, this.el.style.left = `${t.x + t.width / 2}px`, this.el.style.top = `${t.y + t.height / 2}px`, this.hasTooltip && this.positionTooltip(t));
@@ -322,8 +373,8 @@ class gt {
     this.onDismiss = null, this.el.remove();
   }
 }
-const vt = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-function yt(n) {
+const Zt = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+function te(n) {
   if (!n) return !1;
   if (n.isContentEditable) return !0;
   const t = n.tagName;
@@ -332,72 +383,72 @@ function yt(n) {
   const e = n.type;
   return !["button", "submit", "reset", "checkbox", "radio", "file"].includes(e);
 }
-function bt(n, t = {}) {
-  const e = document.activeElement, s = t.trap !== !1, i = () => Array.from(n.querySelectorAll(vt)).filter((r) => r.getClientRects().length > 0 || r === document.activeElement), o = (r) => {
-    const c = n.getRootNode().activeElement ?? document.activeElement;
-    if (r.key === "Escape") {
-      t.onEscape?.(), r.stopPropagation();
+function ee(n, t = {}) {
+  const e = document.activeElement, s = t.trap !== !1, i = () => Array.from(n.querySelectorAll(Zt)).filter((o) => o.getClientRects().length > 0 || o === document.activeElement), r = (o) => {
+    const a = n.getRootNode().activeElement ?? document.activeElement;
+    if (o.key === "Escape") {
+      t.onEscape?.(), o.stopPropagation();
       return;
     }
-    if (yt(c)) return;
-    if (r.key === "ArrowRight") {
-      t.onArrowNext?.(), r.preventDefault();
+    if (te(a)) return;
+    if (o.key === "ArrowRight") {
+      t.onArrowNext?.(), o.preventDefault();
       return;
     }
-    if (r.key === "ArrowLeft") {
-      t.onArrowPrev?.(), r.preventDefault();
+    if (o.key === "ArrowLeft") {
+      t.onArrowPrev?.(), o.preventDefault();
       return;
     }
-    if (r.key === "Enter" && c === n) {
-      t.onArrowNext?.(), r.preventDefault();
+    if (o.key === "Enter" && a === n) {
+      t.onArrowNext?.(), o.preventDefault();
       return;
     }
-    if (r.key !== "Tab" || !s) return;
-    const a = i();
-    if (!a.length) {
-      r.preventDefault();
+    if (o.key !== "Tab" || !s) return;
+    const l = i();
+    if (!l.length) {
+      o.preventDefault();
       return;
     }
-    const l = a[0], u = a[a.length - 1];
-    r.shiftKey && (c === l || !n.contains(c)) ? (u.focus(), r.preventDefault()) : !r.shiftKey && c === u && (l.focus(), r.preventDefault());
+    const c = l[0], u = l[l.length - 1];
+    o.shiftKey && (a === c || !n.contains(a)) ? (u.focus(), o.preventDefault()) : !o.shiftKey && a === u && (c.focus(), o.preventDefault());
   };
-  return n.addEventListener("keydown", o), t.autoFocus !== !1 && n.focus({ preventScroll: !0 }), () => {
-    n.removeEventListener("keydown", o);
-    const r = document.activeElement;
-    (!r || r === document.body || n.contains(r)) && e?.focus?.({ preventScroll: !0 });
+  return n.addEventListener("keydown", r), t.autoFocus !== !1 && n.focus({ preventScroll: !0 }), () => {
+    n.removeEventListener("keydown", r);
+    const o = document.activeElement;
+    (!o || o === document.body || n.contains(o)) && e?.focus?.({ preventScroll: !0 });
   };
 }
-const R = "opentutorial:locationchange";
-let O = !1;
-function wt() {
-  if (O || typeof history > "u") return;
-  O = !0;
+const ct = "opentutorial:locationchange";
+let gt = !1;
+function se() {
+  if (gt || typeof history > "u") return;
+  gt = !0;
   const n = () => {
     try {
-      window.dispatchEvent(new Event(R));
+      window.dispatchEvent(new Event(ct));
     } catch {
     }
   };
   for (const t of ["pushState", "replaceState"]) {
     const e = history[t];
     typeof e == "function" && (history[t] = function(...i) {
-      const o = e.apply(this, i);
-      return n(), o;
+      const r = e.apply(this, i);
+      return n(), r;
     });
   }
 }
-function K() {
+function It() {
   return typeof location > "u" ? "" : location.pathname + location.search + location.hash;
 }
-function Y(n, t, e = !1) {
+function Tt(n, t, e = !1) {
   if (!n) return !1;
   const s = t.split("#")[0];
   if (n.endsWith("*"))
     return s.startsWith(n.slice(0, -1));
   if (n.includes(":")) {
-    const o = n.split("/").map((r) => r.startsWith(":") ? "[^/]+" : r.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("/");
+    const r = n.split("/").map((o) => o.startsWith(":") ? "[^/]+" : o.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("/");
     try {
-      return new RegExp(`^${o}${e ? "$" : "(/|$|\\?)"}`).test(s);
+      return new RegExp(`^${r}${e ? "$" : "(/|$|\\?)"}`).test(s);
     } catch {
       return !1;
     }
@@ -405,15 +456,15 @@ function Y(n, t, e = !1) {
   const i = s.split("?")[0];
   return e ? i === n : i.startsWith(n);
 }
-function J(n) {
+function Lt(n) {
   return typeof window > "u" ? () => {
-  } : (wt(), window.addEventListener("popstate", n), window.addEventListener("hashchange", n), window.addEventListener(R, n), () => {
-    window.removeEventListener("popstate", n), window.removeEventListener("hashchange", n), window.removeEventListener(R, n);
+  } : (se(), window.addEventListener("popstate", n), window.addEventListener("hashchange", n), window.addEventListener(ct, n), () => {
+    window.removeEventListener("popstate", n), window.removeEventListener("hashchange", n), window.removeEventListener(ct, n);
   });
 }
-class C {
+class st {
   constructor() {
-    h(this, "map", /* @__PURE__ */ new Map());
+    d(this, "map", /* @__PURE__ */ new Map());
   }
   getItem(t) {
     return this.map.get(t) ?? null;
@@ -425,10 +476,10 @@ class C {
     this.map.delete(t);
   }
 }
-function Ut() {
-  return new C();
+function Te() {
+  return new st();
 }
-function X() {
+function Nt() {
   try {
     if (typeof localStorage < "u") {
       const n = "__ot_probe__";
@@ -436,20 +487,20 @@ function X() {
     }
   } catch {
   }
-  return new C();
+  return new st();
 }
-function L() {
+function rt() {
   return { v: 2, tours: {}, progress: {} };
 }
-class xt {
+class Pt {
   constructor(t, e = "ot", s) {
-    h(this, "ready");
-    h(this, "storage");
-    h(this, "prefix");
-    h(this, "userId");
-    h(this, "root", L());
-    h(this, "hydrated", !1);
-    this.storage = t ?? X(), this.prefix = e, this.userId = s, this.ready = this.hydrate();
+    d(this, "ready");
+    d(this, "storage");
+    d(this, "prefix");
+    d(this, "userId");
+    d(this, "root", rt());
+    d(this, "hydrated", !1);
+    this.storage = t ?? Nt(), this.prefix = e, this.userId = s, this.ready = this.hydrate();
   }
   key() {
     return this.userId ? `${this.prefix}:u:${this.userId}` : `${this.prefix}:anon`;
@@ -462,7 +513,7 @@ class xt {
    * the previous user's completions over.
    */
   setUser(t) {
-    return t === this.userId ? this.ready : (this.userId = t, this.root = L(), this.hydrated = !1, this.hydrate());
+    return t === this.userId ? this.ready : (this.userId = t, this.root = rt(), this.hydrated = !1, this.hydrate());
   }
   getUser() {
     return this.userId;
@@ -550,7 +601,7 @@ class xt {
   }
   reset(t) {
     if (!t) {
-      this.root = L(), this.save();
+      this.root = rt(), this.save();
       return;
     }
     delete this.root.tours[t], delete this.root.progress[t], this.save();
@@ -597,19 +648,19 @@ class xt {
     if (e === "replace")
       this.root = s;
     else {
-      for (const [i, o] of Object.entries(s.tours)) {
-        const r = this.root.tours[i];
-        (!r || o.at > r.at) && (this.root.tours[i] = o);
+      for (const [i, r] of Object.entries(s.tours)) {
+        const o = this.root.tours[i];
+        (!o || r.at > o.at) && (this.root.tours[i] = r);
       }
-      for (const [i, o] of Object.entries(s.progress)) {
-        const r = this.root.progress[i];
-        (!r || o.timestamp > r.timestamp) && (this.root.progress[i] = o);
+      for (const [i, r] of Object.entries(s.progress)) {
+        const o = this.root.progress[i];
+        (!o || r.timestamp > o.timestamp) && (this.root.progress[i] = r);
       }
     }
     return this.save(), !0;
   }
 }
-const j = /* @__PURE__ */ new Set([
+const vt = /* @__PURE__ */ new Set([
   "auto",
   "center",
   "top",
@@ -624,7 +675,7 @@ const j = /* @__PURE__ */ new Set([
   "right",
   "right-start",
   "right-end"
-]), H = /* @__PURE__ */ new Set(["spotlight", "hotspot", "beacon", "modal", "banner"]), F = /* @__PURE__ */ new Set([
+]), yt = /* @__PURE__ */ new Set(["spotlight", "hotspot", "beacon", "modal", "banner"]), bt = /* @__PURE__ */ new Set([
   "button",
   "target-click",
   "event",
@@ -634,7 +685,7 @@ const j = /* @__PURE__ */ new Set([
   "element-appears",
   "element-disappears",
   "url-match"
-]), z = /* @__PURE__ */ new Set(["manual", "auto", "event", "route", "element", "idle", "scroll"]), Et = /* @__PURE__ */ new Set(["emit", "click", "focus", "navigate", "setContext", "scrollTo", "wait"]), kt = /* @__PURE__ */ new Set(["text", "image", "video", "list", "code", "divider", "html"]), V = /* @__PURE__ */ new Set(["free", "target-only", "blocked"]), $t = /* @__PURE__ */ new Set([
+]), wt = /* @__PURE__ */ new Set(["manual", "auto", "event", "route", "element", "idle", "scroll"]), ie = /* @__PURE__ */ new Set(["emit", "click", "focus", "navigate", "setContext", "scrollTo", "wait"]), ne = /* @__PURE__ */ new Set(["text", "image", "video", "list", "code", "divider", "html"]), xt = /* @__PURE__ */ new Set(["free", "target-only", "blocked"]), re = /* @__PURE__ */ new Set([
   "specVersion",
   "id",
   "title",
@@ -648,7 +699,7 @@ const j = /* @__PURE__ */ new Set([
   "theme",
   "interaction",
   "steps"
-]), St = /* @__PURE__ */ new Set([
+]), oe = /* @__PURE__ */ new Set([
   "id",
   "target",
   "placement",
@@ -670,7 +721,7 @@ const j = /* @__PURE__ */ new Set([
   "theme",
   "onEnter",
   "onExit"
-]), At = /* @__PURE__ */ new Set([
+]), ae = /* @__PURE__ */ new Set([
   "selector",
   "text",
   "index",
@@ -682,7 +733,7 @@ const j = /* @__PURE__ */ new Set([
   "scrollIntoView",
   "scrollBehavior",
   "padding"
-]), It = /* @__PURE__ */ new Set([
+]), le = /* @__PURE__ */ new Set([
   "accent",
   "bg",
   "fg",
@@ -702,14 +753,14 @@ const j = /* @__PURE__ */ new Set([
   "z",
   "spotlightRing",
   "popoverWidth"
-]), Tt = /^[a-z0-9]+(-[a-z0-9]+)*$/, $ = { title: 60, stepTitle: 80, description: 200, content: 320, steps: 24 }, _ = { steps: 200 };
-function p(n) {
+]), ce = /^[a-z0-9]+(-[a-z0-9]+)*$/, F = { title: 60, stepTitle: 80, description: 200, content: 320, steps: 24 }, kt = { steps: 200 };
+function q(n) {
   return typeof n == "object" && n !== null && !Array.isArray(n);
 }
-class Ct {
+class he {
   constructor() {
-    h(this, "errors", []);
-    h(this, "warnings", []);
+    d(this, "errors", []);
+    d(this, "warnings", []);
   }
   error(t, e) {
     this.errors.push({ path: t, message: e, severity: "error" });
@@ -718,17 +769,17 @@ class Ct {
     this.warnings.push({ path: t, message: e, severity: "warning" });
   }
 }
-function U(n, t, e) {
+function Et(n, t, e) {
   if (n !== void 0) {
-    if (!p(n)) {
+    if (!q(n)) {
       e.error(t, "theme must be an object");
       return;
     }
     for (const s of Object.keys(n))
-      It.has(s) || e.warn(`${t}.${s}`, `unknown theme token "${s}" (ignored)`);
+      le.has(s) || e.warn(`${t}.${s}`, `unknown theme token "${s}" (ignored)`);
   }
 }
-function N(n, t, e) {
+function ot(n, t, e) {
   if (n === void 0) return;
   if (typeof n != "string") {
     e.error(t, "must be a string expression");
@@ -738,80 +789,80 @@ function N(n, t, e) {
     e.error(t, `expression must be ≤ 500 chars (got ${n.length})`);
     return;
   }
-  const s = it(n);
+  const s = Dt(n);
   s.ok || e.error(t, `invalid expression: ${s.message}`);
 }
-function G(n, t, e) {
+function St(n, t, e) {
   if (n !== void 0) {
     if (!Array.isArray(n)) {
       e.error(t, "must be an array of actions");
       return;
     }
     n.forEach((s, i) => {
-      const o = `${t}[${i}]`;
-      if (!p(s)) {
-        e.error(o, "action must be an object");
+      const r = `${t}[${i}]`;
+      if (!q(s)) {
+        e.error(r, "action must be an object");
         return;
       }
-      if (!Et.has(s.type)) {
-        e.error(`${o}.type`, `unknown action type "${String(s.type)}"`);
+      if (!ie.has(s.type)) {
+        e.error(`${r}.type`, `unknown action type "${String(s.type)}"`);
         return;
       }
-      s.type === "emit" && typeof s.name != "string" && e.error(`${o}.name`, 'emit action requires a string "name"'), s.type === "navigate" && (typeof s.path != "string" || !s.path.startsWith("/")) && e.error(`${o}.path`, 'navigate requires a same-origin "path" starting with /'), s.type === "setContext" && typeof s.key != "string" && e.error(`${o}.key`, 'setContext requires a string "key"'), s.type === "scrollTo" && typeof s.selector != "string" && e.error(`${o}.selector`, 'scrollTo requires a string "selector"'), s.type === "wait" && typeof s.ms != "number" && e.error(`${o}.ms`, 'wait requires a numeric "ms"');
+      s.type === "emit" && typeof s.name != "string" && e.error(`${r}.name`, 'emit action requires a string "name"'), s.type === "navigate" && (typeof s.path != "string" || !s.path.startsWith("/")) && e.error(`${r}.path`, 'navigate requires a same-origin "path" starting with /'), s.type === "setContext" && typeof s.key != "string" && e.error(`${r}.key`, 'setContext requires a string "key"'), s.type === "scrollTo" && typeof s.selector != "string" && e.error(`${r}.selector`, 'scrollTo requires a string "selector"'), s.type === "wait" && typeof s.ms != "number" && e.error(`${r}.ms`, 'wait requires a numeric "ms"');
     });
   }
 }
-function I(n, t, e) {
+function tt(n, t, e) {
   if (typeof n == "string") return n.length;
-  if (p(n) && typeof n.key == "string") return n.key.length;
-  if (p(n) && Array.isArray(n.blocks)) {
+  if (q(n) && typeof n.key == "string") return n.key.length;
+  if (q(n) && Array.isArray(n.blocks)) {
     if (n.blocks.length === 0) {
       e.error(t, "blocks must not be empty");
       return;
     }
     let s = 0;
-    return n.blocks.forEach((i, o) => {
-      const r = `${t}.blocks[${o}]`;
-      if (!p(i)) {
-        e.error(r, "block must be an object");
+    return n.blocks.forEach((i, r) => {
+      const o = `${t}.blocks[${r}]`;
+      if (!q(i)) {
+        e.error(o, "block must be an object");
         return;
       }
-      if (!kt.has(i.type)) {
-        e.error(`${r}.type`, `unknown block type "${String(i.type)}"`);
+      if (!ne.has(i.type)) {
+        e.error(`${o}.type`, `unknown block type "${String(i.type)}"`);
         return;
       }
       switch (i.type) {
         case "text":
-          typeof i.value == "string" ? s += i.value.length : (!p(i.value) || typeof i.value.key != "string") && e.error(`${r}.value`, "text block requires a string or i18n object");
+          typeof i.value == "string" ? s += i.value.length : (!q(i.value) || typeof i.value.key != "string") && e.error(`${o}.value`, "text block requires a string or i18n object");
           break;
         case "image":
-          typeof i.src != "string" && e.error(`${r}.src`, 'image block requires "src"'), typeof i.alt != "string" && e.error(`${r}.alt`, 'image block requires "alt" for accessibility');
+          typeof i.src != "string" && e.error(`${o}.src`, 'image block requires "src"'), typeof i.alt != "string" && e.error(`${o}.alt`, 'image block requires "alt" for accessibility');
           break;
         case "video":
-          typeof i.src != "string" && e.error(`${r}.src`, 'video block requires "src"');
+          typeof i.src != "string" && e.error(`${o}.src`, 'video block requires "src"');
           break;
         case "list":
-          (!Array.isArray(i.items) || i.items.length === 0) && e.error(`${r}.items`, 'list block requires a non-empty "items" array');
+          (!Array.isArray(i.items) || i.items.length === 0) && e.error(`${o}.items`, 'list block requires a non-empty "items" array');
           break;
         case "code":
-          typeof i.value != "string" && e.error(`${r}.value`, 'code block requires a string "value"');
+          typeof i.value != "string" && e.error(`${o}.value`, 'code block requires a string "value"');
           break;
         case "html":
-          typeof i.value != "string" ? e.error(`${r}.value`, 'html block requires a string "value"') : e.warn(r, "html blocks render only when the host sets allowHtml: true");
+          typeof i.value != "string" ? e.error(`${o}.value`, 'html block requires a string "value"') : e.warn(o, "html blocks render only when the host sets allowHtml: true");
           break;
       }
     }), s;
   }
 }
-function Lt(n, t) {
+function de(n, t) {
   if (n === void 0) return;
-  if (!p(n)) {
+  if (!q(n)) {
     t.error("$.trigger", "must be an object");
     return;
   }
   const e = n.type;
-  if (!z.has(e)) {
-    t.error("$.trigger.type", `must be one of: ${[...z].join(" | ")}`);
+  if (!wt.has(e)) {
+    t.error("$.trigger.type", `must be one of: ${[...wt].join(" | ")}`);
     return;
   }
   if (n.delay !== void 0 && (typeof n.delay != "number" || n.delay < 0) && t.error("$.trigger.delay", "must be a non-negative number (ms)"), e === "event" && typeof n.event != "string" && t.error("$.trigger.event", 'required when trigger.type === "event"'), e === "route" && typeof n.path != "string" && t.error("$.trigger.path", 'required when trigger.type === "route"'), e === "element" && typeof n.selector != "string" && t.error("$.trigger.selector", 'required when trigger.type === "element"'), e === "idle" && (typeof n.ms != "number" || n.ms <= 0) && t.error("$.trigger.ms", 'required positive number (ms) when trigger.type === "idle"'), e === "scroll") {
@@ -819,90 +870,90 @@ function Lt(n, t) {
     (typeof s != "number" || s < 0 || s > 100) && t.error("$.trigger.percent", "must be a number between 0 and 100");
   }
 }
-function Nt(n, t, e) {
+function ue(n, t, e) {
   if (n === void 0) return;
-  if (!p(n)) {
+  if (!q(n)) {
     e.error(`${t}.target`, "must be an object");
     return;
   }
-  for (const r of Object.keys(n))
-    At.has(r) || e.warn(`${t}.target.${r}`, `unknown target key "${r}" (ignored)`);
-  const { selector: s, text: i } = n, o = typeof s == "string" && s.trim().length > 0 || Array.isArray(s) && s.length > 0 && s.every((r) => typeof r == "string" && r.trim());
-  s !== void 0 && !o && e.error(`${t}.target.selector`, "must be a non-empty CSS selector or array of selectors"), !o && typeof i != "string" && e.error(`${t}.target`, 'requires "selector", "text", or both'), n.timeout !== void 0 && (typeof n.timeout != "number" || n.timeout < 0) && e.error(`${t}.target.timeout`, "must be a non-negative number (ms)"), n.padding !== void 0 && (typeof n.padding != "number" || n.padding < 0) && e.error(`${t}.target.padding`, "must be a non-negative number (px)"), n.index !== void 0 && (typeof n.index != "number" || n.index < 0) && e.error(`${t}.target.index`, "must be a non-negative integer"), n.iframe !== void 0 && typeof n.iframe != "string" && e.error(`${t}.target.iframe`, "must be a CSS selector string"), n.scrollBehavior !== void 0 && !["auto", "smooth"].includes(n.scrollBehavior) && e.error(`${t}.target.scrollBehavior`, 'must be "auto" or "smooth"');
+  for (const o of Object.keys(n))
+    ae.has(o) || e.warn(`${t}.target.${o}`, `unknown target key "${o}" (ignored)`);
+  const { selector: s, text: i } = n, r = typeof s == "string" && s.trim().length > 0 || Array.isArray(s) && s.length > 0 && s.every((o) => typeof o == "string" && o.trim());
+  s !== void 0 && !r && e.error(`${t}.target.selector`, "must be a non-empty CSS selector or array of selectors"), !r && typeof i != "string" && e.error(`${t}.target`, 'requires "selector", "text", or both'), n.timeout !== void 0 && (typeof n.timeout != "number" || n.timeout < 0) && e.error(`${t}.target.timeout`, "must be a non-negative number (ms)"), n.padding !== void 0 && (typeof n.padding != "number" || n.padding < 0) && e.error(`${t}.target.padding`, "must be a non-negative number (px)"), n.index !== void 0 && (typeof n.index != "number" || n.index < 0) && e.error(`${t}.target.index`, "must be a non-negative integer"), n.iframe !== void 0 && typeof n.iframe != "string" && e.error(`${t}.target.iframe`, "must be a CSS selector string"), n.scrollBehavior !== void 0 && !["auto", "smooth"].includes(n.scrollBehavior) && e.error(`${t}.target.scrollBehavior`, 'must be "auto" or "smooth"');
 }
-function M(n) {
-  const t = new Ct();
-  if (!p(n))
+function ut(n) {
+  const t = new he();
+  if (!q(n))
     return {
       ok: !1,
       errors: [{ path: "$", message: "spec must be a JSON object", severity: "error" }],
       warnings: []
     };
   for (const i of Object.keys(n))
-    $t.has(i) || t.warn(`$.${i}`, `unknown top-level key "${i}" (ignored)`);
-  n.specVersion !== 1 && t.error("$.specVersion", "must be the integer 1"), typeof n.id != "string" || !n.id ? t.error("$.id", "required, non-empty string") : Tt.test(n.id) || t.error("$.id", 'must be kebab-case (e.g. "dashboard-intro")');
-  const e = I(n.title, "$.title", t);
-  if (e === void 0 ? t.error("$.title", "required (string or i18n object with key)") : e === 0 ? t.error("$.title", "must not be empty") : e > $.title && t.warn("$.title", `longer than ${$.title} chars (got ${e})`), n.description !== void 0) {
-    const i = I(n.description, "$.description", t);
-    i === void 0 ? t.error("$.description", "must be a string or i18n object") : i > $.description && t.warn("$.description", `longer than ${$.description} chars (got ${i})`);
+    re.has(i) || t.warn(`$.${i}`, `unknown top-level key "${i}" (ignored)`);
+  n.specVersion !== 1 && t.error("$.specVersion", "must be the integer 1"), typeof n.id != "string" || !n.id ? t.error("$.id", "required, non-empty string") : ce.test(n.id) || t.error("$.id", 'must be kebab-case (e.g. "dashboard-intro")');
+  const e = tt(n.title, "$.title", t);
+  if (e === void 0 ? t.error("$.title", "required (string or i18n object with key)") : e === 0 ? t.error("$.title", "must not be empty") : e > F.title && t.warn("$.title", `longer than ${F.title} chars (got ${e})`), n.description !== void 0) {
+    const i = tt(n.description, "$.description", t);
+    i === void 0 ? t.error("$.description", "must be a string or i18n object") : i > F.description && t.warn("$.description", `longer than ${F.description} chars (got ${i})`);
   }
-  if (n.version !== void 0 && typeof n.version != "string" && t.error("$.version", 'must be a string (e.g. "1.0.0")'), n.priority !== void 0 && typeof n.priority != "number" && t.error("$.priority", "must be a number"), n.interaction !== void 0 && !V.has(n.interaction) && t.error("$.interaction", 'must be "free" | "target-only" | "blocked"'), Lt(n.trigger, t), n.audience !== void 0 && (p(n.audience) ? N(n.audience.showIf, "$.audience.showIf", t) : t.error("$.audience", "must be an object")), n.frequency !== void 0)
-    if (!p(n.frequency))
+  if (n.version !== void 0 && typeof n.version != "string" && t.error("$.version", 'must be a string (e.g. "1.0.0")'), n.priority !== void 0 && typeof n.priority != "number" && t.error("$.priority", "must be a number"), n.interaction !== void 0 && !xt.has(n.interaction) && t.error("$.interaction", 'must be "free" | "target-only" | "blocked"'), de(n.trigger, t), n.audience !== void 0 && (q(n.audience) ? ot(n.audience.showIf, "$.audience.showIf", t) : t.error("$.audience", "must be an object")), n.frequency !== void 0)
+    if (!q(n.frequency))
       t.error("$.frequency", "must be an object");
     else
       for (const i of ["max", "cooldown", "perSession"]) {
-        const o = n.frequency[i];
-        o !== void 0 && (typeof o != "number" || o < 0) && t.error(`$.frequency.${i}`, "must be a non-negative number");
+        const r = n.frequency[i];
+        r !== void 0 && (typeof r != "number" || r < 0) && t.error(`$.frequency.${i}`, "must be a non-negative number");
       }
   if (n.onComplete !== void 0)
-    if (!p(n.onComplete))
+    if (!q(n.onComplete))
       t.error("$.onComplete", "must be an object");
     else {
-      const { startTour: i, emit: o, navigate: r } = n.onComplete;
-      i !== void 0 && typeof i != "string" && t.error("$.onComplete.startTour", "must be a tour id string"), o !== void 0 && typeof o != "string" && t.error("$.onComplete.emit", "must be an event name string"), r !== void 0 && (typeof r != "string" || !r.startsWith("/")) && t.error("$.onComplete.navigate", "must be a same-origin path starting with /");
+      const { startTour: i, emit: r, navigate: o } = n.onComplete;
+      i !== void 0 && typeof i != "string" && t.error("$.onComplete.startTour", "must be a tour id string"), r !== void 0 && typeof r != "string" && t.error("$.onComplete.emit", "must be an event name string"), o !== void 0 && (typeof o != "string" || !o.startsWith("/")) && t.error("$.onComplete.navigate", "must be a same-origin path starting with /");
     }
-  if (U(n.theme, "$.theme", t), !Array.isArray(n.steps))
+  if (Et(n.theme, "$.theme", t), !Array.isArray(n.steps))
     return t.error("$.steps", "required, must be an array"), { ok: !1, errors: t.errors, warnings: t.warnings };
-  n.steps.length < 1 && t.error("$.steps", "must contain at least 1 step"), n.steps.length > _.steps ? t.error("$.steps", `must contain ≤ ${_.steps} steps (got ${n.steps.length})`) : n.steps.length > $.steps && t.warn("$.steps", `${n.steps.length} steps is a lot; consider splitting into several tours`);
+  n.steps.length < 1 && t.error("$.steps", "must contain at least 1 step"), n.steps.length > kt.steps ? t.error("$.steps", `must contain ≤ ${kt.steps} steps (got ${n.steps.length})`) : n.steps.length > F.steps && t.warn("$.steps", `${n.steps.length} steps is a lot; consider splitting into several tours`);
   const s = /* @__PURE__ */ new Set();
-  return n.steps.forEach((i, o) => {
-    const r = `$.steps[${o}]`;
-    if (!p(i)) {
-      t.error(r, "step must be an object");
+  return n.steps.forEach((i, r) => {
+    const o = `$.steps[${r}]`;
+    if (!q(i)) {
+      t.error(o, "step must be an object");
       return;
     }
-    for (const d of Object.keys(i))
-      St.has(d) || t.warn(`${r}.${d}`, `unknown step key "${d}" (ignored)`);
-    typeof i.id != "string" || !i.id ? t.error(`${r}.id`, "required") : s.has(i.id) ? t.error(`${r}.id`, `duplicate step id "${i.id}"`) : s.add(i.id);
-    const c = i.display;
-    c !== void 0 && !H.has(c) && t.error(`${r}.display`, `must be one of: ${[...H].join(" | ")}`), Nt(i.target, r, t), i.placement !== void 0 && !j.has(i.placement) && t.error(`${r}.placement`, `must be one of: ${[...j].join(" | ")}`), i.interaction !== void 0 && !V.has(i.interaction) && t.error(`${r}.interaction`, 'must be "free" | "target-only" | "blocked"');
-    const a = I(i.title, `${r}.title`, t);
-    a === void 0 ? t.error(`${r}.title`, "required (string or i18n object with key)") : a === 0 ? t.error(`${r}.title`, "must not be empty") : a > $.stepTitle && t.warn(`${r}.title`, `longer than ${$.stepTitle} chars (got ${a})`);
-    const l = I(i.content, `${r}.content`, t);
-    if (l === void 0 ? t.error(`${r}.content`, "required (string, i18n object, or { blocks: [...] })") : l > $.content && t.warn(`${r}.content`, `longer than ${$.content} chars (got ${l}); long copy hurts completion`), i.buttons !== void 0)
-      if (!p(i.buttons)) t.error(`${r}.buttons`, "must be an object");
+    for (const h of Object.keys(i))
+      oe.has(h) || t.warn(`${o}.${h}`, `unknown step key "${h}" (ignored)`);
+    typeof i.id != "string" || !i.id ? t.error(`${o}.id`, "required") : s.has(i.id) ? t.error(`${o}.id`, `duplicate step id "${i.id}"`) : s.add(i.id);
+    const a = i.display;
+    a !== void 0 && !yt.has(a) && t.error(`${o}.display`, `must be one of: ${[...yt].join(" | ")}`), ue(i.target, o, t), i.placement !== void 0 && !vt.has(i.placement) && t.error(`${o}.placement`, `must be one of: ${[...vt].join(" | ")}`), i.interaction !== void 0 && !xt.has(i.interaction) && t.error(`${o}.interaction`, 'must be "free" | "target-only" | "blocked"');
+    const l = tt(i.title, `${o}.title`, t);
+    l === void 0 ? t.error(`${o}.title`, "required (string or i18n object with key)") : l === 0 ? t.error(`${o}.title`, "must not be empty") : l > F.stepTitle && t.warn(`${o}.title`, `longer than ${F.stepTitle} chars (got ${l})`);
+    const c = tt(i.content, `${o}.content`, t);
+    if (c === void 0 ? t.error(`${o}.content`, "required (string, i18n object, or { blocks: [...] })") : c > F.content && t.warn(`${o}.content`, `longer than ${F.content} chars (got ${c}); long copy hurts completion`), i.buttons !== void 0)
+      if (!q(i.buttons)) t.error(`${o}.buttons`, "must be an object");
       else
-        for (const d of Object.keys(i.buttons))
-          ["next", "back", "skip", "done"].includes(d) || t.warn(`${r}.buttons.${d}`, `unknown button "${d}" (ignored)`);
+        for (const h of Object.keys(i.buttons))
+          ["next", "back", "skip", "done"].includes(h) || t.warn(`${o}.buttons.${h}`, `unknown button "${h}" (ignored)`);
     const u = i.advanceOn ?? "button";
-    F.has(u) || t.error(`${r}.advanceOn`, `must be one of: ${[...F].join(" | ")}`), u === "event" && typeof i.event != "string" && t.error(`${r}.event`, 'required when advanceOn === "event"'), u === "auto" && (typeof i.duration != "number" || i.duration <= 0) && t.error(`${r}.duration`, 'required positive number (ms) when advanceOn === "auto"'), u === "target-click" && i.target === void 0 && t.error(`${r}.target`, 'required when advanceOn === "target-click"'), u === "input-match" && (i.target === void 0 && t.error(`${r}.target`, 'required when advanceOn === "input-match"'), typeof i.match != "string" && t.error(`${r}.match`, 'required when advanceOn === "input-match"')), u === "form-submit" && i.target === void 0 && t.error(`${r}.target`, 'required when advanceOn === "form-submit"'), (u === "element-appears" || u === "element-disappears") && typeof i.watch != "string" && t.error(`${r}.watch`, `required when advanceOn === "${u}"`), u === "url-match" && typeof i.urlPattern != "string" && t.error(`${r}.urlPattern`, 'required when advanceOn === "url-match"'), c === "beacon" && i.duration !== void 0 && typeof i.duration != "number" && t.error(`${r}.duration`, "must be a number (ms)"), i.next !== void 0 && (typeof i.next == "string" || (Array.isArray(i.next) ? (i.next.length === 0 && t.warn(`${r}.next`, "empty branch list falls through to the next step"), i.next.forEach((d, v) => {
-      const x = `${r}.next[${v}]`;
-      if (!p(d)) {
-        t.error(x, "branch must be an object { if, to }");
+    bt.has(u) || t.error(`${o}.advanceOn`, `must be one of: ${[...bt].join(" | ")}`), u === "event" && typeof i.event != "string" && t.error(`${o}.event`, 'required when advanceOn === "event"'), u === "auto" && (typeof i.duration != "number" || i.duration <= 0) && t.error(`${o}.duration`, 'required positive number (ms) when advanceOn === "auto"'), u === "target-click" && i.target === void 0 && t.error(`${o}.target`, 'required when advanceOn === "target-click"'), u === "input-match" && (i.target === void 0 && t.error(`${o}.target`, 'required when advanceOn === "input-match"'), typeof i.match != "string" && t.error(`${o}.match`, 'required when advanceOn === "input-match"')), u === "form-submit" && i.target === void 0 && t.error(`${o}.target`, 'required when advanceOn === "form-submit"'), (u === "element-appears" || u === "element-disappears") && typeof i.watch != "string" && t.error(`${o}.watch`, `required when advanceOn === "${u}"`), u === "url-match" && typeof i.urlPattern != "string" && t.error(`${o}.urlPattern`, 'required when advanceOn === "url-match"'), a === "beacon" && i.duration !== void 0 && typeof i.duration != "number" && t.error(`${o}.duration`, "must be a number (ms)"), i.next !== void 0 && (typeof i.next == "string" || (Array.isArray(i.next) ? (i.next.length === 0 && t.warn(`${o}.next`, "empty branch list falls through to the next step"), i.next.forEach((h, f) => {
+      const k = `${o}.next[${f}]`;
+      if (!q(h)) {
+        t.error(k, "branch must be an object { if, to }");
         return;
       }
-      N(d.if, `${x}.if`, t), typeof d.to != "string" && t.error(`${x}.to`, "must be a step id string");
-    })) : t.error(`${r}.next`, "must be a step id string or an array of { if, to } branches"))), N(i.showIf, `${r}.showIf`, t), U(i.theme, `${r}.theme`, t), G(i.onEnter, `${r}.onEnter`, t), G(i.onExit, `${r}.onExit`, t);
-  }), n.steps.forEach((i, o) => {
-    if (!p(i)) return;
-    const r = `$.steps[${o}].next`;
-    typeof i.next == "string" && !s.has(i.next) ? t.error(r, `points to unknown step id "${i.next}"`) : Array.isArray(i.next) && i.next.forEach((c, a) => {
-      p(c) && typeof c.to == "string" && !s.has(c.to) && t.error(`${r}[${a}].to`, `points to unknown step id "${c.to}"`);
+      ot(h.if, `${k}.if`, t), typeof h.to != "string" && t.error(`${k}.to`, "must be a step id string");
+    })) : t.error(`${o}.next`, "must be a step id string or an array of { if, to } branches"))), ot(i.showIf, `${o}.showIf`, t), Et(i.theme, `${o}.theme`, t), St(i.onEnter, `${o}.onEnter`, t), St(i.onExit, `${o}.onExit`, t);
+  }), n.steps.forEach((i, r) => {
+    if (!q(i)) return;
+    const o = `$.steps[${r}].next`;
+    typeof i.next == "string" && !s.has(i.next) ? t.error(o, `points to unknown step id "${i.next}"`) : Array.isArray(i.next) && i.next.forEach((a, l) => {
+      q(a) && typeof a.to == "string" && !s.has(a.to) && t.error(`${o}[${l}].to`, `points to unknown step id "${a.to}"`);
     });
   }), t.errors.length ? { ok: !1, errors: t.errors, warnings: t.warnings } : { ok: !0, errors: [], warnings: t.warnings };
 }
-function Gt(n) {
-  const t = M(n);
+function Le(n) {
+  const t = ut(n);
   if (!t.ok) {
     const e = t.errors.map((s) => `  • ${s.path}: ${s.message}`).join(`
 `);
@@ -911,66 +962,140 @@ ${e}`);
   }
   return n;
 }
-function Wt(n) {
+function Ne(n) {
   const t = [], e = /* @__PURE__ */ new Set();
   return n.forEach((s, i) => {
-    const o = p(s) && typeof s.id == "string" ? s.id : void 0, r = M(s);
-    for (const c of [...r.errors, ...r.warnings])
-      t.push({ ...c, path: `[${i}]${c.path.slice(1)}`, specId: o });
-    o && (e.has(o) && t.push({ path: `[${i}].id`, message: `duplicate tour id "${o}"`, severity: "error", specId: o }), e.add(o));
+    const r = q(s) && typeof s.id == "string" ? s.id : void 0, o = ut(s);
+    for (const a of [...o.errors, ...o.warnings])
+      t.push({ ...a, path: `[${i}]${a.path.slice(1)}`, specId: r });
+    r && (e.has(r) && t.push({ path: `[${i}].id`, message: `duplicate tour id "${r}"`, severity: "error", specId: r }), e.add(r));
   }), n.forEach((s, i) => {
-    if (!p(s) || !p(s.onComplete)) return;
-    const o = s.onComplete.startTour;
-    typeof o == "string" && !e.has(o) && t.push({
+    if (!q(s) || !q(s.onComplete)) return;
+    const r = s.onComplete.startTour;
+    typeof r == "string" && !e.has(r) && t.push({
       path: `[${i}].onComplete.startTour`,
-      message: `chains to unknown tour "${o}"`,
+      message: `chains to unknown tour "${r}"`,
       severity: "warning",
       specId: typeof s.id == "string" ? s.id : void 0
     });
   }), { ok: !t.some((s) => s.severity === "error"), issues: t };
 }
-const qt = /\{\{\s*([\w.$]+)\s*\}\}/g;
-function Bt(n, t) {
+const pe = ["zero", "one", "two", "few", "many", "other"];
+function $t(n, t) {
   return t.split(".").reduce(
     (e, s) => e && typeof e == "object" ? e[s] : void 0,
     n
   );
 }
-function q(n, t) {
-  return !t || !n.includes("{{") ? n : n.replace(qt, (e, s) => {
-    const i = Bt(t, s);
-    return i == null ? e : String(i);
-  });
+function fe(n, t, e = "en") {
+  let s;
+  try {
+    s = new Intl.PluralRules(e).select(n);
+  } catch {
+    s = n === 1 ? "one" : "other";
+  }
+  return t[s] ?? t.other ?? "";
 }
-function Pt(n, t, e, s) {
-  if (typeof n == "string") return q(n, s);
+function me(n) {
+  const t = {}, e = /(\w+)\s*\{([^{}]*)\}/g;
+  let s;
+  for (; (s = e.exec(n)) !== null; ) {
+    const i = s[1];
+    pe.includes(i) && (t[i] = s[2]);
+  }
+  return t;
+}
+function ge(n, t) {
+  let e = 0;
+  for (let s = t; s < n.length; s += 1) {
+    const i = n[s];
+    if (i === "{") e += 1;
+    else if (i === "}") {
+      if (e === 0 && n[s + 1] === "}") return s;
+      e > 0 && (e -= 1);
+    }
+  }
+  return -1;
+}
+function At(n, t) {
+  try {
+    return new Intl.NumberFormat(t).format(n);
+  } catch {
+    return String(n);
+  }
+}
+function at(n, t, e = "en") {
+  if (!n.includes("{{")) return n;
+  let s = "", i = 0;
+  for (; i < n.length; ) {
+    const r = n.indexOf("{{", i);
+    if (r === -1) {
+      s += n.slice(i);
+      break;
+    }
+    const o = ge(n, r + 2);
+    if (o === -1) {
+      s += n.slice(i);
+      break;
+    }
+    s += n.slice(i, r);
+    const a = n.slice(r + 2, o).trim();
+    s += ve(a, t, e), i = o + 2;
+  }
+  return s;
+}
+function ve(n, t, e) {
+  const s = `{{${n}}}`, i = n.indexOf(",");
+  if (i !== -1) {
+    const o = n.slice(0, i).trim(), a = n.slice(i + 1).trim();
+    if (!a.startsWith("plural")) return s;
+    const l = t ? $t(t, o) : void 0, c = typeof l == "number" ? l : Number(l);
+    if (!Number.isFinite(c)) return s;
+    const u = me(a.slice(6).replace(/^\s*,\s*/, ""));
+    return fe(c, u, e).replace(/#/g, At(c, e));
+  }
+  if (!/^[\w.$]+$/.test(n)) return s;
+  const r = t ? $t(t, n) : void 0;
+  return r == null ? s : typeof r == "number" ? At(r, e) : String(r);
+}
+function Z(n, t, e, s) {
+  if (typeof n == "string") return at(n, s, t);
   if (n && typeof n.key == "string") {
     const i = e?.(n.key, t);
-    return q(i !== void 0 ? i : n.fallback ?? n.key, s);
+    return at(i !== void 0 ? i : n.fallback ?? n.key, s, t);
   }
   return String(n);
 }
-function Kt(n) {
+function Pe(n) {
   return (t) => n[t];
 }
-function Yt(n, t = "en") {
+function qe(n, t = "en") {
   return (e, s) => {
     for (const i of [s, s.split("-")[0], t]) {
-      const o = n[i]?.[e];
-      if (o !== void 0) return o;
+      const r = n[i]?.[e];
+      if (r !== void 0) return r;
     }
   };
 }
-const Rt = {
+const ye = {
   next: "Next",
   back: "Back",
   done: "Done",
   skip: "Skip tour"
 };
-function Mt(n, t, e) {
-  return e?.(`opentutorial.${n}`, t) ?? Rt[n];
+function be(n, t, e) {
+  return e?.(`opentutorial.${n}`, t) ?? ye[n];
 }
-const Dt = {
+const we = /* @__PURE__ */ new Set(["ar", "he", "fa", "ur", "ps", "sd", "ug", "yi", "dv", "ckb"]);
+function Be(n) {
+  try {
+    const t = new Intl.Locale(n), e = t.getTextInfo?.().direction ?? t.textInfo?.direction;
+    if (e === "rtl" || e === "ltr") return e;
+  } catch {
+  }
+  return we.has(n.split("-")[0].toLowerCase()) ? "rtl" : "ltr";
+}
+const xe = {
   accent: "--ot-accent",
   bg: "--ot-bg",
   fg: "--ot-fg",
@@ -990,47 +1115,47 @@ const Dt = {
   z: "--ot-z",
   spotlightRing: "--ot-spotlight-ring",
   popoverWidth: "--ot-popover-width"
-}, Ot = /* @__PURE__ */ new Set(["radius", "popoverWidth", "fontSize", "spacing", "arrowSize", "overlayBlur"]), jt = /* @__PURE__ */ new Set(["animationMs"]), Ht = 200;
-class Q {
+}, ke = /* @__PURE__ */ new Set(["radius", "popoverWidth", "fontSize", "spacing", "arrowSize", "overlayBlur"]), Ee = /* @__PURE__ */ new Set(["animationMs"]), Se = 200;
+class qt {
   constructor(t, e = {}) {
-    h(this, "spec");
-    h(this, "errors", []);
-    h(this, "warnings", []);
-    h(this, "opts");
-    h(this, "persistence");
-    h(this, "context");
-    h(this, "layer", null);
-    h(this, "popover", null);
-    h(this, "hotspot", null);
-    h(this, "customHost", null);
-    h(this, "releaseFocus", null);
-    h(this, "cleanupAdvance", null);
-    h(this, "cleanupTrack", null);
-    h(this, "cleanupRender", null);
-    h(this, "appliedVars", []);
-    h(this, "status", "idle");
-    h(this, "currentId", null);
-    h(this, "history", []);
-    h(this, "resolved", null);
-    h(this, "runToken", 0);
-    h(this, "transitions", 0);
-    h(this, "stepEnteredAt", 0);
-    h(this, "startedAt", 0);
-    h(this, "advancing", !1);
-    this.spec = t, this.opts = e, this.context = { ...e.context ?? {} }, this.persistence = new xt(
+    d(this, "spec");
+    d(this, "errors", []);
+    d(this, "warnings", []);
+    d(this, "opts");
+    d(this, "persistence");
+    d(this, "context");
+    d(this, "layer", null);
+    d(this, "popover", null);
+    d(this, "hotspot", null);
+    d(this, "customHost", null);
+    d(this, "releaseFocus", null);
+    d(this, "cleanupAdvance", null);
+    d(this, "cleanupTrack", null);
+    d(this, "cleanupRender", null);
+    d(this, "appliedVars", []);
+    d(this, "status", "idle");
+    d(this, "currentId", null);
+    d(this, "history", []);
+    d(this, "resolved", null);
+    d(this, "runToken", 0);
+    d(this, "transitions", 0);
+    d(this, "stepEnteredAt", 0);
+    d(this, "startedAt", 0);
+    d(this, "advancing", !1);
+    this.spec = t, this.opts = e, this.context = { ...e.context ?? {} }, this.persistence = new Pt(
       e.persistence?.storage,
       e.persistence?.keyPrefix ?? "ot",
       e.userId
     );
-    const s = M(t);
+    const s = ut(t);
     if (this.warnings = s.warnings, !s.ok || e.strict && s.warnings.length > 0) {
       this.errors = s.ok ? s.warnings : s.errors;
-      const i = this.errors.map((o) => `  • ${o.path}: ${o.message}`).join(`
+      const i = this.errors.map((r) => `  • ${r.path}: ${r.message}`).join(`
 `);
       e.dev !== !1 && console.error(`[opentutorial] Spec "${t?.id ?? "?"}" failed validation:
 ${i}`), this.emit("error", { message: `invalid spec: ${this.errors.length} violation(s)` });
     } else if (s.warnings.length > 0 && e.dev) {
-      const i = s.warnings.map((o) => `  • ${o.path}: ${o.message}`).join(`
+      const i = s.warnings.map((r) => `  • ${r.path}: ${r.message}`).join(`
 `);
       console.warn(`[opentutorial] Spec "${t.id}" has warnings:
 ${i}`);
@@ -1071,6 +1196,23 @@ ${i}`);
   resetProgress() {
     this.persistence.clearProgress(this.spec.id);
   }
+  /**
+   * Snapshot every persisted record — seen state, resume progress, and the
+   * in-flight tour — as plain JSON. Storage is shared across the tours built
+   * from one options object, so this covers all of them, not just this spec.
+   */
+  exportProgress() {
+    return this.persistence.exportAll();
+  }
+  /**
+   * Restore a snapshot from `exportProgress()`. `merge` keeps whichever record
+   * is newer per tour, which is what you want when reconciling a server copy
+   * with local activity; `replace` overwrites wholesale. Returns false when the
+   * payload cannot be parsed, leaving existing state untouched.
+   */
+  importProgress(t, e = "replace") {
+    return this.persistence.importAll(t, e);
+  }
   setUser(t) {
     return this.opts = { ...this.opts, userId: t }, this.persistence.setUser(t);
   }
@@ -1080,7 +1222,7 @@ ${i}`);
   setContext(t) {
     if (Object.assign(this.context, t), this.status === "running") {
       const e = this.currentStep();
-      e?.showIf && !T(e.showIf, this.context) && this.next();
+      e?.showIf && !et(e.showIf, this.context) && this.next();
     }
   }
   setGlobalTheme(t) {
@@ -1097,8 +1239,8 @@ ${i}`);
     await this.persistence.ready, this.status = "running", this.history = [], this.transitions = 0, this.startedAt = Date.now();
     const e = t ? void 0 : this.resolveResumeStep(), s = t ?? e ?? this.visibleSteps()[0]?.id;
     if (this.history = [], s) {
-      const i = this.visibleSteps(), o = i.findIndex((r) => r.id === s);
-      o > 0 && (this.history = i.slice(0, o).map((r) => r.id));
+      const i = this.visibleSteps(), r = i.findIndex((o) => o.id === s);
+      r > 0 && (this.history = i.slice(0, r).map((o) => o.id));
     }
     if (this.buildDom(), this.persistence.markShown(this.spec.id, this.spec.version), this.emit(e ? "resumed" : "started", { stepId: s }), !s) {
       this.complete("empty");
@@ -1109,7 +1251,7 @@ ${i}`);
   resolveResumeStep() {
     if (this.opts.autoResume) {
       const s = this.persistence.getActive();
-      if (s?.tourId === this.spec.id && this.visibleSteps().some((o) => o.id === s.stepId))
+      if (s?.tourId === this.spec.id && this.visibleSteps().some((r) => r.id === s.stepId))
         return s.stepId;
     }
     if (!this.opts.resume) return;
@@ -1124,7 +1266,7 @@ ${i}`);
     if (this.opts.beforeNext) {
       this.advancing = !0;
       try {
-        const s = this.visibleSteps().findIndex((o) => o.id === t.id);
+        const s = this.visibleSteps().findIndex((r) => r.id === t.id);
         if (!await this.opts.beforeNext({ tourId: this.spec.id, step: t, index: Math.max(0, s) })) return;
       } catch {
         return;
@@ -1143,12 +1285,16 @@ ${i}`);
   }
   resolveNextId(t) {
     if (Array.isArray(t.next)) {
-      for (const i of t.next)
-        if (i && typeof i.if == "string" && T(i.if, this.context)) return i.to;
+      for (const o of t.next)
+        if (o && typeof o.if == "string" && et(o.if, this.context)) return o.to;
     } else if (typeof t.next == "string")
       return t.next;
-    const e = this.visibleSteps(), s = e.findIndex((i) => i.id === t.id);
-    return s >= 0 ? e[s + 1]?.id : void 0;
+    const e = this.visibleSteps(), s = e.findIndex((o) => o.id === t.id);
+    if (s >= 0) return e[s + 1]?.id;
+    const i = this.spec.steps.findIndex((o) => o.id === t.id);
+    if (i < 0) return;
+    const r = new Set(e.map((o) => o.id));
+    return this.spec.steps.slice(i + 1).find((o) => r.has(o.id))?.id;
   }
   prev() {
     if (this.status !== "running") return;
@@ -1182,7 +1328,7 @@ ${i}`);
   // Internals
   // -------------------------------------------------------------------------
   visibleSteps() {
-    return this.spec.steps.filter((t) => !t.showIf || T(t.showIf, this.context));
+    return this.spec.steps.filter((t) => !t.showIf || et(t.showIf, this.context));
   }
   currentStep() {
     return this.spec.steps.find((t) => t.id === this.currentId) ?? null;
@@ -1191,21 +1337,21 @@ ${i}`);
     return this.stepEnteredAt ? Date.now() - this.stepEnteredAt : 0;
   }
   text(t) {
-    return Pt(t, this.opts.locale ?? "en", this.opts.i18nResolver, this.context);
+    return Z(t, this.opts.locale ?? "en", this.opts.i18nResolver, this.context);
   }
   blocks(t) {
-    return ct(t, (e) => this.text(e));
+    return ht(t, (e) => this.text(e));
   }
   interactionFor(t) {
     return t.interaction ?? this.spec.interaction ?? this.opts.interaction ?? "free";
   }
   buildDom() {
     const t = this.opts.zIndex ?? 9999;
-    this.layer = new rt(t, {
+    this.layer = new jt(t, {
       container: this.opts.container,
       isolate: this.opts.isolate,
       dir: this.opts.dir
-    }), this.layer.attach(), this.opts.renderStep ? (this.customHost = document.createElement("div"), this.customHost.className = "ot-custom-host", this.layer.mountPopover(this.customHost)) : (this.popover = new mt(
+    }), this.layer.attach(), this.opts.renderStep ? (this.customHost = document.createElement("div"), this.customHost.className = "ot-custom-host", this.layer.mountPopover(this.customHost)) : (this.popover = new Jt(
       {
         onNext: () => {
           this.next();
@@ -1213,7 +1359,8 @@ ${i}`);
         onPrev: () => this.prev(),
         onSkip: () => this.skip("user")
       },
-      this.opts.dir ?? "ltr"
+      this.opts.dir ?? "ltr",
+      { swipe: this.opts.swipe }
     ), this.layer.mountPopover(this.popover.el)), this.applyThemeChain(void 0);
   }
   teardownDom() {
@@ -1237,11 +1384,11 @@ ${i}`);
   }
   async goToInternal(t, e) {
     if (this.status !== "running") return;
-    if (this.transitions += 1, this.transitions > Ht) {
+    if (this.transitions += 1, this.transitions > Se) {
       this.emit("error", { message: "transition limit reached (possible next-loop)" }), this.complete("loop-guard");
       return;
     }
-    const s = this.spec.steps.find((o) => o.id === t);
+    const s = this.spec.steps.find((r) => r.id === t);
     if (!s) {
       this.emit("error", { message: `unknown step "${t}"` });
       return;
@@ -1253,35 +1400,35 @@ ${i}`);
     if (!this.layer) return;
     const e = ++this.runToken, s = () => this.runToken === e && this.status === "running";
     this.currentId = t.id, this.cleanupAdvance?.(), this.cleanupAdvance = null, this.releaseFocus?.(), this.releaseFocus = null, this.applyThemeChain(t.theme);
-    const i = t.display ?? "spotlight", o = this.visibleSteps(), r = Math.max(0, o.findIndex((l) => l.id === t.id));
-    let c = null;
+    const i = t.display ?? "spotlight", r = this.visibleSteps(), o = Math.max(0, r.findIndex((c) => c.id === t.id));
+    let a = null;
     if (t.target) {
-      if (c = A(t.target), !c && t.target.waitFor && (this.renderStep(t, r, o.length, "Looking for the interface element…"), c = await B(t.target, t.target.timeout ?? 5e3), !s()))
+      if (a = Q(t.target), !a && t.target.waitFor && (this.renderStep(t, o, r.length, "Looking for the interface element…"), a = await lt(t.target, t.target.timeout ?? 5e3), !s()))
         return;
-      if (!c) {
-        const l = nt(t.target);
-        this.emit("target-not-found", { stepId: t.id, selector: l, message: `target not found: ${l}` }), this.next();
+      if (!a) {
+        const c = Ht(t.target);
+        this.emit("target-not-found", { stepId: t.id, selector: c, message: `target not found: ${c}` }), this.next();
         return;
       }
     }
     if (!s()) return;
-    if (this.resolved = c, c && t.target?.scrollIntoView !== !1) {
-      const l = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches, u = t.target?.scrollBehavior ?? (l ? "auto" : "smooth");
+    if (this.resolved = a, a && t.target?.scrollIntoView !== !1) {
+      const c = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches, u = t.target?.scrollBehavior ?? (c ? "auto" : "smooth");
       try {
-        c.element.scrollIntoView({ block: "center", inline: "center", behavior: u });
+        a.element.scrollIntoView({ block: "center", inline: "center", behavior: u });
       } catch {
       }
     }
-    if (this.hotspot?.destroy(), this.hotspot = null, this.layer.updateSpotlight(null), this.layer.setInteraction(this.interactionFor(t)), (i === "hotspot" || i === "beacon") && c)
-      this.showIndicator(t, i, c);
+    if (this.hotspot?.destroy(), this.hotspot = null, this.layer.updateSpotlight(null), this.layer.setInteraction(this.interactionFor(t)), (i === "hotspot" || i === "beacon") && a)
+      this.showIndicator(t, i, a);
     else {
-      this.renderStep(t, r, o.length), (i === "modal" || !c) && this.layer.showBackdrop(), requestAnimationFrame(() => requestAnimationFrame(() => {
+      this.renderStep(t, o, r.length), (i === "modal" || !a) && this.layer.showBackdrop(), requestAnimationFrame(() => requestAnimationFrame(() => {
         s() && this.reposition();
       }));
-      const l = this.customHost ?? this.popover?.el;
-      if (l) {
+      const c = this.customHost ?? this.popover?.el;
+      if (c) {
         const u = i === "modal" || this.interactionFor(t) !== "free";
-        this.releaseFocus = bt(l, {
+        this.releaseFocus = ee(c, {
           trap: u,
           onEscape: () => {
             t.skippable !== !1 && this.skip("escape");
@@ -1293,36 +1440,36 @@ ${i}`);
         });
       }
     }
-    this.wireAdvance(t, c?.element ?? null), this.startTracking(), this.stepEnteredAt = Date.now(), this.persistence.saveProgress(this.spec.id, t.id, r), this.opts.autoResume && this.persistence.setActive(this.spec.id, t.id), this.runActions(t.onEnter), this.emit("step-shown", { stepId: t.id, index: r, total: o.length });
+    this.wireAdvance(t, a?.element ?? null), this.startTracking(), this.stepEnteredAt = Date.now(), this.persistence.saveProgress(this.spec.id, t.id, o), this.opts.autoResume && this.persistence.setActive(this.spec.id, t.id), this.runActions(t.onEnter), this.emit("step-shown", { stepId: t.id, index: o, total: r.length });
   }
   showIndicator(t, e, s) {
     if (!this.layer) return;
     const i = this.viewportRect(s);
-    if (this.popover && (this.popover.el.style.display = "none"), this.customHost && (this.customHost.style.display = "none"), this.hotspot = new gt(), this.hotspot.render({
+    if (this.popover && (this.popover.el.style.display = "none"), this.customHost && (this.customHost.style.display = "none"), this.hotspot = new Qt(), this.hotspot.render({
       display: e,
-      content: lt(this.blocks(t.content)),
+      content: zt(this.blocks(t.content)),
       showDismiss: e === "hotspot" || t.advanceOn === "button",
       onDismiss: () => {
         this.next();
       }
     }, i), this.layer.root.appendChild(this.hotspot.el), e === "beacon") {
-      const o = window.setTimeout(() => {
+      const r = window.setTimeout(() => {
         this.next();
       }, t.duration ?? 5e3);
-      this.cleanupAdvance = () => window.clearTimeout(o);
+      this.cleanupAdvance = () => window.clearTimeout(r);
     }
   }
   renderStep(t, e, s, i) {
-    const o = i ? [{ type: "text", value: i }] : this.blocks(t.content);
+    const r = i ? [{ type: "text", value: i }] : this.blocks(t.content);
     if (this.opts.renderStep && this.customHost) {
       this.cleanupRender?.();
-      const r = {
+      const o = {
         tourId: this.spec.id,
         step: t,
         index: e,
         total: s,
         title: this.text(t.title),
-        blocks: o,
+        blocks: r,
         canGoBack: t.canGoBack !== !1 && this.history.length > 0,
         canSkip: t.skippable !== !1,
         isLast: !t.next && e >= s - 1,
@@ -1331,12 +1478,12 @@ ${i}`);
         },
         prev: () => this.prev(),
         skip: () => this.skip("user"),
-        goTo: (a) => this.goTo(a)
-      }, c = this.opts.renderStep(r, this.customHost);
-      this.cleanupRender = typeof c == "function" ? c : null, this.customHost.style.display = "";
+        goTo: (l) => this.goTo(l)
+      }, a = this.opts.renderStep(o, this.customHost);
+      this.cleanupRender = typeof a == "function" ? a : null, this.customHost.style.display = "";
       return;
     }
-    this.popover && (this.popover.el.style.display = "", this.popover.render(this.makeModel(t, e, s, o)));
+    this.popover && (this.popover.el.style.display = "", this.popover.render(this.makeModel(t, e, s, r)));
   }
   rerenderCurrent() {
     const t = this.currentStep();
@@ -1345,7 +1492,7 @@ ${i}`);
     this.renderStep(t, s, e.length), this.reposition();
   }
   makeModel(t, e, s, i) {
-    const o = this.opts.locale ?? "en", r = this.opts.i18nResolver, c = (u, d) => d === !1 || d === void 0 ? Mt(u, o, r) : this.text(d), a = t.buttons ?? {}, l = t.advanceOn ?? "button";
+    const r = this.opts.locale ?? "en", o = this.opts.i18nResolver, a = (u, h) => h === !1 || h === void 0 ? be(u, r, o) : this.text(h), l = t.buttons ?? {}, c = t.advanceOn ?? "button";
     return {
       stepId: t.id,
       title: this.text(t.title),
@@ -1353,19 +1500,19 @@ ${i}`);
       index: e,
       total: s,
       canGoBack: t.canGoBack !== !1 && this.history.length > 0,
-      skippable: t.skippable !== !1 && a.skip !== !1,
+      skippable: t.skippable !== !1 && l.skip !== !1,
       isLast: !t.next && e >= s - 1,
-      advanceOn: l,
+      advanceOn: c,
       labels: {
-        next: c("next", a.next),
-        back: c("back", a.back),
-        done: c("done", a.done),
-        skip: c("skip", a.skip)
+        next: a("next", l.next),
+        back: a("back", l.back),
+        done: a("done", l.done),
+        skip: a("skip", l.skip)
       },
       // With a non-button advance condition the primary button would be a
       // "skip this step" escape hatch; hide it unless the author asked for one.
-      showNext: a.next !== !1 && (l === "button" || e >= s - 1),
-      showBack: a.back !== !1,
+      showNext: l.next !== !1 && (c === "button" || e >= s - 1),
+      showBack: l.back !== !1,
       modal: (t.display ?? "spotlight") === "modal" || this.interactionFor(t) === "blocked",
       allowHtml: this.opts.allowHtml
     };
@@ -1387,8 +1534,8 @@ ${i}`);
     const e = t.target?.padding ?? 8, s = !!this.popover && !this.opts.renderStep;
     if (this.resolved) {
       if (!this.resolved.doc.contains(this.resolved.element) && t.target) {
-        const o = A(t.target);
-        o && (this.resolved = o);
+        const r = Q(t.target);
+        r && (this.resolved = r);
       }
       const i = this.viewportRect(this.resolved);
       this.hotspot ? (this.hotspot.reposition(i), this.layer.setInteraction(this.interactionFor(t))) : (this.layer.updateSpotlight(i, e, this.mergedRadius()), s && this.popover?.position(i, t.placement ?? "auto", e));
@@ -1412,10 +1559,10 @@ ${i}`);
       } catch {
       }
     i.observe(document.documentElement), window.addEventListener("resize", s), window.addEventListener("scroll", s, !0);
-    const o = performance.now() + 900, r = () => {
-      this.status === "running" && (this.reposition(), performance.now() < o && requestAnimationFrame(r));
+    const r = performance.now() + 900, o = () => {
+      this.status === "running" && (this.reposition(), performance.now() < r && requestAnimationFrame(o));
     };
-    requestAnimationFrame(r), this.cleanupTrack = () => {
+    requestAnimationFrame(o), this.cleanupTrack = () => {
       i.disconnect(), window.removeEventListener("resize", s), window.removeEventListener("scroll", s, !0), cancelAnimationFrame(t);
     };
   }
@@ -1429,74 +1576,74 @@ ${i}`);
     switch (s) {
       case "target-click": {
         if (!e) return;
-        const o = () => i();
-        e.addEventListener("click", o, { once: !0 }), this.cleanupAdvance = () => e.removeEventListener("click", o);
+        const r = () => i();
+        e.addEventListener("click", r, { once: !0 }), this.cleanupAdvance = () => e.removeEventListener("click", r);
         return;
       }
       case "event": {
         if (typeof t.event != "string") return;
-        const o = t.event, r = () => i();
-        window.addEventListener(o, r, { once: !0 }), this.cleanupAdvance = () => window.removeEventListener(o, r);
+        const r = t.event, o = () => i();
+        window.addEventListener(r, o, { once: !0 }), this.cleanupAdvance = () => window.removeEventListener(r, o);
         return;
       }
       case "auto": {
-        const o = window.setTimeout(i, t.duration ?? 3e3);
-        this.cleanupAdvance = () => window.clearTimeout(o);
+        const r = window.setTimeout(i, t.duration ?? 3e3);
+        this.cleanupAdvance = () => window.clearTimeout(r);
         return;
       }
       case "input-match": {
         if (!e || typeof t.match != "string") return;
-        const o = t.match, r = (a) => {
-          if (o.startsWith("/") && o.lastIndexOf("/") > 0) {
-            const l = o.lastIndexOf("/");
+        const r = t.match, o = (l) => {
+          if (r.startsWith("/") && r.lastIndexOf("/") > 0) {
+            const c = r.lastIndexOf("/");
             try {
-              return new RegExp(o.slice(1, l), o.slice(l + 1)).test(a);
+              return new RegExp(r.slice(1, c), r.slice(c + 1)).test(l);
             } catch {
               return !1;
             }
           }
-          return a === o;
-        }, c = () => {
-          const a = e.value ?? "";
-          r(a) && i();
+          return l === r;
+        }, a = () => {
+          const l = e.value ?? "";
+          o(l) && i();
         };
-        e.addEventListener("input", c), e.addEventListener("change", c), this.cleanupAdvance = () => {
-          e.removeEventListener("input", c), e.removeEventListener("change", c);
+        e.addEventListener("input", a), e.addEventListener("change", a), this.cleanupAdvance = () => {
+          e.removeEventListener("input", a), e.removeEventListener("change", a);
         };
         return;
       }
       case "form-submit": {
         if (!e) return;
-        const o = e.closest?.("form") ?? (e.tagName === "FORM" ? e : null);
-        if (!o) return;
-        const r = () => i();
-        o.addEventListener("submit", r, { once: !0 }), this.cleanupAdvance = () => o.removeEventListener("submit", r);
+        const r = e.closest?.("form") ?? (e.tagName === "FORM" ? e : null);
+        if (!r) return;
+        const o = () => i();
+        r.addEventListener("submit", o, { once: !0 }), this.cleanupAdvance = () => r.removeEventListener("submit", o);
         return;
       }
       case "element-appears": {
         if (typeof t.watch != "string") return;
-        let o = !1;
-        B({ selector: t.watch, visible: !0 }, t.duration ?? 6e4).then((r) => {
-          r && !o && i();
+        let r = !1;
+        lt({ selector: t.watch, visible: !0 }, t.duration ?? 6e4).then((o) => {
+          o && !r && i();
         }), this.cleanupAdvance = () => {
-          o = !0;
+          r = !0;
         };
         return;
       }
       case "element-disappears": {
         if (typeof t.watch != "string") return;
-        const o = t.watch, r = window.setInterval(() => {
-          A({ selector: o, visible: !0 }) || (window.clearInterval(r), i());
+        const r = t.watch, o = window.setInterval(() => {
+          Q({ selector: r, visible: !0 }) || (window.clearInterval(o), i());
         }, 150);
-        this.cleanupAdvance = () => window.clearInterval(r);
+        this.cleanupAdvance = () => window.clearInterval(o);
         return;
       }
       case "url-match": {
         if (typeof t.urlPattern != "string") return;
-        const o = t.urlPattern, r = () => {
-          Y(o, K()) && i();
-        }, c = J(r);
-        this.cleanupAdvance = c, r();
+        const r = t.urlPattern, o = () => {
+          Tt(r, It()) && i();
+        }, a = Lt(o);
+        this.cleanupAdvance = a, o();
         return;
       }
     }
@@ -1535,7 +1682,7 @@ ${i}`);
             this.context[s.key] = s.value;
             break;
           case "scrollTo": {
-            A({ selector: s.selector })?.element.scrollIntoView({ block: "center", behavior: "smooth" });
+            Q({ selector: s.selector })?.element.scrollIntoView({ block: "center", behavior: "smooth" });
             break;
           }
           case "wait":
@@ -1550,12 +1697,12 @@ ${i}`);
     for (const i of this.appliedVars) e.removeProperty(i);
     this.appliedVars = [];
     const s = { ...this.opts.theme, ...this.spec.theme, ...t };
-    for (const [i, o] of Object.entries(s)) {
-      if (o === void 0) continue;
-      const r = Dt[i];
-      if (!r) continue;
-      const c = Ot.has(i) ? `${o}px` : jt.has(i) ? `${o}ms` : String(o);
-      e.setProperty(r, c), this.appliedVars.push(r);
+    for (const [i, r] of Object.entries(s)) {
+      if (r === void 0) continue;
+      const o = xe[i];
+      if (!o) continue;
+      const a = ke.has(i) ? `${r}px` : Ee.has(i) ? `${r}ms` : String(r);
+      e.setProperty(o, a), this.appliedVars.push(o);
     }
     s.z !== void 0 && (this.layer.root.style.zIndex = String(s.z));
   }
@@ -1576,86 +1723,86 @@ ${i}`);
     }
   }
 }
-function Ft(n, t) {
+function $e(n, t) {
   if (!n || n.type === "manual") return { dispose: () => {
   } };
   const e = n.delay ?? 0, s = [], i = [];
-  let o = !1;
-  const r = n.once ?? !0, c = () => {
-    o || (r && (o = !0), e > 0 ? s.push(window.setTimeout(t, e)) : t());
+  let r = !1;
+  const o = n.once ?? !0, a = () => {
+    r || (o && (r = !0), e > 0 ? s.push(window.setTimeout(t, e)) : t());
   };
   switch (n.type) {
     case "auto": {
-      c();
+      a();
       break;
     }
     case "event": {
-      const a = () => c();
-      window.addEventListener(n.event, a), i.push(() => window.removeEventListener(n.event, a));
+      const l = () => a();
+      window.addEventListener(n.event, l), i.push(() => window.removeEventListener(n.event, l));
       break;
     }
     case "route": {
-      const a = () => {
-        Y(n.path, K(), n.exact) ? c() : r || (o = !1);
+      const l = () => {
+        Tt(n.path, It(), n.exact) ? a() : o || (r = !1);
       };
-      i.push(J(a)), a();
+      i.push(Lt(l)), l();
       break;
     }
     case "element": {
-      let a = !1;
-      B({ selector: n.selector, visible: !0 }, n.timeout ?? 3e4).then((l) => {
-        l && !a && c();
+      let l = !1;
+      lt({ selector: n.selector, visible: !0 }, n.timeout ?? 3e4).then((c) => {
+        c && !l && a();
       }), i.push(() => {
-        a = !0;
+        l = !0;
       });
       break;
     }
     case "idle": {
-      let a = 0;
-      const l = () => {
-        window.clearTimeout(a), !o && (a = window.setTimeout(c, n.ms));
+      let l = 0;
+      const c = () => {
+        window.clearTimeout(l), !r && (l = window.setTimeout(a, n.ms));
       }, u = ["pointerdown", "keydown", "scroll", "pointermove"];
-      for (const d of u)
-        window.addEventListener(d, l, { passive: !0 }), i.push(() => window.removeEventListener(d, l));
-      i.push(() => window.clearTimeout(a)), l();
+      for (const h of u)
+        window.addEventListener(h, c, { passive: !0 }), i.push(() => window.removeEventListener(h, c));
+      i.push(() => window.clearTimeout(l)), c();
       break;
     }
     case "scroll": {
-      const a = () => {
-        const l = document.documentElement, u = l.scrollHeight - l.clientHeight;
+      const l = () => {
+        const c = document.documentElement, u = c.scrollHeight - c.clientHeight;
         if (u <= 0) return;
-        l.scrollTop / u * 100 >= n.percent && c();
+        c.scrollTop / u * 100 >= n.percent && a();
       };
-      window.addEventListener("scroll", a, { passive: !0 }), i.push(() => window.removeEventListener("scroll", a)), a();
+      window.addEventListener("scroll", l, { passive: !0 }), i.push(() => window.removeEventListener("scroll", l)), l();
       break;
     }
   }
   return {
     dispose: () => {
-      s.forEach((a) => window.clearTimeout(a)), i.forEach((a) => {
+      s.forEach((l) => window.clearTimeout(l)), i.forEach((l) => {
         try {
-          a();
+          l();
         } catch {
         }
       });
     }
   };
 }
-class Z {
+class Bt {
   constructor(t, e = {}) {
-    h(this, "engines", /* @__PURE__ */ new Map());
-    h(this, "specs");
-    h(this, "opts");
-    h(this, "triggers", []);
-    h(this, "disposers", []);
-    h(this, "queue", []);
-    h(this, "activeId", null);
-    h(this, "mounted", !1);
+    d(this, "engines", /* @__PURE__ */ new Map());
+    d(this, "specs");
+    d(this, "opts");
+    d(this, "triggers", []);
+    d(this, "disposers", []);
+    d(this, "queue", []);
+    d(this, "activeId", null);
+    d(this, "mounted", !1);
     /** Impressions in this page session, for `frequency.perSession`. */
-    h(this, "sessionCounts", /* @__PURE__ */ new Map());
+    d(this, "sessionCounts", /* @__PURE__ */ new Map());
     this.specs = t, this.opts = e;
     for (const s of t)
-      this.engines.set(s.id, new Q(s, {
+      this.engines.set(s.id, new qt(s, {
         ...e,
         onEvent: (i) => this.handleEvent(i)
       }));
@@ -1692,19 +1839,19 @@ class Z {
     if (!e) return "unknown tour";
     if (!e.isValid()) return "spec failed validation";
     const s = e.spec, i = e.getContext();
-    if (s.audience?.showIf && !T(s.audience.showIf, i))
+    if (s.audience?.showIf && !et(s.audience.showIf, i))
       return "audience rule did not match";
-    const o = s.frequency;
-    if (o) {
-      const r = e.getPersistence().getRecord(s.id);
-      if (o.max !== void 0 && (r?.shownCount ?? 0) >= o.max)
-        return `frequency: already shown ${o.max} time(s)`;
-      if (o.cooldown !== void 0 && r?.lastShownAt) {
-        const c = Date.now() - r.lastShownAt;
-        if (c < o.cooldown) return `frequency: cooldown active (${o.cooldown - c}ms left)`;
+    const r = s.frequency;
+    if (r) {
+      const o = e.getPersistence().getRecord(s.id);
+      if (r.max !== void 0 && (o?.shownCount ?? 0) >= r.max)
+        return `frequency: already shown ${r.max} time(s)`;
+      if (r.cooldown !== void 0 && o?.lastShownAt) {
+        const a = Date.now() - o.lastShownAt;
+        if (a < r.cooldown) return `frequency: cooldown active (${r.cooldown - a}ms left)`;
       }
-      if (o.perSession !== void 0 && (this.sessionCounts.get(s.id) ?? 0) >= o.perSession)
-        return `frequency: session limit of ${o.perSession} reached`;
+      if (r.perSession !== void 0 && (this.sessionCounts.get(s.id) ?? 0) >= r.perSession)
+        return `frequency: session limit of ${r.perSession} reached`;
     }
     return null;
   }
@@ -1730,7 +1877,7 @@ class Z {
     this.request(t, e, { force: !0 });
   }
   enqueue(t, e, s) {
-    this.queue.some((i) => i.tourId === t) || (this.queue.push({ tourId: t, stepId: e, priority: s }), this.queue.sort((i, o) => o.priority - i.priority));
+    this.queue.some((i) => i.tourId === t) || (this.queue.push({ tourId: t, stepId: e, priority: s }), this.queue.sort((i, r) => r.priority - i.priority));
   }
   drain() {
     for (; this.queue.length > 0; ) {
@@ -1757,6 +1904,10 @@ class Z {
   setContext(t) {
     this.engines.forEach((e) => e.setContext(t));
   }
+  /** The shared tour context. Every engine holds the same keys. */
+  getContext() {
+    return this.engines.values().next().value?.getContext() ?? {};
+  }
   setTheme(t) {
     this.engines.forEach((e) => e.setGlobalTheme(t));
   }
@@ -1776,6 +1927,14 @@ class Z {
   resetTour(t) {
     this.sessionCounts.delete(t), this.engines.get(t)?.resetSeen();
   }
+  /** Snapshot persisted state for every tour. See `TourEngine.exportProgress`. */
+  exportProgress() {
+    return this.engines.values().next().value?.exportProgress() ?? null;
+  }
+  /** Restore a snapshot. All engines share one store, so one call covers them all. */
+  importProgress(t, e = "replace") {
+    return this.engines.values().next().value?.importProgress(t, e) ?? !1;
+  }
   // -------------------------------------------------------------------------
   // Mounting
   // -------------------------------------------------------------------------
@@ -1790,7 +1949,7 @@ class Z {
       const e = this.engines.get(t.id);
       if (!e || !e.isValid()) continue;
       const s = t.trigger;
-      !s || s.type === "manual" || (s.once ?? !0) && e.hasSeen() || this.triggers.push(Ft(s, () => {
+      !s || s.type === "manual" || (s.once ?? !0) && e.hasSeen() || this.triggers.push($e(s, () => {
         (s.once ?? !0) && e.hasSeen() || this.request(t.id);
       }));
     }
@@ -1801,8 +1960,8 @@ class Z {
       try {
         const e = new URLSearchParams(window.location.search), s = e.get(t);
         if (!s || !this.engines.has(s)) return;
-        const i = e.get(`${t}Step`) ?? void 0, o = window.setTimeout(() => this.request(s, i, { force: !0 }), 400);
-        this.disposers.push(() => window.clearTimeout(o));
+        const i = e.get(`${t}Step`) ?? void 0, r = window.setTimeout(() => this.request(s, i, { force: !0 }), 400);
+        this.disposers.push(() => window.clearTimeout(r));
       } catch {
       }
   }
@@ -1844,19 +2003,19 @@ class Z {
     }), this.triggers = [], this.disposers = [], this.queue = [], this.engines.forEach((t) => t.destroy()), this.activeId = null;
   }
 }
-function Jt(n, t = {}) {
-  return new Q(n, t);
+function Re(n, t = {}) {
+  return new qt(n, t);
 }
-function Xt(n, t = {}) {
-  return new Z(n, t);
+function Me(n, t = {}) {
+  return new Bt(n, t);
 }
-function Qt(n) {
+function Oe(n) {
   return n;
 }
-function Zt(n) {
+function De(n) {
   return n;
 }
-function te(n, t) {
+function He(n, t) {
   const { steps: e, ...s } = t;
   return {
     ...n,
@@ -1864,123 +2023,123 @@ function te(n, t) {
     steps: n.steps.map((i) => e?.[i.id] ? { ...i, ...e[i.id] } : i)
   };
 }
-function ee(n = {}) {
-  const { days: t = 365, path: e = "/", domain: s, sameSite: i = "Lax", secure: o } = n, r = () => {
-    const a = {};
-    if (typeof document > "u") return a;
-    for (const l of document.cookie.split(";")) {
-      const u = l.indexOf("=");
-      u < 0 || (a[decodeURIComponent(l.slice(0, u).trim())] = decodeURIComponent(l.slice(u + 1)));
+function je(n = {}) {
+  const { days: t = 365, path: e = "/", domain: s, sameSite: i = "Lax", secure: r } = n, o = () => {
+    const l = {};
+    if (typeof document > "u") return l;
+    for (const c of document.cookie.split(";")) {
+      const u = c.indexOf("=");
+      u < 0 || (l[decodeURIComponent(c.slice(0, u).trim())] = decodeURIComponent(c.slice(u + 1)));
     }
-    return a;
-  }, c = (a, l, u) => {
+    return l;
+  }, a = (l, c, u) => {
     if (typeof document > "u") return;
-    const d = [
-      `${encodeURIComponent(a)}=${encodeURIComponent(l)}`,
+    const h = [
+      `${encodeURIComponent(l)}=${encodeURIComponent(c)}`,
       `path=${e}`,
       `max-age=${Math.floor(u * 86400)}`,
       `SameSite=${i}`
     ];
-    s && d.push(`domain=${s}`), (o ?? i === "None") && d.push("Secure"), document.cookie = d.join("; ");
+    s && h.push(`domain=${s}`), (r ?? i === "None") && h.push("Secure"), document.cookie = h.join("; ");
   };
   return {
-    getItem: (a) => r()[a] ?? null,
-    setItem: (a, l) => c(a, l, t),
-    removeItem: (a) => c(a, "", -1)
+    getItem: (l) => o()[l] ?? null,
+    setItem: (l, c) => a(l, c, t),
+    removeItem: (l) => a(l, "", -1)
   };
 }
-function se(n = "opentutorial", t = "kv") {
-  const e = new C();
+function _e(n = "opentutorial", t = "kv") {
+  const e = new st();
   if (typeof indexedDB > "u") return e;
   let s = null;
-  const i = () => s || (s = new Promise((r) => {
+  const i = () => s || (s = new Promise((o) => {
     try {
-      const c = indexedDB.open(n, 1);
-      c.onupgradeneeded = () => {
-        const a = c.result;
-        a.objectStoreNames.contains(t) || a.createObjectStore(t);
-      }, c.onsuccess = () => r(c.result), c.onerror = () => r(null), c.onblocked = () => r(null);
+      const a = indexedDB.open(n, 1);
+      a.onupgradeneeded = () => {
+        const l = a.result;
+        l.objectStoreNames.contains(t) || l.createObjectStore(t);
+      }, a.onsuccess = () => o(a.result), a.onerror = () => o(null), a.onblocked = () => o(null);
     } catch {
-      r(null);
+      o(null);
     }
-  }), s), o = async (r, c) => {
-    const a = await i();
-    return a ? new Promise((l) => {
+  }), s), r = async (o, a) => {
+    const l = await i();
+    return l ? new Promise((c) => {
       try {
-        const u = a.transaction(t, r), d = c(u.objectStore(t));
-        d.onsuccess = () => l(d.result), d.onerror = () => l(null);
+        const u = l.transaction(t, o), h = a(u.objectStore(t));
+        h.onsuccess = () => c(h.result), h.onerror = () => c(null);
       } catch {
-        l(null);
+        c(null);
       }
     }) : null;
   };
   return {
-    getItem(r) {
-      const c = e.getItem(r);
-      return c !== null ? c : o("readonly", (a) => a.get(r)).then((a) => (typeof a == "string" && e.setItem(r, a), typeof a == "string" ? a : null));
+    getItem(o) {
+      const a = e.getItem(o);
+      return a !== null ? a : r("readonly", (l) => l.get(o)).then((l) => (typeof l == "string" && e.setItem(o, l), typeof l == "string" ? l : null));
     },
-    setItem(r, c) {
-      e.setItem(r, c), o("readwrite", (a) => a.put(c, r));
+    setItem(o, a) {
+      e.setItem(o, a), r("readwrite", (l) => l.put(a, o));
     },
-    removeItem(r) {
-      e.removeItem(r), o("readwrite", (c) => c.delete(r));
+    removeItem(o) {
+      e.removeItem(o), r("readwrite", (a) => a.delete(o));
     }
   };
 }
-function ie(n) {
+function Fe(n) {
   const {
     endpoint: t,
     headers: e,
     debounceMs: s = 400,
     fetchImpl: i,
-    onError: o
-  } = n, r = n.cache === !1 ? new C() : n.cache ?? X(), c = i ?? (typeof fetch == "function" ? fetch.bind(globalThis) : void 0), a = t.replace(/\/$/, ""), l = (g) => `${a}/${encodeURIComponent(g)}`, u = () => ({
+    onError: r
+  } = n, o = n.cache === !1 ? new st() : n.cache ?? Nt(), a = i ?? (typeof fetch == "function" ? fetch.bind(globalThis) : void 0), l = t.replace(/\/$/, ""), c = (w) => `${l}/${encodeURIComponent(w)}`, u = () => ({
     "content-type": "application/json",
     ...typeof e == "function" ? e() : e ?? {}
-  }), d = /* @__PURE__ */ new Map();
-  let v = null;
-  const x = async () => {
-    if (!c || d.size === 0) return;
-    const g = [...d.entries()];
-    d.clear();
-    for (const [m, f] of g)
+  }), h = /* @__PURE__ */ new Map();
+  let f = null;
+  const k = async () => {
+    if (!a || h.size === 0) return;
+    const w = [...h.entries()];
+    h.clear();
+    for (const [b, m] of w)
       try {
-        const w = await c(l(m), {
-          method: f === null ? "DELETE" : "PUT",
+        const y = await a(c(b), {
+          method: m === null ? "DELETE" : "PUT",
           headers: u(),
-          body: f === null ? void 0 : JSON.stringify({ value: f }),
+          body: m === null ? void 0 : JSON.stringify({ value: m }),
           credentials: "include"
         });
-        if (!w.ok) throw new Error(`HTTP ${w.status}`);
-      } catch (w) {
-        d.has(m) || d.set(m, f), o?.(w, f === null ? "delete" : "put", m);
+        if (!y.ok) throw new Error(`HTTP ${y.status}`);
+      } catch (y) {
+        h.has(b) || h.set(b, m), r?.(y, m === null ? "delete" : "put", b);
       }
-  }, b = () => {
-    v && clearTimeout(v), v = setTimeout(() => {
-      v = null, x();
+  }, x = () => {
+    f && clearTimeout(f), f = setTimeout(() => {
+      f = null, k();
     }, s);
   };
   return typeof window < "u" && (window.addEventListener("online", () => {
-    x();
+    k();
   }), window.addEventListener("pagehide", () => {
-    x();
+    k();
   })), {
-    getItem(g) {
-      const m = r.getItem(g);
-      return m ?? (c ? c(l(g), { headers: u(), credentials: "include" }).then((f) => f.ok ? f.json() : null).then((f) => {
-        const w = f?.value ?? null;
-        return typeof w == "string" && r.setItem(g, w), w;
-      }).catch((f) => (o?.(f, "get", g), null)) : null);
+    getItem(w) {
+      const b = o.getItem(w);
+      return b ?? (a ? a(c(w), { headers: u(), credentials: "include" }).then((m) => m.ok ? m.json() : null).then((m) => {
+        const y = m?.value ?? null;
+        return typeof y == "string" && o.setItem(w, y), y;
+      }).catch((m) => (r?.(m, "get", w), null)) : null);
     },
-    setItem(g, m) {
-      r.setItem(g, m), d.set(g, m), b();
+    setItem(w, b) {
+      o.setItem(w, b), h.set(w, b), x();
     },
-    removeItem(g) {
-      r.removeItem(g), d.set(g, null), b();
+    removeItem(w) {
+      o.removeItem(w), h.set(w, null), x();
     }
   };
 }
-const zt = {
+const Ae = {
   start: ["started", "resumed"],
   stop: ["completed", "skipped"],
   skip: ["skipped"],
@@ -1991,131 +2150,658 @@ const zt = {
   destroy: []
   // emitted locally by destroy()
 };
-function ne(n) {
-  const { specs: t, autoMount: e = !0, ...s } = n, i = /* @__PURE__ */ new Map(), o = (a, l) => {
-    const u = i.get(a);
-    if (u)
-      for (const d of u)
+function ze(n) {
+  const { specs: t, autoMount: e = !0, storage: s, keyPrefix: i, ...r } = n, o = /* @__PURE__ */ new Map(), a = s !== void 0 || i !== void 0 ? { storage: s, keyPrefix: i, ...r.persistence ?? {} } : r.persistence, l = (h, f) => {
+    const k = o.get(h);
+    if (k)
+      for (const x of k)
         try {
-          d(l);
+          x(f);
         } catch {
         }
-  }, r = new Z(t, {
-    ...s,
-    onEvent: (a) => {
-      o("event", a);
-      for (const [l, u] of Object.entries(zt))
-        u.includes(a.type) && o(l, a);
-      s.onEvent?.(a);
+  }, c = new Bt(t, {
+    ...r,
+    persistence: a,
+    onEvent: (h) => {
+      l("event", h);
+      for (const [f, k] of Object.entries(Ae))
+        k.includes(h.type) && l(f, h);
+      r.onEvent?.(h);
     }
   });
-  e && r.mount();
-  const c = (a) => {
-    const l = r.getActiveId();
-    if (!l) return;
-    const u = r.getEngine(l);
-    u && a(u);
+  e && c.mount();
+  const u = (h) => {
+    const f = c.getActiveId();
+    if (!f) return;
+    const k = c.getEngine(f);
+    k && h(k);
   };
   return {
-    start: (a, l) => r.start(a, l),
-    request: (a, l) => r.request(a, l),
-    stop: () => r.stop("api"),
-    skip: (a) => {
-      a ? r.getEngine(a)?.skip("api") : r.stop("api");
+    start: (h, f) => c.start(h, f),
+    request: (h, f) => c.request(h, f),
+    stop: () => c.stop("api"),
+    skip: (h) => {
+      h ? c.getEngine(h)?.skip("api") : c.stop("api");
     },
-    pause: () => r.pause(),
-    resume: () => r.resume(),
-    next: () => c((a) => {
-      a.next();
+    pause: () => c.pause(),
+    resume: () => c.resume(),
+    next: () => u((h) => {
+      h.next();
     }),
-    prev: () => c((a) => a.prev()),
-    goTo: (a) => c((l) => l.goTo(a)),
-    getState: (a) => r.getState(a),
-    getActiveId: () => r.getActiveId(),
-    hasSeen: (a) => r.hasSeen(a),
-    whyBlocked: (a) => r.checkEligibility(a),
-    setContext: (a) => r.setContext(a),
-    setTheme: (a) => r.setTheme(a),
-    setLocale: (a) => r.setLocale(a),
-    setUser: (a) => r.setUser(a),
-    reset: () => r.reset(),
-    resetTour: (a) => r.resetTour(a),
-    resetProgress: () => r.resetProgress(),
-    getEngine: (a) => r.getEngine(a),
-    ready: r.ready,
-    on(a, l) {
-      return i.has(a) || i.set(a, /* @__PURE__ */ new Set()), i.get(a).add(l), () => this.off(a, l);
+    prev: () => u((h) => h.prev()),
+    goTo: (h) => u((f) => f.goTo(h)),
+    getState: (h) => c.getState(h),
+    getActiveId: () => c.getActiveId(),
+    getSpecs: () => c.getSpecs(),
+    hasSeen: (h) => c.hasSeen(h),
+    whyBlocked: (h) => c.checkEligibility(h),
+    getContext: () => c.getContext(),
+    setContext: (h) => c.setContext(h),
+    setTheme: (h) => c.setTheme(h),
+    setLocale: (h) => c.setLocale(h),
+    setUser: (h) => c.setUser(h),
+    reset: () => c.reset(),
+    resetTour: (h) => c.resetTour(h),
+    resetProgress: () => c.resetProgress(),
+    exportProgress: () => c.exportProgress(),
+    importProgress: (h, f) => c.importProgress(h, f),
+    getEngine: (h) => c.getEngine(h),
+    ready: c.ready,
+    on(h, f) {
+      return o.has(h) || o.set(h, /* @__PURE__ */ new Set()), o.get(h).add(f), () => this.off(h, f);
     },
-    off(a, l) {
-      i.get(a)?.delete(l);
+    off(h, f) {
+      o.get(h)?.delete(f);
     },
     destroy() {
-      o("destroy", {
+      l("destroy", {
         type: "skipped",
-        tourId: r.getActiveId() ?? "",
+        tourId: c.getActiveId() ?? "",
         reason: "destroy",
         timestamp: Date.now()
-      }), r.destroy(), i.clear();
+      }), c.destroy(), o.clear();
+    }
+  };
+}
+function p(n, t, e = {}) {
+  const s = document.createElement(n);
+  t && (s.className = t);
+  const { text: i, html: r, ...o } = e;
+  return i !== void 0 && (s.textContent = i), r !== void 0 && (s.innerHTML = r), Object.assign(s, o), s;
+}
+function G(n, t, e) {
+  const s = p("button", n, { type: "button", text: t });
+  return s.addEventListener("click", e), s;
+}
+class V {
+  constructor() {
+    d(this, "fns", []);
+  }
+  add(t) {
+    this.fns.push(t);
+  }
+  listen(t, e, s, i) {
+    t.addEventListener(e, s, i), this.fns.push(() => t.removeEventListener(e, s, i));
+  }
+  run() {
+    for (const t of this.fns)
+      try {
+        t();
+      } catch {
+      }
+    this.fns = [];
+  }
+}
+class pt {
+  constructor(t, e, s) {
+    d(this, "ready");
+    d(this, "persistence");
+    this.persistence = new Pt(t, e, s), this.ready = this.persistence.ready;
+  }
+  /** True when the surface should be shown. */
+  shouldShow(t, e = {}) {
+    const { once: s = !0, resurfaceAfter: i } = e;
+    if (!s) return !0;
+    const r = this.persistence.getRecord(t);
+    return r?.at ? i === void 0 ? !1 : Date.now() - r.at > i : !0;
+  }
+  markDismissed(t) {
+    this.persistence.mark(t, "skipped");
+  }
+  markActed(t) {
+    this.persistence.mark(t, "completed");
+  }
+  reset(t) {
+    this.persistence.reset(t);
+  }
+}
+function U(n, t) {
+  t !== null && (t ?? document.body).appendChild(n);
+}
+function K(n, t) {
+  return {
+    el: n,
+    mount(e) {
+      (e ?? document.body).appendChild(n);
+    },
+    destroy() {
+      t.run(), n.remove();
+    }
+  };
+}
+function We(n) {
+  const {
+    id: t,
+    message: e,
+    position: s = "top",
+    action: i,
+    dismissible: r = !0,
+    resurfaceAfter: o,
+    storage: a,
+    keyPrefix: l = "ot-banner",
+    userId: c,
+    container: u,
+    className: h = "",
+    onDismiss: f
+  } = n, k = new V(), x = new pt(a, l, c), w = p("div", `ot-banner ot-banner--${s} ${h}`.trim());
+  w.setAttribute("role", "status"), w.hidden = !0;
+  const b = p("span", "ot-banner-content", { html: J(e) });
+  w.appendChild(b), i && w.appendChild(G("ot-banner-action", i.label, i.onClick));
+  const m = () => {
+    x.markDismissed(t), w.hidden = !0, f?.();
+  };
+  if (r) {
+    const g = G("ot-banner-dismiss", "×", m);
+    g.setAttribute("aria-label", "Dismiss"), w.appendChild(g);
+  }
+  U(w, u);
+  let y = !0;
+  return k.add(() => {
+    y = !1;
+  }), x.ready.then(() => {
+    y && (w.hidden = !x.shouldShow(t, { resurfaceAfter: o }));
+  }), {
+    ...K(w, k),
+    setMessage(g) {
+      b.innerHTML = J(g);
+    },
+    dismiss: m
+  };
+}
+function Ge(n) {
+  const {
+    id: t,
+    title: e,
+    content: s,
+    once: i = !0,
+    primaryAction: r,
+    secondaryAction: o,
+    dismissible: a = !0,
+    allowHtml: l,
+    locale: c = "en",
+    i18nResolver: u,
+    storage: h,
+    keyPrefix: f = "ot-announce",
+    userId: k,
+    container: x,
+    className: w = "",
+    onDismiss: b
+  } = n, m = new V(), y = new pt(h, f, k), g = p("div", "ot-root");
+  g.setAttribute("data-opentutorial", ""), g.hidden = !0;
+  const E = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  E.setAttribute("class", "ot-backdrop"), E.setAttribute("width", "100%"), E.setAttribute("height", "100%"), E.setAttribute("aria-hidden", "true");
+  const I = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  I.setAttribute("class", "ot-dim"), I.setAttribute("width", "100%"), I.setAttribute("height", "100%"), E.appendChild(I);
+  const P = `ot-announce-${t}`, N = p("div", `ot-popover ot-modal ot-popover--modal-step ${w}`.trim());
+  N.setAttribute("role", "dialog"), N.setAttribute("aria-modal", "true"), N.setAttribute("aria-labelledby", P), N.style.left = "50%", N.style.top = "50%", N.style.transform = "translate(-50%, -50%)";
+  const T = p("div", "ot-body"), $ = (v) => {
+    i && (v ? y.markActed(t) : y.markDismissed(t)), g.hidden = !0, v || b?.();
+  };
+  if (a) {
+    const v = G("ot-skip", "×", () => $(!1));
+    v.setAttribute("aria-label", "Dismiss"), T.appendChild(v);
+  }
+  const R = p("h2", "ot-title", { text: e });
+  R.id = P, T.appendChild(R);
+  const M = p("div", "ot-content-wrap"), O = ht(s, (v) => Z(v, c, u));
+  M.appendChild(dt(O, { allowHtml: l })), T.appendChild(M);
+  const C = p("div", "ot-footer");
+  C.appendChild(p("span"));
+  const S = p("div", "ot-btns");
+  o && S.appendChild(G("ot-btn ot-btn-ghost", o.label, () => {
+    $(!0), o.onClick();
+  })), S.appendChild(G("ot-btn ot-btn-primary", r?.label ?? "Got it", () => {
+    $(!0), r?.onClick();
+  })), C.appendChild(S), T.appendChild(C), N.appendChild(T), g.appendChild(E), g.appendChild(N), U(g, x), a && m.listen(window, "keydown", (v) => {
+    !g.hidden && v.key === "Escape" && $(!1);
+  });
+  let A = !0;
+  return m.add(() => {
+    A = !1;
+  }), y.ready.then(() => {
+    A && (g.hidden = !y.shouldShow(t, { once: i }), g.hidden || N.focus?.());
+  }), {
+    ...K(g, m),
+    close: () => $(!1)
+  };
+}
+function Ve(n) {
+  const {
+    target: t,
+    content: e,
+    glyph: s = "?",
+    openOnHover: i = !1,
+    zIndex: r,
+    container: o,
+    className: a = ""
+  } = n, l = new V(), c = typeof t == "string" ? { selector: t } : t, u = p("div", `ot-hint ${a}`.trim());
+  r !== void 0 && (u.style.zIndex = String(r)), u.hidden = !0;
+  const h = p("button", "ot-hint-dot", { type: "button", text: s });
+  h.setAttribute("aria-expanded", "false"), h.setAttribute("aria-label", "Show hint");
+  const f = p("div", "ot-hint-panel", { html: J(e) });
+  f.setAttribute("role", "tooltip"), f.hidden = !0;
+  const k = (m) => {
+    f.hidden = !m, h.setAttribute("aria-expanded", String(m)), h.setAttribute("aria-label", m ? "Hide hint" : "Show hint");
+  };
+  h.addEventListener("click", () => k(f.hidden)), i && (u.addEventListener("mouseenter", () => k(!0)), u.addEventListener("mouseleave", () => k(!1))), u.appendChild(h), u.appendChild(f), U(u, o);
+  let x = 0;
+  const w = () => {
+    const m = Q(c);
+    if (!m) {
+      u.hidden = !0;
+      return;
+    }
+    const y = m.element.getBoundingClientRect();
+    u.hidden = !1, u.style.left = `${y.x + m.frameOffset.x + y.width}px`, u.style.top = `${y.y + m.frameOffset.y}px`;
+  }, b = () => {
+    cancelAnimationFrame(x), x = requestAnimationFrame(w);
+  };
+  if (w(), l.listen(window, "resize", b), l.listen(window, "scroll", b, { capture: !0 }), l.add(() => cancelAnimationFrame(x)), typeof ResizeObserver < "u") {
+    const m = new ResizeObserver(b);
+    m.observe(document.documentElement), l.add(() => m.disconnect());
+  }
+  return {
+    ...K(u, l),
+    open: () => k(!0),
+    close: () => k(!1),
+    reposition: w
+  };
+}
+function Ue(n) {
+  const {
+    id: t,
+    kind: e = "nps",
+    question: s,
+    options: i = [],
+    lowLabel: r = "Not likely",
+    highLabel: o = "Very likely",
+    followUp: a,
+    submitLabel: l = "Submit",
+    dismissLabel: c = "Not now",
+    thanksMessage: u = "Thanks for the feedback!",
+    container: h,
+    className: f = "",
+    onSubmit: k,
+    onDismiss: x
+  } = n, w = new V();
+  let b = null, m = null;
+  const y = p("div", `ot-survey ${f}`.trim()), g = `ot-survey-q-${t}`, E = p("p", "ot-survey-question", { text: s });
+  E.id = g, y.appendChild(E);
+  const I = e === "nps" ? Array.from({ length: 11 }, (C, S) => S) : e === "rating" ? [1, 2, 3, 4, 5] : null, P = [], N = [], T = p("textarea", "ot-survey-textarea");
+  T.placeholder = e === "text" ? s : a ?? "", T.setAttribute("aria-label", e === "text" ? s : a ?? "Additional comments"), T.hidden = e !== "text";
+  const $ = p("button", "ot-btn ot-btn-primary", { type: "button", text: l }), R = () => {
+    for (const S of P) {
+      const A = Number(S.dataset.value) === b;
+      S.classList.toggle("ot-survey-score--selected", A), S.setAttribute("aria-checked", String(A));
+    }
+    for (const S of N) {
+      const A = S.dataset.value === m;
+      S.classList.toggle("ot-survey-option--selected", A), S.setAttribute("aria-checked", String(A));
+    }
+    a && e !== "text" && (T.hidden = b === null && m === null);
+    const C = e === "nps" || e === "rating" ? b !== null : e === "choice" ? m !== null : T.value.trim().length > 0;
+    $.disabled = !C;
+  };
+  if (I) {
+    const C = p("div", "ot-survey-scale");
+    C.setAttribute("role", "radiogroup"), C.setAttribute("aria-labelledby", g);
+    for (const A of I) {
+      const v = p("button", "ot-survey-score", { type: "button", text: String(A) });
+      v.dataset.value = String(A), v.setAttribute("role", "radio"), v.setAttribute("aria-checked", "false"), v.addEventListener("click", () => {
+        b = A, R();
+      }), P.push(v), C.appendChild(v);
+    }
+    y.appendChild(C);
+    const S = p("div", "ot-survey-labels");
+    S.appendChild(p("span", void 0, { text: r })), S.appendChild(p("span", void 0, { text: o })), y.appendChild(S);
+  }
+  if (e === "choice") {
+    const C = p("div", "ot-survey-options");
+    C.setAttribute("role", "radiogroup"), C.setAttribute("aria-labelledby", g);
+    for (const S of i) {
+      const A = p("button", "ot-survey-option", { type: "button", text: S });
+      A.dataset.value = S, A.setAttribute("role", "radio"), A.setAttribute("aria-checked", "false"), A.addEventListener("click", () => {
+        m = S, R();
+      }), N.push(A), C.appendChild(A);
+    }
+    y.appendChild(C);
+  }
+  y.appendChild(T), T.addEventListener("input", R);
+  const M = p("div", "ot-footer");
+  x ? M.appendChild(G("ot-btn ot-btn-ghost", c, x)) : M.appendChild(p("span")), M.appendChild($), y.appendChild(M);
+  const O = () => ({
+    surveyId: t,
+    kind: e,
+    score: b ?? void 0,
+    choice: m ?? void 0,
+    comment: T.value.trim() || void 0
+  });
+  return $.addEventListener("click", () => {
+    $.disabled || (k({ ...O(), submittedAt: Date.now() }), y.replaceChildren(p("p", "ot-survey-thanks", { text: u })));
+  }), R(), U(y, h), {
+    ...K(y, w),
+    getResponse: O,
+    reset() {
+      b = null, m = null, T.value = "", R();
+    }
+  };
+}
+function Ke(n) {
+  const {
+    layer: t,
+    specs: e,
+    getStatus: s,
+    onStart: i,
+    title: r = "Onboarding",
+    startLabel: o = "Start",
+    runningLabel: a = "Running",
+    floating: l = !1,
+    collapsible: c = !1,
+    defaultCollapsed: u = !1,
+    hideWhenComplete: h = !1,
+    locale: f = "en",
+    i18nResolver: k,
+    container: x,
+    className: w = "",
+    onComplete: b
+  } = n, m = new V();
+  let y = u, g = !1;
+  const E = p("div", "ot-checklist"), I = p("ul", "ot-checklist-items"), P = p("div", "ot-checklist-bar-track"), N = p("div", "ot-checklist-bar-fill"), T = p("span", "ot-checklist-count"), $ = p("button", "ot-checklist-toggle", { type: "button" });
+  if (P.setAttribute("role", "progressbar"), P.setAttribute("aria-valuemin", "0"), P.setAttribute("aria-valuemax", "100"), P.appendChild(N), r) {
+    const v = p("div", "ot-checklist-header");
+    v.appendChild(p("h3", "ot-checklist-title", { text: r })), v.appendChild(T), c && ($.addEventListener("click", () => A(!y)), v.appendChild($)), E.appendChild(v);
+  }
+  E.appendChild(P), E.appendChild(I);
+  const R = () => e ?? t.getSpecs(), M = (v) => s ? s(v) : t.getActiveId() === v ? "in_progress" : t.hasSeen(v) ? "completed" : "pending", O = (v) => v === void 0 ? "" : Z(v, f, k, t.getContext());
+  let C = { completed: 0, total: 0, percent: 0 };
+  const S = () => {
+    const v = R(), j = v.map((D) => M(D.id)), L = j.filter((D) => D === "completed").length, B = v.length > 0 ? Math.round(L / v.length * 100) : 0;
+    C = { completed: L, total: v.length, percent: B }, T.textContent = `${L}/${v.length}`, N.style.width = `${B}%`, P.setAttribute("aria-valuenow", String(B)), P.setAttribute("aria-label", `${L} of ${v.length} complete`), I.replaceChildren(), v.forEach((D, Y) => {
+      const _ = j[Y], X = p("li", `ot-checklist-item ot-checklist-item--${_}`), H = p("span", "ot-checklist-icon", {
+        text: _ === "completed" ? "✓" : _ === "in_progress" ? "◌" : "○"
+      });
+      H.setAttribute("aria-hidden", "true"), X.appendChild(H);
+      const it = p("div", "ot-checklist-info");
+      it.appendChild(p("span", "ot-checklist-name", { text: O(D.title) }));
+      const ft = O(D.description);
+      if (ft && it.appendChild(p("span", "ot-checklist-desc", { text: ft })), X.appendChild(it), _ !== "completed") {
+        const nt = p("button", "ot-checklist-btn", {
+          type: "button",
+          text: _ === "in_progress" ? a : o
+        });
+        nt.disabled = _ === "in_progress", nt.addEventListener("click", () => {
+          i ? i(D.id) : t.start(D.id);
+        }), X.appendChild(nt);
+      }
+      I.appendChild(X);
+    });
+    const W = v.length > 0 && L === v.length;
+    W && !g && (g = !0, b?.()), W || (g = !1), E.hidden = W && h, E.className = [
+      "ot-checklist",
+      l ? "ot-checklist--floating" : "",
+      y ? "ot-checklist--collapsed" : "",
+      w
+    ].filter(Boolean).join(" ");
+  };
+  function A(v) {
+    y = v, $.textContent = y ? "▸" : "▾", $.setAttribute("aria-expanded", String(!y)), $.setAttribute("aria-label", y ? "Expand checklist" : "Collapse checklist"), S();
+  }
+  return A(y), U(E, x), m.add(t.on("event", S)), {
+    ...K(E, m),
+    refresh: S,
+    setCollapsed: A,
+    getProgress: () => C
+  };
+}
+function Ye(n) {
+  const {
+    layer: t,
+    specs: e,
+    links: s = [],
+    title: i = "Help & guides",
+    searchPlaceholder: r = "Search…",
+    floating: o = !1,
+    launcherGlyph: a = "?",
+    emptyMessage: l = "Nothing matches that search.",
+    locale: c = "en",
+    i18nResolver: u,
+    container: h,
+    className: f = ""
+  } = n, k = new V();
+  let x = !o, w = "";
+  const b = p("div", "ot-hub-root"), m = p("div", `ot-hub ${o ? "ot-hub--floating" : ""} ${f}`.trim()), y = p("div", "ot-hub-header");
+  y.appendChild(p("h3", "ot-hub-title", { text: i }));
+  const g = p("input", "ot-hub-search");
+  g.type = "search", g.placeholder = r, g.setAttribute("aria-label", r), y.appendChild(g), m.appendChild(y);
+  const E = p("ul", "ot-hub-list");
+  m.appendChild(E), b.appendChild(m);
+  const I = p("button", "ot-hub-launcher", { type: "button", text: a });
+  o && (I.setAttribute("aria-label", i), b.appendChild(I));
+  const P = ($) => $ === void 0 ? "" : Z($, c, u, t.getContext()), N = () => {
+    if (m.hidden = !x, o && (I.textContent = x ? "×" : a, I.setAttribute("aria-label", x ? "Close help" : i), I.setAttribute("aria-expanded", String(x))), !x) return;
+    const $ = w.trim().toLowerCase(), R = e ?? t.getSpecs(), M = (C, S) => !$ || C.toLowerCase().includes($) || S.toLowerCase().includes($);
+    E.replaceChildren();
+    let O = 0;
+    for (const C of R) {
+      const S = P(C.title), A = P(C.description);
+      if (!M(S, A)) continue;
+      O += 1;
+      const v = p("li"), j = p("button", "ot-hub-item", {
+        type: "button",
+        text: `${t.hasSeen(C.id) ? "↻ " : ""}${S}`
+      });
+      A && j.appendChild(p("span", "ot-hub-item-desc", { text: A })), j.addEventListener("click", () => {
+        t.start(C.id), o && T(!1);
+      }), v.appendChild(j), E.appendChild(v);
+    }
+    for (const C of s) {
+      const S = C.description ?? "";
+      if (!M(C.label, S)) continue;
+      O += 1;
+      const A = p("li"), v = p("a", "ot-hub-item", { text: `${C.label} ↗` });
+      v.href = C.href, v.target = "_blank", v.rel = "noopener noreferrer", S && v.appendChild(p("span", "ot-hub-item-desc", { text: S })), A.appendChild(v), E.appendChild(A);
+    }
+    O === 0 && E.appendChild(p("li", "ot-hub-empty", { text: l }));
+  };
+  function T($) {
+    x = $, N();
+  }
+  return g.addEventListener("input", () => {
+    w = g.value, N();
+  }), I.addEventListener("click", () => T(!x)), N(), U(b, h), k.add(t.on("event", () => {
+    x && N();
+  })), {
+    ...K(b, k),
+    open: () => T(!0),
+    close: () => T(!1),
+    search($) {
+      w = $, g.value = $, N();
+    },
+    refresh: N
+  };
+}
+function Xe(n) {
+  const {
+    entries: t,
+    title: e = "What's new",
+    floating: s = !0,
+    launcherGlyph: i = "✦",
+    emptyMessage: r = "Nothing new right now.",
+    limit: o = 20,
+    allowHtml: a,
+    locale: l = "en",
+    i18nResolver: c,
+    storage: u,
+    keyPrefix: h = "ot-changelog",
+    userId: f,
+    container: k,
+    className: x = "",
+    onRead: w
+  } = n, b = new V(), m = new pt(u, h, f);
+  let y = t, g = !s, E = !1;
+  const I = p("div", "ot-changelog-root"), P = p("div", `ot-changelog ${s ? "ot-changelog--floating" : ""} ${x}`.trim());
+  P.setAttribute("role", "region"), P.setAttribute("aria-label", e);
+  const N = p("div", "ot-changelog-header");
+  N.appendChild(p("h3", "ot-changelog-title", { text: e })), P.appendChild(N);
+  const T = p("ul", "ot-changelog-list");
+  P.appendChild(T), I.appendChild(P);
+  const $ = p("button", "ot-changelog-launcher", { type: "button" }), R = p("span", "ot-changelog-badge");
+  if (R.setAttribute("aria-hidden", "true"), s)
+    $.appendChild(p("span", "ot-changelog-glyph", { text: i })), $.appendChild(R), I.appendChild($);
+  else {
+    const L = G("ot-changelog-close", "×", () => v(!1));
+    L.setAttribute("aria-label", "Close"), N.appendChild(L);
+  }
+  const M = () => y.slice(0, o), O = () => E ? M().filter((L) => m.shouldShow(L.id)).map((L) => L.id) : [], C = () => {
+    const L = O().length;
+    R.textContent = L > 99 ? "99+" : String(L), R.hidden = L === 0, $.setAttribute(
+      "aria-label",
+      L > 0 ? `${e} (${L} unread)` : e
+    ), $.setAttribute("aria-expanded", String(g));
+  }, S = () => {
+    T.replaceChildren();
+    const L = M();
+    if (L.length === 0) {
+      T.appendChild(p("li", "ot-changelog-empty", { text: r }));
+      return;
+    }
+    for (const B of L) {
+      const W = E && m.shouldShow(B.id), D = p("li", `ot-changelog-item${W ? " ot-changelog-item--unread" : ""}`), Y = p("div", "ot-changelog-meta");
+      if (B.tag && Y.appendChild(p("span", "ot-changelog-tag", { text: B.tag })), B.date) {
+        const H = p("time", "ot-changelog-date", { text: B.date });
+        H.dateTime = B.date, Y.appendChild(H);
+      }
+      Y.childElementCount > 0 && D.appendChild(Y), D.appendChild(p("h4", "ot-changelog-entry-title", { text: B.title }));
+      const _ = p("div", "ot-changelog-body"), X = ht(B.content, (H) => Z(H, l, c));
+      if (_.appendChild(dt(X, { allowHtml: a })), D.appendChild(_), B.href) {
+        const H = p("a", "ot-changelog-link", { text: "Read more ↗" });
+        H.href = B.href, H.target = "_blank", H.rel = "noopener noreferrer", D.appendChild(H);
+      }
+      T.appendChild(D);
+    }
+  }, A = () => {
+    P.hidden = !g, C(), g && S();
+  };
+  function v(L) {
+    if (g = L, P.hidden = !g, g) {
+      const B = O();
+      if (S(), B.length > 0) {
+        for (const W of B) m.markActed(W);
+        w?.(B);
+      }
+    }
+    C();
+  }
+  $.addEventListener("click", () => v(!g)), U(I, k), A();
+  let j = !0;
+  return b.add(() => {
+    j = !1;
+  }), m.ready.then(() => {
+    j && (E = !0, A());
+  }), {
+    ...K(I, b),
+    open: () => v(!0),
+    close: () => v(!1),
+    unread: O,
+    markAllRead() {
+      for (const L of M()) m.markActed(L.id);
+      A();
+    },
+    setEntries(L) {
+      y = L, A();
     }
   };
 }
 export {
-  st as CSS,
-  Rt as DEFAULT_LABELS,
-  C as MemoryStorage,
-  Q as TourEngine,
-  Z as TourOrchestrator,
-  xt as TourPersistence,
-  Gt as assertValidSpec,
-  lt as blocksToText,
-  it as checkExpression,
-  pe as createAmplitudeAdapter,
-  ee as createCookieStorage,
-  fe as createDatadogAdapter,
-  me as createDebugAdapter,
-  ge as createEventCollector,
-  ve as createFunnelReport,
-  ye as createGA4Adapter,
-  be as createHeapAdapter,
-  we as createHttpAdapter,
-  se as createIndexedDBStorage,
-  Kt as createKeyResolver,
-  Yt as createLocaleResolver,
-  Ut as createMemoryStorage,
-  xe as createMixpanelAdapter,
-  Ee as createMultiAdapter,
-  ke as createPostHogAdapter,
-  ie as createRemoteStorage,
-  $e as createRudderStackAdapter,
-  Se as createSegmentAdapter,
-  Jt as createTour,
-  Xt as createTours,
-  ne as createTutorialLayer,
-  K as currentPath,
-  Qt as defineSpec,
-  Zt as defineStep,
-  nt as describeTarget,
-  W as escapeHtml,
-  ae as evaluateExpression,
-  T as evaluateShowIf,
-  te as extendSpec,
-  Ae as filterEvents,
-  Ft as installTrigger,
-  q as interpolate,
-  ce as isVisible,
-  Y as matchPath,
-  ct as normalizeContent,
-  J as onLocationChange,
-  le as queryDeep,
-  ht as renderBlocks,
-  P as renderInline,
-  Mt as resolveLabel,
-  A as resolveTarget,
-  Pt as resolveText,
-  he as safeQuery,
-  M as validateSpec,
-  Wt as validateSpecs,
-  ue as waitForElement,
-  B as waitForTarget
+  Ot as CSS,
+  ye as DEFAULT_LABELS,
+  st as MemoryStorage,
+  pt as SurfaceState,
+  qt as TourEngine,
+  Bt as TourOrchestrator,
+  Pt as TourPersistence,
+  Le as assertValidSpec,
+  zt as blocksToText,
+  Dt as checkExpression,
+  rs as createAmplitudeAdapter,
+  Ge as createAnnouncement,
+  We as createBanner,
+  Xe as createChangelog,
+  Ke as createChecklist,
+  je as createCookieStorage,
+  os as createDatadogAdapter,
+  as as createDebugAdapter,
+  ls as createEventCollector,
+  cs as createFunnelReport,
+  hs as createGA4Adapter,
+  ds as createHeapAdapter,
+  Ve as createHint,
+  us as createHttpAdapter,
+  _e as createIndexedDBStorage,
+  Pe as createKeyResolver,
+  qe as createLocaleResolver,
+  Te as createMemoryStorage,
+  ps as createMixpanelAdapter,
+  fs as createMultiAdapter,
+  ms as createPostHogAdapter,
+  Fe as createRemoteStorage,
+  Ye as createResourceCenter,
+  gs as createRudderStackAdapter,
+  vs as createSegmentAdapter,
+  Ue as createSurvey,
+  Re as createTour,
+  Me as createTours,
+  ze as createTutorialLayer,
+  It as currentPath,
+  Oe as defineSpec,
+  De as defineStep,
+  Ht as describeTarget,
+  Ct as escapeHtml,
+  Ze as evaluateExpression,
+  et as evaluateShowIf,
+  He as extendSpec,
+  ys as filterEvents,
+  $e as installTrigger,
+  at as interpolate,
+  ts as isVisible,
+  Be as localeDirection,
+  Tt as matchPath,
+  ht as normalizeContent,
+  Lt as onLocationChange,
+  es as queryDeep,
+  dt as renderBlocks,
+  J as renderInline,
+  be as resolveLabel,
+  Q as resolveTarget,
+  Z as resolveText,
+  ss as safeQuery,
+  fe as selectPlural,
+  bs as shouldSample,
+  ut as validateSpec,
+  Ne as validateSpecs,
+  is as waitForElement,
+  lt as waitForTarget,
+  ws as withEventTypes,
+  xs as withSampling
 };
 //# sourceMappingURL=index.js.map
