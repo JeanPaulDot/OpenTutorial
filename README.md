@@ -22,7 +22,7 @@
   <p align="center">
     Spec-driven in-app guidance engine. Zero runtime dependencies. Adapters for React, Vue 3, Svelte, a universal Web Component, and plain vanilla JS.
     <br />
-    <a href="https://github.com/JeanPaulDot/OpenTutorial"><strong>Explore the docs »</strong></a>
+    <a href="#usage"><strong>Explore the usage guide »</strong></a>
     <br />
     <br />
     <a href="https://www.npmjs.com/package/@opentutorial/core">npm package</a>
@@ -91,21 +91,23 @@ It ships with adapters for React, Vue 3, Svelte, a universal Web Component (work
 ### Features
 
 - **Tour orchestration** — one tour at a time, priority queue, audience rules, frequency capping, tour chaining
-- **Triggers** — `manual`, `auto`, `event`, `route`, `element`, `idle`, `scroll`
+- **Triggers** — `manual`, `auto`, `event`, `route`, `element`, `idle`, `scroll`, plus `?tour=<id>` deep links
 - **Display modes** — `spotlight`, `hotspot`, and `beacon`
 - **Cross-page tours** — `autoResume` rehydrates a tour after full page navigations; `onNavigate` hooks SPA routers
 - **Rich content** — text, image, video, list, code and (opt-in) HTML blocks, not just inline markdown
 - **Resilient targeting** — fallback selector lists, text matching, shadow-DOM piercing, iframe support, visibility waits
+- **Interaction gating** — `free`, `target-only` or `blocked` pointer handling per spec or step
 - **Advance conditions** — `button`, `target-click`, `event`, `auto`, `input-match`, `form-submit`, `element-appears`, `element-disappears`, `url-match`, plus a `beforeNext` guard
 - **Branching** — `next: [{ if: "plan === 'pro'", to: 'pro-step' }]` rule lists
 - **Custom rendering** — replace the built-in popover with your own component via `renderStep`
 - **Persistence** — sync or async storage; ships localStorage, cookie, IndexedDB and remote (REST) adapters, with per-user namespacing via `userId`
-- **Analytics** — PostHog, Mixpanel, Amplitude, Segment, RudderStack, Heap, GA4, Datadog RUM, a batched HTTP adapter, and `createFunnelReport` for drop-off analysis
-- **Guidance surfaces** — `Announcement`, `Banner`, `Survey`/NPS, `ResourceCenter`, `Hint`, and a self-managing `TourChecklist`
+- **Analytics** — PostHog, Mixpanel, Amplitude, Segment, RudderStack, Heap, GA4, Datadog RUM, a batched HTTP adapter with offline queue, and `createFunnelReport` for drop-off analysis
+- **Guidance surfaces** — `Announcement`, `Banner`, `Survey`/NPS, `ResourceCenter`, `Hint`, and a self-managing `TourChecklist` (React)
 - **Authoring** — point-and-click recorder with selector stability scoring, debug overlay, published JSON Schema
 - **i18n** — key-based localization with interpolation, RTL support
-- **Theming** — 20+ CSS custom properties, dark mode via `prefers-color-scheme` or `data-ot-theme`, reduced-motion support
-- **Validation** — fail-closed schema checks with error/warning severity
+- **Theming** — 20 CSS custom properties, dark mode via `prefers-color-scheme` or `data-ot-theme`, reduced-motion support, optional shadow-DOM isolation and a `container` portal
+- **Validation** — fail-closed schema checks with error/warning severity (90+ checks)
+- **CSP-safe** — `showIf`, `next` branches and `audience` rules run through a hand-written parser; no `eval`, no `new Function`
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -136,6 +138,12 @@ To get a local copy up and running follow these simple steps.
    ```sh
    npm test
    ```
+
+React is an optional peer dependency — install it only if you use the React
+adapter. The root entry, the Web Component and the vanilla adapter need nothing
+beyond the package itself.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the build commands and project layout.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -241,13 +249,19 @@ Works in Angular, Solid, Lit, Astro, Rails, Django, or a static page — no bund
 | Import | What you get |
 |---|---|
 | `@opentutorial/core` | Framework-agnostic core + vanilla adapter. **React-free.** |
-| `@opentutorial/core/react` | Everything + `TourProvider`, `useTour`, all components |
-| `@opentutorial/core/vue` | Everything + Vue plugin / composable |
+| `@opentutorial/core/vanilla` | Alias of the root entry, for readability |
+| `@opentutorial/core/react` | Everything + `TourProvider`, `useTour`, `TourAnchor`, all components |
+| `@opentutorial/core/vue` | Everything + Vue plugin / `TOUR_KEY` injection |
 | `@opentutorial/core/svelte` | Everything + Svelte store + `tourAnchor` action |
 | `@opentutorial/core/webcomponent` | `<open-tutorial>` custom element |
 | `@opentutorial/core/analytics` | All analytics adapters + funnel reports |
 | `@opentutorial/core/authoring` | Tour recorder, debug overlay, selector scoring |
-| `@opentutorial/core/styles.css` | All styles (20+ `--ot-*` custom properties) |
+| `@opentutorial/core/schema` | `validateSpec`, `validateSpecs`, `assertValidSpec` |
+| `@opentutorial/core/styles.css` | All styles (20 `--ot-*` custom properties) |
+| `@opentutorial/core/opentutorial.global.js` | Self-contained IIFE bundle for `<script>` tags |
+
+The JSON Schema ships at `@opentutorial/core/dist/spec.schema.json` — point
+`$schema` at it to get autocomplete when authoring specs as JSON.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

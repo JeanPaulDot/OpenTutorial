@@ -1,7 +1,8 @@
 # Changelog
 
-All notable changes to OpenTutorials are documented here. The format is based
-on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+All notable changes to OpenTutorial are documented here. The format is based
+on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
+adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
@@ -41,6 +42,15 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   support, reduced-motion handling, shadow-DOM isolation (`isolate`), and a
   `container` portal option.
 - Validation now reports error/warning severity with a `strict` option.
+- **Expression sandbox** widened: comparison operators, arithmetic, ternary,
+  member/index access and a whitelist of pure string/array methods (`includes`,
+  `matches`, …) — still no `eval`/`new Function`, so strict CSP keeps working.
+- **Event set** expanded to `started`, `resumed`, `step-shown`, `step-hidden`,
+  `step-completed`, `back`, `paused`, `unpaused`, `skipped`, `dismissed`,
+  `completed`, `target-not-found`, `error`, with `duration` and `reason` fields.
+- **Mobile**: popover docks as a bottom sheet under 480px with 44px touch targets.
+- **Release automation**: tag-triggered npm publish with provenance, plus a CI
+  check that the committed `dist/` has not drifted from `src/`.
 
 ### Fixed
 - Progress keys no longer leak on reset (single atomic storage key).
@@ -54,12 +64,15 @@ on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Repository is now library-only.** The marketing site and live demo were moved
   to a separate repository; this repo ships only `@opentutorial/core`.
 - The root entry point no longer imports React; React is an optional peer.
-- Removed Docker, nginx and docker-compose setup (they served the demo site only).
-- Removed Tailwind/shadcn site tooling and the leftover Radix/shadcn devDependencies.
+- `TourChecklist` derives status from persistence by default instead of requiring
+  the host to compute `getStatus`.
 
 ### Removed
-- `npm run dev`, `npm run build:site` and `npm run preview` scripts.
-- The `vite` site build mode; `vite build` now targets the library exclusively.
+- The `npm run build:site` script and the `vite` site build mode; `vite build`
+  now targets the library exclusively, with `BUILD_TARGET=iife` for the global
+  bundle.
+- The site's Tailwind/shadcn toolchain and the leftover Radix devDependencies.
+- Docker, nginx and docker-compose setup (they served the demo site only).
 
 ## [0.1.0] - 2024
 
