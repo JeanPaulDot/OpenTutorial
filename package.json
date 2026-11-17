@@ -73,7 +73,7 @@
     "./dist/opentutorial.global.js"
   ],
   "bin": {
-    "opentutorial": "./bin/opentutorial.mjs"
+    "opentutorial": "bin/opentutorial.mjs"
   },
   "files": [
     "bin",
