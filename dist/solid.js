@@ -1,27 +1,27 @@
 import { createTutorialLayer as s } from "./index.js";
-import { DEFAULT_LABELS as g, MemoryStorage as S, SurfaceState as h, TourEngine as A, TourOrchestrator as m, TourPersistence as v, assertValidSpec as T, assignAll as f, assignVariant as w, blocksToText as x, createAnnouncement as y, createBanner as C, createChangelog as E, createChecklist as b, createCookieStorage as k, createHint as L, createIndexedDBStorage as D, createKeyResolver as M, createLocaleResolver as R, createMemoryStorage as B, createRemoteStorage as H, createResourceCenter as P, createSurvey as F, createTour as I, createTours as V, currentPath as q, defineSpec as O, defineStep as j, escapeHtml as z, extendSpec as G, hasBlockMarkdown as K, installTrigger as Q, interpolate as U, localeDirection as _, matchPath as J, normalizeContent as N, onLocationChange as W, renderBlocks as X, renderInline as Y, renderMarkdown as Z, resolveLabel as $, resolveText as ee, selectPlural as te, validateSpec as re, validateSpecs as ae } from "./index.js";
-import { C as ce, c as ne, d as se, e as le, a as ie, i as de, q as ue, r as pe, b as ge, s as Se, w as he, f as Ae } from "./chunks/safeEval.es.js";
-import { createAmplitudeAdapter as ve, createDatadogAdapter as Te, createDebugAdapter as fe, createEventCollector as we, createFunnelReport as xe, createGA4Adapter as ye, createHeapAdapter as Ce, createHttpAdapter as Ee, createMixpanelAdapter as be, createMultiAdapter as ke, createPostHogAdapter as Le, createRudderStackAdapter as De, createSegmentAdapter as Me, filterEvents as Re, shouldSample as Be, withEventTypes as He, withSampling as Pe } from "./analytics.js";
-function i(r) {
-  const a = /* @__PURE__ */ new Set();
+import { DEFAULT_LABELS as g, MemoryStorage as S, SurfaceState as h, TourEngine as A, TourOrchestrator as m, TourPersistence as v, assertValidSpec as T, assignAll as f, assignVariant as w, createAnnouncement as x, createBanner as y, createChangelog as C, createChecklist as k, createCookieStorage as E, createHint as b, createIndexedDBStorage as L, createKeyResolver as D, createLocaleResolver as M, createMemoryStorage as R, createRemoteStorage as B, createResourceCenter as H, createSurvey as P, createTour as F, createTours as I, currentPath as V, defineSpec as j, defineStep as q, extendSpec as O, installTrigger as z, interpolate as G, localeDirection as K, matchPath as Q, onLocationChange as U, resolveLabel as _, resolveText as J, selectPlural as N, validateSpec as W, validateSpecs as X } from "./index.js";
+import { C as Z, b as $, c as ee, d as te, e as ae, a as re, f as oe, h as ce, i as ne, n as se, q as le, r as ie, g as de, j as ue, k as pe, l as ge, s as Se, w as he, m as Ae } from "./chunks/safeEval.es.js";
+import { createAmplitudeAdapter as ve, createDatadogAdapter as Te, createDebugAdapter as fe, createEventCollector as we, createFunnelReport as xe, createGA4Adapter as ye, createHeapAdapter as Ce, createHttpAdapter as ke, createMixpanelAdapter as Ee, createMultiAdapter as be, createPostHogAdapter as Le, createRudderStackAdapter as De, createSegmentAdapter as Me, filterEvents as Re, shouldSample as Be, withEventTypes as He, withSampling as Pe } from "./analytics.js";
+function i(a) {
+  const r = /* @__PURE__ */ new Set();
   let t = { activeId: null, state: null };
   const o = s({
-    ...r,
+    ...a,
     onStateChange: (e, c) => {
       t = { activeId: e, state: c };
-      for (const n of a)
+      for (const n of r)
         try {
           n(t);
         } catch {
         }
-      r.onStateChange?.(e, c);
+      a.onStateChange?.(e, c);
     }
   });
   return Object.assign(o, {
     snapshot: () => t,
     watch(e) {
-      return a.add(e), e(t), () => {
-        a.delete(e);
+      return r.add(e), e(t), () => {
+        r.delete(e);
       };
     },
     watchEvents(e) {
@@ -29,12 +29,12 @@ function i(r) {
     }
   });
 }
-function d(r, a) {
-  const t = a();
-  t ? r.setAttribute("data-tour", t) : r.removeAttribute("data-tour");
+function d(a, r) {
+  const t = r();
+  t ? a.setAttribute("data-tour", t) : a.removeAttribute("data-tour");
 }
 export {
-  ce as CSS,
+  Z as CSS,
   g as DEFAULT_LABELS,
   S as MemoryStorage,
   h as SurfaceState,
@@ -44,69 +44,69 @@ export {
   T as assertValidSpec,
   f as assignAll,
   w as assignVariant,
-  x as blocksToText,
-  ne as checkExpression,
+  $ as blocksToText,
+  ee as checkExpression,
   ve as createAmplitudeAdapter,
-  y as createAnnouncement,
-  C as createBanner,
-  E as createChangelog,
-  b as createChecklist,
-  k as createCookieStorage,
+  x as createAnnouncement,
+  y as createBanner,
+  C as createChangelog,
+  k as createChecklist,
+  E as createCookieStorage,
   Te as createDatadogAdapter,
   fe as createDebugAdapter,
   we as createEventCollector,
   xe as createFunnelReport,
   ye as createGA4Adapter,
   Ce as createHeapAdapter,
-  L as createHint,
-  Ee as createHttpAdapter,
-  D as createIndexedDBStorage,
-  M as createKeyResolver,
-  R as createLocaleResolver,
-  B as createMemoryStorage,
-  be as createMixpanelAdapter,
-  ke as createMultiAdapter,
+  b as createHint,
+  ke as createHttpAdapter,
+  L as createIndexedDBStorage,
+  D as createKeyResolver,
+  M as createLocaleResolver,
+  R as createMemoryStorage,
+  Ee as createMixpanelAdapter,
+  be as createMultiAdapter,
   Le as createPostHogAdapter,
-  H as createRemoteStorage,
-  P as createResourceCenter,
+  B as createRemoteStorage,
+  H as createResourceCenter,
   De as createRudderStackAdapter,
   Me as createSegmentAdapter,
-  F as createSurvey,
-  I as createTour,
+  P as createSurvey,
+  F as createTour,
   i as createTourLayer,
-  V as createTours,
+  I as createTours,
   s as createTutorialLayer,
-  q as currentPath,
-  O as defineSpec,
-  j as defineStep,
-  se as describeTarget,
-  z as escapeHtml,
-  le as evaluateExpression,
-  ie as evaluateShowIf,
-  G as extendSpec,
+  V as currentPath,
+  j as defineSpec,
+  q as defineStep,
+  te as describeTarget,
+  ae as escapeHtml,
+  re as evaluateExpression,
+  oe as evaluateShowIf,
+  O as extendSpec,
   Re as filterEvents,
-  K as hasBlockMarkdown,
-  Q as installTrigger,
-  U as interpolate,
-  de as isVisible,
-  _ as localeDirection,
-  J as matchPath,
-  N as normalizeContent,
-  W as onLocationChange,
-  ue as queryDeep,
-  X as renderBlocks,
-  Y as renderInline,
-  Z as renderMarkdown,
-  $ as resolveLabel,
+  ce as hasBlockMarkdown,
+  z as installTrigger,
+  G as interpolate,
+  ne as isVisible,
+  K as localeDirection,
+  Q as matchPath,
+  se as normalizeContent,
+  U as onLocationChange,
+  le as queryDeep,
+  ie as renderBlocks,
+  de as renderInline,
+  ue as renderMarkdown,
+  _ as resolveLabel,
   pe as resolveTarget,
   ge as resolveTargets,
-  ee as resolveText,
+  J as resolveText,
   Se as safeQuery,
-  te as selectPlural,
+  N as selectPlural,
   Be as shouldSample,
   d as tourAnchor,
-  re as validateSpec,
-  ae as validateSpecs,
+  W as validateSpec,
+  X as validateSpecs,
   he as waitForElement,
   Ae as waitForTarget,
   He as withEventTypes,

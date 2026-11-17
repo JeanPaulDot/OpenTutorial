@@ -7,6 +7,7 @@
  * be rewritten per locale.
  */
 import type { AdvanceOn, ContentBlock, Density, Direction, Placement } from '../types';
+import { type InteractiveHandlers } from '../content';
 export interface PopoverLabels {
     next: string;
     back: string;
@@ -30,17 +31,29 @@ export interface PopoverModel {
     modal: boolean;
     allowHtml?: boolean;
     density?: Density;
+    /** The step's `nextWhen` is unmet — render Next disabled. */
+    nextDisabled?: boolean;
+    /** Per-dot flag: true when that step can be jumped back to. */
+    jumpable?: boolean[];
+    /** The theme pins a width, so auto-sizing must not override it. */
+    fixedWidth?: boolean;
 }
 export interface PopoverCallbacks {
     onNext: () => void;
     onPrev: () => void;
     onSkip: () => void;
+    /** Jump to the step behind a progress dot. */
+    onJump?: (index: number) => void;
+    /** Wiring for `input` / `choice` / `button` content blocks. */
+    interactive?: InteractiveHandlers;
 }
 export interface PopoverOptions {
     /** Advance/rewind on horizontal touch swipes. Default true. */
     swipe?: boolean;
     /** Size the card from its content and the viewport. Default true. */
     autoSize?: boolean;
+    /** Let the user drag the card by its title. Default false. */
+    draggable?: boolean;
 }
 type Side = 'top' | 'bottom' | 'left' | 'right';
 interface Rect {
@@ -65,8 +78,29 @@ export declare class TourPopover {
     /** The last rendered model, so a swipe honours the same rules as the buttons. */
     private model;
     private detachSwipe;
+    private detachDrag;
     private autoSize;
+    /** Set once the user has dragged the card; cleared when the step changes. */
+    private dragged;
     constructor(cbs: PopoverCallbacks, dir?: Direction, opts?: PopoverOptions);
+    /**
+     * Drag the card by its title.
+     *
+     * A tour that covers the thing it is describing is a real complaint, and no
+     * placement algorithm fixes every layout. Once dragged, the card stays where
+     * the user put it until the step changes — automatic repositioning would
+     * fight them on every scroll frame otherwise.
+     */
+    private installDrag;
+    /** True when the user has moved the card for the current step. */
+    isDragged(): boolean;
+    /** Flip the Next button without re-rendering — used as `nextWhen` changes. */
+    setNextDisabled(disabled: boolean): void;
+    /**
+     * True while focus is on a control inside the step body. The engine checks
+     * this before re-rendering, so typing into a field never loses the caret.
+     */
+    contentHasFocus(): boolean;
     /**
      * Horizontal touch swipes move between steps on mobile, where the popover is
      * docked as a bottom sheet and the buttons are a thumb-stretch away.

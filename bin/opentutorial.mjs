@@ -8,7 +8,9 @@
  * and the package promise is `dependencies: {}`.
  */
 
-import { createServer } from 'node:http';
+import { createServer, request as httpRequest } from 'node:http';
+import { request as httpsRequest } from 'node:https';
+import { connect as netConnect } from 'node:net';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
@@ -31,13 +33,26 @@ const bold = (t) => paint('1', t);
 
 // --- args -----------------------------------------------------------------
 
+/** Flags that consume the next argument. Everything else is boolean. */
+const VALUE_FLAGS = new Set(['port']);
+
 function parseArgs(argv) {
-  const flags = new Set();
+  // A Map so value flags can carry their value; `.has()` still answers the
+  // boolean question for the rest.
+  const flags = new Map();
   const positional = [];
-  for (const arg of argv) {
-    if (arg.startsWith('--')) flags.add(arg.slice(2));
-    else if (arg.startsWith('-') && arg.length > 1) {
-      for (const ch of arg.slice(1)) flags.add(ch);
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg.startsWith('--')) {
+      const [name, inline] = arg.slice(2).split('=');
+      if (inline !== undefined) flags.set(name, inline);
+      else if (VALUE_FLAGS.has(name) && argv[i + 1] !== undefined && !argv[i + 1].startsWith('-')) {
+        // Without this, `--port 5000` left "5000" behind as a spec path.
+        flags.set(name, argv[i + 1]);
+        i += 1;
+      } else flags.set(name, true);
+    } else if (arg.startsWith('-') && arg.length > 1) {
+      for (const ch of arg.slice(1)) flags.set(ch, true);
     } else positional.push(arg);
   }
   return { flags, positional };
@@ -276,132 +291,429 @@ async function commandLintSelectors(positional, flags) {
 }
 
 /**
- * Serve a page that loads your specs against a URL of your choosing.
+ * Run your specs against a live app without wiring them into it.
  *
- * The authoring loop without this is: edit JSON → rebuild the app → click
- * through to the right screen → start the tour. This collapses it to: edit
- * JSON → refresh.
+ * This is a reverse proxy, not an iframe. The first version framed the target,
+ * which could never work: a page on :3000 framed by a page on :4180 is
+ * cross-origin, and nothing — this library included — may read into a
+ * cross-origin frame. Proxying makes the app same-origin with the injected
+ * tour, so selectors resolve exactly as they will in production.
+ *
+ * Specs are re-read from disk on every page load, so the loop is
+ * *edit JSON → refresh*.
  */
 async function commandPreview(positional, flags) {
   const [target, ...specPatterns] = positional;
   if (!target) {
-    console.error(red('Usage: opentutorial preview <url> [specs...]'));
+    console.error(red('Usage: opentutorial preview <url> [specs...] [--port 4180]'));
     return 2;
   }
 
-  const files = (await resolveInputs(specPatterns.length > 0 ? specPatterns : ['.']))
-    .filter((f) => f.endsWith('.json'));
-
-  const specs = [];
-  for (const file of files) {
-    try {
-      const parsed = JSON.parse(await readFile(file, 'utf8'));
-      for (const spec of Array.isArray(parsed) ? parsed : [parsed]) {
-        if (spec && typeof spec.id === 'string') specs.push(spec);
-      }
-    } catch { /* validate reports these properly; preview just skips them */ }
-  }
-
-  if (specs.length === 0) {
-    console.error(red('No valid specs found.'));
+  let origin;
+  try { origin = new URL(target); } catch {
+    console.error(red(`Not a valid URL: ${target}`));
     return 2;
   }
 
+  const patterns = specPatterns.length > 0 ? specPatterns : ['.'];
   const { validateSpec } = await loadCore();
-  const invalid = specs.filter((s) => !validateSpec(s).ok).map((s) => s.id);
-  if (invalid.length > 0) {
-    console.log(yellow(`! ${invalid.length} spec(s) fail validation and will not run: ${invalid.join(', ')}`));
-  }
 
-  const globalBundle = path.join(PKG_ROOT, 'dist', 'opentutorial.global.js');
-  const stylesheet = path.join(PKG_ROOT, 'dist', 'styles.css');
-  const port = Number(flags.has('port') ? positional.at(-1) : 0) || 4180;
-
-  const page = `<!doctype html>
-<meta charset="utf-8">
-<title>OpenTutorial preview</title>
-<style>
-  html, body { margin: 0; height: 100%; font: 14px system-ui, sans-serif; }
-  #bar { display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: #17171f; color: #f2f2f7; }
-  #bar select, #bar button { font: inherit; padding: 4px 10px; border-radius: 6px; border: 1px solid #444; background: #23232e; color: inherit; cursor: pointer; }
-  #frame { width: 100%; height: calc(100% - 41px); border: 0; }
-</style>
-<div id="bar">
-  <strong>OpenTutorial preview</strong>
-  <select id="pick"></select>
-  <button id="start">Start</button>
-  <button id="stop">Stop</button>
-  <span id="note" style="opacity:.6"></span>
-</div>
-<iframe id="frame" src="${escapeAttr(target)}"></iframe>
-<script>
-  // The tour runs in this document, targeting the framed app. Same-origin only —
-  // a cross-origin target cannot be inspected, which the note below explains.
-  window.__SPECS__ = ${JSON.stringify(specs).replace(/</g, '\\u003c')};
-</script>
-<link rel="stylesheet" href="/__ot/styles.css">
-<script src="/__ot/opentutorial.global.js"></script>
-<script>
-  const frame = document.getElementById('frame');
-  const pick = document.getElementById('pick');
-  const note = document.getElementById('note');
-  for (const spec of window.__SPECS__) {
-    const option = document.createElement('option');
-    option.value = spec.id;
-    option.textContent = spec.title || spec.id;
-    pick.appendChild(option);
-  }
-
-  let layer = null;
-  frame.addEventListener('load', () => {
-    try {
-      const doc = frame.contentDocument;
-      if (!doc) throw new Error('cross-origin');
-      layer && layer.destroy();
-      layer = OpenTutorial.createTutorialLayer({ specs: window.__SPECS__, autoMount: false });
-      note.textContent = '';
-    } catch {
-      note.textContent = 'Cross-origin target — selectors cannot be resolved. Serve the app from this origin.';
+  const loadSpecs = async () => {
+    const files = (await resolveInputs(patterns)).filter((f) => f.endsWith('.json'));
+    const specs = [];
+    const problems = [];
+    for (const file of files) {
+      let parsed;
+      try { parsed = JSON.parse(await readFile(file, 'utf8')); } catch (err) {
+        problems.push(`${file}: invalid JSON (${err.message})`);
+        continue;
+      }
+      for (const spec of Array.isArray(parsed) ? parsed : [parsed]) {
+        // Anything without the marker is some other JSON file in the folder.
+        if (!spec || spec.specVersion !== 1 || typeof spec.id !== 'string') continue;
+        const result = validateSpec(spec);
+        for (const issue of result.errors) problems.push(`${spec.id} ${issue.path}: ${issue.message}`);
+        specs.push(spec);
+      }
     }
+    return { specs, problems };
+  };
+
+  const initial = await loadSpecs();
+  if (initial.specs.length === 0) {
+    console.error(red('No specs found. A spec needs "specVersion": 1 and an "id".'));
+    return 2;
+  }
+
+  const port = Number(flags.get('port')) || 4180;
+  const assets = {
+    '/__ot/opentutorial.global.js': [path.join(PKG_ROOT, 'dist', 'opentutorial.global.js'), 'text/javascript'],
+    '/__ot/styles.css': [path.join(PKG_ROOT, 'dist', 'styles.css'), 'text/css'],
+  };
+
+  const INJECT = '<link rel="stylesheet" href="/__ot/styles.css">'
+    + '<script src="/__ot/opentutorial.global.js"></script>'
+    + '<script src="/__ot/boot.js"></script>';
+
+  const requester = origin.protocol === 'https:' ? httpsRequest : httpRequest;
+
+  const server = createServer(async (req, res) => {
+    const url = req.url ?? '/';
+    const pathname = url.split('?')[0];
+
+    if (pathname === '/__ot/specs.json') {
+      const fresh = await loadSpecs();
+      res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' });
+      res.end(JSON.stringify(fresh));
+      return;
+    }
+    if (pathname === '/__ot/boot.js') {
+      res.writeHead(200, { 'content-type': 'text/javascript', 'cache-control': 'no-store' });
+      res.end(PREVIEW_BOOT);
+      return;
+    }
+    if (assets[pathname]) {
+      const [file, type] = assets[pathname];
+      if (!existsSync(file)) { res.writeHead(404); res.end('Build the package first'); return; }
+      res.writeHead(200, { 'content-type': type, 'cache-control': 'no-store' });
+      res.end(await readFile(file));
+      return;
+    }
+
+    // Everything else is the app. Ask for an uncompressed body so HTML can be
+    // edited without a decompression dependency.
+    const headers = { ...req.headers, host: origin.host };
+    delete headers['accept-encoding'];
+
+    const upstream = requester({
+      protocol: origin.protocol,
+      hostname: origin.hostname,
+      port: origin.port || (origin.protocol === 'https:' ? 443 : 80),
+      method: req.method,
+      path: url,
+      headers,
+    }, (up) => {
+      const outHeaders = { ...up.headers };
+      // Keep redirects inside the proxy.
+      if (typeof outHeaders.location === 'string' && outHeaders.location.startsWith(origin.origin)) {
+        outHeaders.location = outHeaders.location.slice(origin.origin.length) || '/';
+      }
+
+      const isHtml = String(up.headers['content-type'] ?? '').includes('text/html');
+      if (!isHtml) {
+        res.writeHead(up.statusCode ?? 502, outHeaders);
+        up.pipe(res);
+        return;
+      }
+
+      const chunks = [];
+      up.on('data', (c) => chunks.push(c));
+      up.on('end', () => {
+        let html = Buffer.concat(chunks).toString('utf8');
+        const at = html.lastIndexOf('</body>');
+        html = at === -1 ? html + INJECT : html.slice(0, at) + INJECT + html.slice(at);
+        delete outHeaders['content-length'];
+        res.writeHead(up.statusCode ?? 200, outHeaders);
+        res.end(html);
+      });
+    });
+
+    upstream.on('error', (err) => {
+      res.writeHead(502, { 'content-type': 'text/plain; charset=utf-8' });
+      res.end(`OpenTutorial preview could not reach ${origin.origin}\n${err.message}\n\nIs the app running?`);
+    });
+    req.pipe(upstream);
   });
 
-  document.getElementById('start').onclick = () => layer && layer.start(pick.value);
-  document.getElementById('stop').onclick = () => layer && layer.stop();
-</script>`;
+  // Dev servers push hot-reload updates over a WebSocket; without this the app
+  // loads but never updates, and some frameworks show an error overlay.
+  server.on('upgrade', (req, socket, head) => {
+    if (origin.protocol !== 'http:') { socket.destroy(); return; }
+    const up = netConnect(Number(origin.port) || 80, origin.hostname, () => {
+      const lines = [`${req.method} ${req.url} HTTP/${req.httpVersion}`];
+      for (let i = 0; i < req.rawHeaders.length; i += 2) {
+        const name = req.rawHeaders[i];
+        const value = name.toLowerCase() === 'host' ? origin.host : req.rawHeaders[i + 1];
+        lines.push(`${name}: ${value}`);
+      }
+      up.write(`${lines.join('\r\n')}\r\n\r\n`);
+      if (head?.length) up.write(head);
+      up.pipe(socket);
+      socket.pipe(up);
+    });
+    up.on('error', () => socket.destroy());
+    socket.on('error', () => up.destroy());
+  });
 
-  const server = createPreviewServer(page, { globalBundle, stylesheet });
-  await new Promise((resolve) => server.listen(port, '127.0.0.1', resolve));
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(port, '127.0.0.1', resolve);
+  }).catch((err) => {
+    console.error(red(err.code === 'EADDRINUSE' ? `Port ${port} is in use. Try --port ${port + 1}.` : err.message));
+    process.exit(2);
+  });
 
-  console.log(green(`Preview on http://127.0.0.1:${port}`));
-  console.log(dim(`${specs.length} spec(s) · target ${target}`));
+  console.log(green(`Preview on http://127.0.0.1:${port}`) + dim(`  →  ${origin.origin}`));
+  console.log(dim(`${initial.specs.length} spec(s). Edit the JSON and refresh the page.`));
+  for (const problem of initial.problems) console.log(yellow(`! ${problem}`));
   console.log(dim('Ctrl+C to stop.'));
 
-  // Resolves only on SIGINT, keeping the process alive.
   await new Promise((resolve) => process.on('SIGINT', () => { server.close(); resolve(); }));
   return 0;
 }
 
-function escapeAttr(value) {
-  return String(value).replace(/[&<>"']/g, (c) => (
-    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-  ));
+/** Runs in the proxied page: loads the specs and adds a small control bar. */
+const PREVIEW_BOOT = `
+(async () => {
+  const data = await fetch('/__ot/specs.json').then((r) => r.json()).catch(() => ({ specs: [], problems: ['could not load specs'] }));
+  if (!window.OpenTutorial) return;
+
+  const layer = OpenTutorial.createTutorialLayer({ specs: data.specs, deepLinkParam: 'tour', debug: false });
+  window.__otPreview = layer;
+
+  const bar = document.createElement('div');
+  bar.setAttribute('data-opentutorial', '');
+  bar.style.cssText = 'position:fixed;left:12px;bottom:12px;z-index:2147483000;display:flex;gap:6px;align-items:center;padding:6px 8px;border-radius:10px;background:#17171f;color:#f2f2f7;font:12px system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)';
+
+  const pick = document.createElement('select');
+  pick.setAttribute('aria-label', 'Tour');
+  pick.style.cssText = 'font:inherit;background:#23232e;color:inherit;border:1px solid #444;border-radius:6px;padding:3px 6px;max-width:200px';
+  for (const spec of data.specs) {
+    const option = document.createElement('option');
+    option.value = spec.id;
+    const blocked = layer.whyBlocked(spec.id);
+    option.textContent = (typeof spec.title === 'string' ? spec.title : spec.id) + (blocked === 'spec failed validation' ? '  (invalid)' : '');
+    pick.appendChild(option);
+  }
+  const remembered = sessionStorage.getItem('ot-preview-tour');
+  if (remembered && data.specs.some((s) => s.id === remembered)) pick.value = remembered;
+  pick.onchange = () => sessionStorage.setItem('ot-preview-tour', pick.value);
+
+  const button = (label, fn) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = label;
+    b.style.cssText = 'font:inherit;background:#6d5cff;color:#fff;border:0;border-radius:6px;padding:4px 10px;cursor:pointer';
+    b.onclick = fn;
+    return b;
+  };
+
+  bar.append(
+    pick,
+    button('Start', () => { layer.reset(); layer.start(pick.value); }),
+    button('Stop', () => layer.stop()),
+  );
+  if (data.problems.length) {
+    const warn = document.createElement('span');
+    warn.textContent = data.problems.length + ' issue(s)';
+    warn.title = data.problems.join('\\n');
+    warn.style.cssText = 'color:#fbbf24;cursor:help';
+    bar.append(warn);
+    console.warn('[opentutorial preview]\\n' + data.problems.join('\\n'));
+  }
+  document.body.appendChild(bar);
+})();
+`;
+
+// --- MCP --------------------------------------------------------------------
+
+/**
+ * A Model Context Protocol server over stdio.
+ *
+ * Gives an AI agent the same grounding a human gets from the docs and the
+ * validator: the schema, the guides, and a way to check its work. Hand-rolled
+ * JSON-RPC rather than an SDK, because the package promise is `dependencies: {}`
+ * and the protocol surface needed here is four methods.
+ *
+ *   { "mcpServers": { "opentutorial": { "command": "npx", "args": ["opentutorial", "mcp"] } } }
+ */
+async function commandMcp() {
+  const core = await loadCore();
+  const authoringEntry = path.join(PKG_ROOT, 'dist', 'authoring.js');
+  const authoring = existsSync(authoringEntry) ? await import(pathToFileURL(authoringEntry).href) : {};
+  const docsRoot = path.join(PKG_ROOT, 'docs');
+  const pkg = JSON.parse(await readFile(path.join(PKG_ROOT, 'package.json'), 'utf8'));
+
+  const listDocs = async () => (existsSync(docsRoot) ? (await walk(docsRoot)) : [])
+    .filter((f) => f.endsWith('.md'))
+    .map((f) => path.relative(docsRoot, f).replace(/\\/g, '/'))
+    .sort();
+
+  const parseSpec = (input) => {
+    if (typeof input === 'string') {
+      try { return JSON.parse(input); } catch (err) { throw new Error(`spec is not valid JSON: ${err.message}`); }
+    }
+    return input;
+  };
+
+  const tools = [
+    {
+      name: 'validate_spec',
+      description: 'Validate an OpenTutorial TutorialSpec. Returns errors (the tour will not run) and warnings. Always call this after writing or editing a spec.',
+      inputSchema: {
+        type: 'object',
+        properties: { spec: { description: 'The spec, as a JSON object or a JSON string.' } },
+        required: ['spec'],
+      },
+      run: ({ spec }) => {
+        const result = core.validateSpec(parseSpec(spec));
+        if (result.ok && result.warnings.length === 0) return 'Valid. No errors, no warnings.';
+        const lines = [result.ok ? 'Valid, with warnings.' : 'INVALID — the tour will not run until the errors are fixed.'];
+        for (const e of result.errors) lines.push(`error   ${e.path} — ${e.message}`);
+        for (const w of result.warnings) lines.push(`warning ${w.path} — ${w.message}`);
+        return lines.join('\n');
+      },
+    },
+    {
+      name: 'describe_spec',
+      description: 'Summarise a TutorialSpec in plain language: when it starts, who sees it, and what each step does.',
+      inputSchema: { type: 'object', properties: { spec: {} }, required: ['spec'] },
+      run: ({ spec }) => {
+        if (!authoring.describeSpec) throw new Error('describe_spec is unavailable in this build');
+        return authoring.describeSpec(parseSpec(spec));
+      },
+    },
+    {
+      name: 'get_spec_schema',
+      description: 'Return the JSON Schema for TutorialSpec — every field, type and enum.',
+      inputSchema: { type: 'object', properties: {} },
+      run: async () => readFile(SCHEMA_PATH, 'utf8'),
+    },
+    {
+      name: 'get_authoring_prompt',
+      description: 'Return concise rules for writing a valid TutorialSpec, optionally grounded in real page selectors and a goal.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          goal: { type: 'string', description: 'What the tour should achieve.' },
+          selectors: { type: 'array', items: { type: 'string' }, description: 'Real selectors that exist on the page.' },
+          contextKeys: { type: 'array', items: { type: 'string' } },
+        },
+      },
+      run: ({ goal, selectors = [], contextKeys = [] }) => {
+        if (!authoring.createAuthoringPrompt) throw new Error('get_authoring_prompt is unavailable in this build');
+        const anchors = selectors.map((selector) => ({ selector, score: 70, tag: 'element', visible: true }));
+        return authoring.createAuthoringPrompt({ goal, anchors, contextKeys });
+      },
+    },
+    {
+      name: 'list_docs',
+      description: 'List the documentation pages shipped with this version of OpenTutorial.',
+      inputSchema: { type: 'object', properties: {} },
+      run: async () => (await listDocs()).join('\n') || 'No docs found.',
+    },
+    {
+      name: 'read_doc',
+      description: 'Read one documentation page. Use a path from list_docs, e.g. "spec-reference.md" or "guides/targeting.md".',
+      inputSchema: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'] },
+      run: async ({ path: requested }) => {
+        const full = path.resolve(docsRoot, String(requested));
+        // Resolved-path containment: a request for "../package.json" must not leave docs/.
+        if (full !== docsRoot && !full.startsWith(docsRoot + path.sep)) throw new Error('path is outside the docs directory');
+        if (!existsSync(full)) throw new Error(`no such doc: ${requested}. Call list_docs.`);
+        return readFile(full, 'utf8');
+      },
+    },
+    {
+      name: 'search_docs',
+      description: 'Search the documentation for a phrase. Returns matching lines with their page.',
+      inputSchema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] },
+      run: async ({ query }) => {
+        const needle = String(query ?? '').toLowerCase().trim();
+        if (!needle) throw new Error('query is empty');
+        const hits = [];
+        for (const doc of await listDocs()) {
+          const lines = (await readFile(path.join(docsRoot, doc), 'utf8')).split(/\r?\n/);
+          lines.forEach((line, i) => {
+            if (hits.length < 40 && line.toLowerCase().includes(needle)) hits.push(`${doc}:${i + 1}: ${line.trim().slice(0, 200)}`);
+          });
+        }
+        return hits.length ? hits.join('\n') : `No matches for "${query}".`;
+      },
+    },
+  ];
+
+  const send = (message) => process.stdout.write(`${JSON.stringify(message)}\n`);
+  const reply = (id, result) => send({ jsonrpc: '2.0', id, result });
+  const fail = (id, code, message) => send({ jsonrpc: '2.0', id, error: { code, message } });
+
+  const handle = async (message) => {
+    const { id, method, params } = message;
+    const isRequest = id !== undefined && id !== null;
+
+    switch (method) {
+      case 'initialize':
+        reply(id, {
+          protocolVersion: params?.protocolVersion ?? '2024-11-05',
+          capabilities: { tools: {} },
+          serverInfo: { name: 'opentutorial', version: pkg.version },
+          instructions: 'Tools for authoring OpenTutorial product tours. Read spec-reference.md first, write the spec, then always call validate_spec.',
+        });
+        return;
+      case 'ping':
+        reply(id, {});
+        return;
+      case 'tools/list':
+        reply(id, { tools: tools.map(({ name, description, inputSchema }) => ({ name, description, inputSchema })) });
+        return;
+      case 'tools/call': {
+        const tool = tools.find((t) => t.name === params?.name);
+        if (!tool) { fail(id, -32602, `Unknown tool: ${params?.name}`); return; }
+        try {
+          const text = await tool.run(params?.arguments ?? {});
+          reply(id, { content: [{ type: 'text', text: String(text) }] });
+        } catch (err) {
+          // A tool failure is a result the model can read and act on, not a
+          // protocol error.
+          reply(id, { content: [{ type: 'text', text: `Error: ${err.message}` }], isError: true });
+        }
+        return;
+      }
+      default:
+        // Notifications (no id) are never answered, known or not.
+        if (isRequest) fail(id, -32601, `Method not found: ${method}`);
+    }
+  };
+
+  let buffer = '';
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', (chunk) => {
+    buffer += chunk;
+    let newline;
+    while ((newline = buffer.indexOf('\n')) !== -1) {
+      const line = buffer.slice(0, newline).trim();
+      buffer = buffer.slice(newline + 1);
+      if (!line) continue;
+      let message;
+      try { message = JSON.parse(line); } catch { fail(null, -32700, 'Parse error'); continue; }
+      handle(message).catch((err) => fail(message?.id ?? null, -32603, err.message));
+    }
+  });
+
+  // stdout is the protocol channel; anything human-readable goes to stderr.
+  console.error(`opentutorial MCP server v${pkg.version} ready on stdio`);
+  await new Promise((resolve) => process.stdin.on('end', resolve));
+  return 0;
 }
 
-function createPreviewServer(page, assets) {
-  return createServer(async (req, res) => {
-    const url = (req.url ?? '/').split('?')[0];
-    const send = (code, type, body) => {
-      res.writeHead(code, { 'content-type': type, 'cache-control': 'no-store' });
-      res.end(body);
-    };
+async function commandDescribe(positional) {
+  const files = (await resolveInputs(positional.length > 0 ? positional : ['.'])).filter((f) => f.endsWith('.json'));
+  const authoringEntry = path.join(PKG_ROOT, 'dist', 'authoring.js');
+  if (!existsSync(authoringEntry)) { console.error(red('Build the package first.')); return 2; }
+  const { describeSpec } = await import(pathToFileURL(authoringEntry).href);
 
-    if (url === '/__ot/opentutorial.global.js' || url === '/__ot/styles.css') {
-      const file = url.endsWith('.css') ? assets.stylesheet : assets.globalBundle;
-      if (!existsSync(file)) return send(404, 'text/plain', 'Build the package first');
-      return send(200, url.endsWith('.css') ? 'text/css' : 'text/javascript', await readFile(file));
+  let shown = 0;
+  for (const file of files) {
+    let parsed;
+    try { parsed = JSON.parse(await readFile(file, 'utf8')); } catch { continue; }
+    for (const spec of Array.isArray(parsed) ? parsed : [parsed]) {
+      if (!spec || spec.specVersion !== 1 || !Array.isArray(spec.steps)) continue;
+      console.log(`${dim(file)}\n${describeSpec(spec)}\n`);
+      shown += 1;
     }
-    return send(200, 'text/html; charset=utf-8', page);
-  });
+  }
+  if (shown === 0) { console.error(red('No specs found.')); return 2; }
+  return 0;
 }
 
 function commandSchema() {
@@ -427,7 +739,9 @@ ${bold('Usage')}
   opentutorial validate [paths...]        Validate spec JSON (default: current directory)
   opentutorial lint-selectors <url> [paths...]
                                           Check every step selector against a live page
-  opentutorial preview <url> [paths...]    Serve a page that runs your specs against a URL
+  opentutorial preview <url> [paths...]   Proxy a running app with your specs injected
+  opentutorial describe [paths...]        Summarise specs in plain language
+  opentutorial mcp                        Start an MCP server (stdio) for AI agents
   opentutorial schema                     Print the path to spec.schema.json
   opentutorial version                    Print the package version
 
@@ -467,6 +781,8 @@ async function main() {
     case 'validate': return commandValidate(positional, flags);
     case 'lint-selectors': return commandLintSelectors(positional, flags);
     case 'preview': return commandPreview(positional, flags);
+    case 'describe': return commandDescribe(positional);
+    case 'mcp': return commandMcp();
     case 'schema': return commandSchema();
     default:
       console.error(red(`Unknown command "${command}".`));

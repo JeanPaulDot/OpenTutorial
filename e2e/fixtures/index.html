@@ -85,8 +85,52 @@
       ],
     };
 
+    const quizSpec = {
+      specVersion: 1,
+      id: 'quiz-tour',
+      title: 'Quiz tour',
+      trigger: { type: 'manual' },
+      steps: [
+        {
+          id: 'ask-email',
+          title: 'Where should we send updates?',
+          placement: 'center',
+          nextWhen: "email.includes('@')",
+          content: { blocks: [
+            { type: 'text', value: 'We only use it for **release notes**.' },
+            { type: 'input', name: 'email', label: 'Work email', inputType: 'email', placeholder: 'you@example.com' },
+          ] },
+        },
+        {
+          id: 'ask-role',
+          title: 'What best describes you?',
+          placement: 'center',
+          nextWhen: 'role',
+          content: { blocks: [
+            { type: 'choice', name: 'role', label: 'Role', options: ['Developer', 'Designer'] },
+          ] },
+          next: [
+            { if: "role === 'Developer'", to: 'for-devs' },
+            { if: "role === 'Designer'", to: 'for-designers' },
+          ],
+        },
+        { id: 'for-devs', title: 'For developers', content: 'Thanks, {{email}}.', placement: 'center' },
+        { id: 'for-designers', title: 'For designers', content: 'Thanks, {{email}}.', placement: 'center' },
+      ],
+    };
+
+    const cartSpec = {
+      specVersion: 1,
+      id: 'cart-tour',
+      title: 'Cart tour',
+      trigger: { type: 'context', when: 'cartItems > 0', once: false },
+      steps: [{ id: 'cart', title: 'Your cart has items', content: 'Check out when ready.', placement: 'center' }],
+    };
+
     window.layer = OpenTutorial.createTutorialLayer({
-      specs: [spec, resumeSpec],
+      specs: [spec, resumeSpec, quizSpec, cartSpec],
+      context: { cartItems: 0 },
+      draggable: true,
       autoResume: true,
       keyPrefix: 'ot-e2e',
     });

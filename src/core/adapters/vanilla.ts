@@ -6,6 +6,34 @@ import type { KeyValueStorage, ThemeOverrides, TourEvent, TourState, TutorialSpe
 export type VanillaEventName =
   | 'start' | 'stop' | 'skip' | 'complete' | 'step' | 'event' | 'destroy';
 
+/** What `subscribe` delivers and `getSnapshot` returns. */
+export interface LayerSnapshot {
+  activeId: string | null;
+  state: TourState | null;
+  context: Record<string, unknown>;
+}
+
+/**
+ * A serializable instruction for the layer.
+ *
+ * Everything the imperative API can do, as plain data — so a tour can be
+ * driven over `postMessage`, from a test script, or by an AI agent that emits
+ * JSON rather than calling functions.
+ */
+export type LayerCommand =
+  | { type: 'start'; tourId: string; stepId?: string }
+  | { type: 'request'; tourId: string; stepId?: string }
+  | { type: 'stop' }
+  | { type: 'next' }
+  | { type: 'prev' }
+  | { type: 'goTo'; stepId: string }
+  | { type: 'pause' }
+  | { type: 'resume' }
+  | { type: 'setContext'; patch: Record<string, unknown> }
+  | { type: 'addSpec'; spec: TutorialSpec }
+  | { type: 'removeSpec'; tourId: string }
+  | { type: 'reset'; tourId?: string };
+
 export interface VanillaTutorialLayer {
   start: (tourId: string, stepId?: string) => void;
   request: (tourId: string, stepId?: string) => boolean;
@@ -32,6 +60,30 @@ export interface VanillaTutorialLayer {
   exportProgress: () => PersistedRoot | null;
   importProgress: (data: PersistedRoot | string, mode?: 'replace' | 'merge') => boolean;
   getEngine: (tourId: string) => TourEngine | undefined;
+  /** Register a tour at runtime. Replaces one with the same id. False if invalid. */
+  addSpec: (spec: TutorialSpec) => boolean;
+  /** Unregister a tour, stopping it first if it is running. */
+  removeSpec: (tourId: string) => boolean;
+  /**
+   * A framework-neutral store over `{ activeId, state, context }`.
+   *
+   * `subscribe` calls `run` immediately and again on every change, which is the
+   * Svelte store contract; `getSnapshot` is referentially stable between
+   * changes, which is what React's `useSyncExternalStore` requires:
+   *
+   *   useSyncExternalStore(cb => layer.store.subscribe(() => cb()), layer.store.getSnapshot)
+   *
+   * Nested under `store` because the Svelte, Vue and Solid adapters each
+   * already expose their own `subscribe` / `watch` with different shapes.
+   */
+  store: {
+    subscribe: (run: (snapshot: LayerSnapshot) => void) => () => void;
+    getSnapshot: () => LayerSnapshot;
+  };
+  /** Run `fn` whenever an expression over the context changes value. */
+  watchContext: (expr: string, fn: (value: unknown, previous: unknown) => void) => () => void;
+  /** Execute a serializable command. Returns false for an unknown one. */
+  dispatch: (command: LayerCommand) => boolean;
   on: (event: VanillaEventName, handler: (detail: TourEvent) => void) => () => void;
   off: (event: VanillaEventName, handler: (detail: TourEvent) => void) => void;
   ready: Promise<void>;
@@ -82,9 +134,29 @@ export function createTutorialLayer(opts: VanillaOptions): VanillaTutorialLayer 
     }
   };
 
+  const subscribers = new Set<(snapshot: LayerSnapshot) => void>();
+  let snapshot: LayerSnapshot = { activeId: null, state: null, context: rest.context ?? {} };
+
+  const publish = (next: LayerSnapshot): void => {
+    snapshot = next;
+    for (const run of subscribers) {
+      try { run(snapshot); } catch { /* a subscriber must not break the tour */ }
+    }
+  };
+
   const orchestrator = new TourOrchestrator(specs, {
     ...rest,
     persistence,
+    onStateChange: (activeId, state) => {
+      publish({ activeId, state, context: snapshot.context });
+      rest.onStateChange?.(activeId, state);
+    },
+    onContextChange: (context, patch) => {
+      // A fresh object each time: the context itself is mutated in place, and
+      // a store that hands back the same reference never looks changed.
+      publish({ ...snapshot, context: { ...context } });
+      rest.onContextChange?.(context, patch);
+    },
     onEvent: (e) => {
       // Previously these were dispatched on `window` under names the engine
       // never emitted, so nothing ever fired. Now they are delivered directly.
@@ -96,6 +168,7 @@ export function createTutorialLayer(opts: VanillaOptions): VanillaTutorialLayer 
     },
   });
 
+  snapshot = { ...snapshot, context: { ...orchestrator.getContext() } };
   if (autoMount) orchestrator.mount();
 
   const active = (fn: (engine: TourEngine) => void): void => {
@@ -134,7 +207,38 @@ export function createTutorialLayer(opts: VanillaOptions): VanillaTutorialLayer 
     exportProgress: () => orchestrator.exportProgress(),
     importProgress: (data, mode) => orchestrator.importProgress(data, mode),
     getEngine: (tourId) => orchestrator.getEngine(tourId),
-    ready: orchestrator.ready,
+    addSpec: (spec) => orchestrator.addSpec(spec),
+    removeSpec: (tourId) => orchestrator.removeSpec(tourId),
+    store: {
+      subscribe(run) {
+        subscribers.add(run);
+        try { run(snapshot); } catch { /* a subscriber must not break the tour */ }
+        return () => { subscribers.delete(run); };
+      },
+      getSnapshot: () => snapshot,
+    },
+    watchContext: (expr, fn) => orchestrator.watch(expr, fn),
+    dispatch(command) {
+      switch (command?.type) {
+        case 'start': orchestrator.start(command.tourId, command.stepId); return true;
+        case 'request': orchestrator.request(command.tourId, command.stepId); return true;
+        case 'stop': orchestrator.stop('api'); return true;
+        case 'next': active((e) => void e.next()); return true;
+        case 'prev': active((e) => e.prev()); return true;
+        case 'goTo': active((e) => e.goTo(command.stepId)); return true;
+        case 'pause': orchestrator.pause(); return true;
+        case 'resume': orchestrator.resume(); return true;
+        case 'setContext': orchestrator.setContext(command.patch ?? {}); return true;
+        case 'addSpec': orchestrator.addSpec(command.spec); return true;
+        case 'removeSpec': orchestrator.removeSpec(command.tourId); return true;
+        case 'reset':
+          if (command.tourId) orchestrator.resetTour(command.tourId);
+          else orchestrator.reset();
+          return true;
+        default: return false;
+      }
+    },
+    get ready() { return orchestrator.ready; },
 
     on(event, handler) {
       if (!listeners.has(event)) listeners.set(event, new Set());
@@ -155,6 +259,7 @@ export function createTutorialLayer(opts: VanillaOptions): VanillaTutorialLayer 
       });
       orchestrator.destroy();
       listeners.clear();
+      subscribers.clear();
     },
   };
 }

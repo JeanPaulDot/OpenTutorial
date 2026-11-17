@@ -6,6 +6,83 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-13
+
+Tours that ask, wait and react — and tooling for the models that increasingly
+write them. Everything here is additive; no 1.0 API changed.
+
+### Added
+
+#### Interactive steps
+- **`input`, `choice` and `button` content blocks.** Answers are written to the
+  tour context, where `showIf`, `next` branches, `audience` rules and
+  `{{interpolation}}` can read them. Typing never rebuilds the field under the
+  caret.
+- **`nextWhen`** — an expression that must hold before a step can be advanced.
+  The Next button stays disabled until it does, and the gate also covers the
+  arrow keys, swipes and `next()`.
+- **Clickable progress dots** for visited steps (`dotNavigation`, on by default;
+  backwards only, so gates and branches cannot be skipped).
+- **Draggable popover** (`draggable`) for when the card covers what it describes.
+  It stays where it was put until the step changes.
+- **`keyboard: false`** frees the arrow keys and Enter for the host app. Escape
+  always works.
+- A new **`interaction`** event. Choice values are included; free-text values
+  never are.
+
+#### Reactivity
+- **Live interpolation** — a step whose copy uses `{{placeholders}}` repaints
+  when the context changes.
+- **`context` trigger** — `{ "type": "context", "when": "cart.length > 0" }`
+  starts a tour when an expression becomes true. Edge-triggered.
+- **One shared context.** An answer given inside one tour is visible to every
+  other tour's audience rules, triggers and branches.
+- **`onContextChange(context, patch)`**, **`watchContext(expr, fn)`** and a
+  framework-neutral **`layer.store`** (`subscribe` / `getSnapshot`) that works as
+  a Svelte store and with React's `useSyncExternalStore`.
+- **`addSpec()` / `removeSpec()`** — register and unregister tours at runtime.
+  In React, the `specs` prop is now reactive.
+- **`dispatch(command)`** — the whole imperative API as serializable data.
+
+#### AI
+- **`opentutorial mcp`** — a zero-dependency Model Context Protocol server:
+  `validate_spec`, `describe_spec`, `get_spec_schema`, `get_authoring_prompt`,
+  and `list_docs` / `read_doc` / `search_docs` over the docs for the installed
+  version.
+- **`collectAnchors()`** lists the targetable elements on a page with their most
+  stable selectors, so a model picks from real ones instead of inventing them.
+- **`createAuthoringPrompt()`**, **`describeSpec()`** and **`extractSpec()`**.
+- **`opentutorial describe`** summarises specs in plain language.
+- New guides: [Interactivity & reactivity](docs/guides/interactivity.md) and
+  [AI & agents](docs/guides/ai.md).
+
+### Fixed
+- **`opentutorial preview` could never resolve a selector.** It framed the
+  target app from another port, which is cross-origin by definition. It is now a
+  reverse proxy that injects the library into the app's own pages, re-reads specs
+  on every load, keeps redirects inside the proxy and passes hot-reload
+  WebSockets through.
+- **`--port 5000` was parsed as a spec path.** The CLI had no value-taking flags.
+- **The published JSON Schema rejected valid specs.** `density` and `target.all`
+  shipped in 1.0 but were missing from `spec.schema.json`, which is
+  `additionalProperties: false` — so editors flagged them as errors.
+- **Markdown formatted the inside of inline code.** `` `a * b * c` `` rendered
+  with emphasis, and a link written inside backticks became a real anchor.
+- **`renderIndicator` did not follow its target**, drew a spotlight on a beacon
+  step, and left the shared host mispositioned for the next ordinary step.
+- **Re-rendering during a hotspot step** (a locale or context change) popped the
+  hidden popover back into view.
+- **React never forwarded `density`, `autoSize`, `swipe` or `sampleRate`**, so
+  those 1.0 options were unreachable from `TourProvider`.
+- **`useTour().context` went stale** when the context changed from inside the
+  engine.
+- **An explicit `theme.popoverWidth` was overridden by auto-sizing.**
+- `setContext` with unchanged values no longer triggers work or callbacks.
+- A `setContext` step action now notifies listeners like any other change.
+
+### Changed
+- `TourOrchestrator` copies the `specs` array instead of holding the caller's.
+
 ## [1.0.0] - 2026-08-01
 
 **The API is now stable.** Everything documented in `docs/` is covered by

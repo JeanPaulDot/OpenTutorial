@@ -51,6 +51,10 @@ enough.
 | `isolate` | `boolean` | `false` | Render inside a shadow root. |
 | `allowHtml` | `boolean` | `false` | Permit `{ type: 'html' }` blocks. |
 | `swipe` | `boolean` | `true` | Advance/rewind on horizontal touch swipes. |
+| `keyboard` | `boolean` | `true` | Arrow-key and Enter navigation. Escape always works. |
+| `draggable` | `boolean` | `false` | Let the user drag the popover by its title. |
+| `dotNavigation` | `boolean` | `true` | Progress dots of visited steps are clickable. |
+| `onContextChange` | `(context, patch) => void` | — | After every real context change, including interactive-block answers. |
 | `density` | `Density` | `'comfortable'` | `compact` \| `comfortable` \| `spacious`. |
 | `autoSize` | `boolean` | `true` | Size the popover from its content and the viewport. |
 | `sampleRate` | `number` | `1` | Fraction of tour runs reported through `onEvent`. |
@@ -113,6 +117,12 @@ layer.start('welcome');
 | `exportProgress()` | `PersistedRoot \| null` | |
 | `importProgress(data, mode?)` | `boolean` | `'replace'` (default) or `'merge'`. |
 | `getEngine(tourId)` | `TourEngine \| undefined` | Escape hatch. |
+| `addSpec(spec)` | `boolean` | Register a tour at runtime; replaces one with the same id. `false` if invalid. |
+| `removeSpec(tourId)` | `boolean` | Unregister a tour, stopping it first. |
+| `store.subscribe(run)` | `() => void` | Store over `{ activeId, state, context }`. Calls `run` immediately and on change. |
+| `store.getSnapshot()` | `LayerSnapshot` | Referentially stable between changes. |
+| `watchContext(expr, fn)` | `() => void` | Run `fn(value, previous)` when an expression's value changes. |
+| `dispatch(command)` | `boolean` | Execute a serializable `LayerCommand`. `false` if unknown. |
 | `on(channel, handler)` | `() => void` | Returns an unsubscribe. |
 | `off(channel, handler)` | `void` | |
 | `destroy()` | `void` | |
@@ -318,7 +328,7 @@ From `@opentutorial/core` or `@opentutorial/core/analytics`:
 
 `started` · `resumed` · `step-shown` · `step-hidden` · `step-completed` ·
 `back` · `paused` · `unpaused` · `skipped` · `dismissed` · `completed` ·
-`target-not-found` · `error`
+`target-not-found` · `interaction` · `error`
 
 ```ts
 interface TourEvent {
@@ -375,6 +385,10 @@ From `@opentutorial/core/authoring`:
 | `auditSelectors(selectors, root?)` | Dead / ambiguous selector report. |
 | `createDebugPanel(opts)` | The dev overlay. → `{ update, destroy }`. |
 | `logEvents(prefix?)` | Console-logs every tour event. Returns an unsubscribe. |
+| `collectAnchors(root?, opts?)` | Targetable elements on the page with their most stable selectors. |
+| `describeSpec(spec)` | A spec as plain language. |
+| `createAuthoringPrompt(opts?)` | Rules for a language model writing a spec, grounded in real selectors. |
+| `extractSpec(reply)` | Pull a JSON spec out of a model reply; `null` if there is none. |
 
 ---
 
@@ -406,6 +420,8 @@ generated from. Import it when injecting styles into your own shadow root.
 npx opentutorial validate specs/**/*.json --strict
 npx opentutorial lint-selectors http://localhost:3000 specs/
 npx opentutorial preview http://localhost:3000 specs/
+npx opentutorial describe specs/
+npx opentutorial mcp
 npx opentutorial schema
 ```
 

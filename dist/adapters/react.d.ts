@@ -1,7 +1,7 @@
 import { type ReactElement, type ReactNode } from 'react';
 import type { TourEngine } from '../engine';
 import type { PersistedRoot } from '../persist';
-import type { Direction, InteractionMode, KeyValueStorage, StepRenderContext, ThemeOverrides, TourEvent, TourState, TutorialSpec, I18nResolver } from '../types';
+import type { Density, Direction, InteractionMode, KeyValueStorage, StepRenderContext, ThemeOverrides, TourEvent, TourState, TutorialSpec, I18nResolver } from '../types';
 export interface TourContextValue {
     /** Start a tour, preempting anything already running. */
     start: (tourId: string, stepId?: string) => void;
@@ -55,6 +55,22 @@ export interface TourProviderProps {
     isolate?: boolean;
     allowHtml?: boolean;
     strict?: boolean;
+    /** `compact` | `comfortable` | `spacious`. Specs and steps override it. */
+    density?: Density;
+    /** Size the popover from its content and the viewport. Default true. */
+    autoSize?: boolean;
+    /** Advance/rewind on horizontal touch swipes. Default true. */
+    swipe?: boolean;
+    /** Arrow-key and Enter navigation. Default true. */
+    keyboard?: boolean;
+    /** Let the user drag the popover by its title. Default false. */
+    draggable?: boolean;
+    /** Clickable progress dots for visited steps. Default true. */
+    dotNavigation?: boolean;
+    /** Fraction of tour runs reported through `onEvent`, 0–1. */
+    sampleRate?: number;
+    /** Called after every context change, including answers from interactive blocks. */
+    onContextChange?: (context: Record<string, unknown>, patch: Record<string, unknown>) => void;
     onNavigate?: (path: string) => void;
     beforeNext?: (ctx: {
         tourId: string;
@@ -67,7 +83,7 @@ export interface TourProviderProps {
     debug?: boolean;
     children: ReactNode;
 }
-export declare function TourProvider({ specs, context: initialContext, theme, zIndex, storage, keyPrefix, userId, onEvent, deepLinkParam, locale, i18nResolver, dir, resume, progressTtl, autoResume, interaction, container, isolate, allowHtml, strict, onNavigate, beforeNext, renderStep, dev, debug, children, }: TourProviderProps): import("react").JSX.Element;
+export declare function TourProvider({ specs, context: initialContext, theme, zIndex, storage, keyPrefix, userId, onEvent, deepLinkParam, locale, i18nResolver, dir, resume, progressTtl, autoResume, interaction, container, isolate, allowHtml, strict, density, autoSize, swipe, keyboard, draggable, dotNavigation, sampleRate, onContextChange, onNavigate, beforeNext, renderStep, dev, debug, children, }: TourProviderProps): import("react").JSX.Element;
 export declare function useTour(): TourContextValue;
 /** Subscribe to tour events without re-rendering on every state change. */
 export declare function useTourEvents(handler: (e: TourEvent) => void): void;

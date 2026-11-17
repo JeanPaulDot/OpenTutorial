@@ -18,7 +18,7 @@ import { TourOrchestrator } from '../orchestrator';
 import type { TourEngine } from '../engine';
 import type { PersistedRoot } from '../persist';
 import type {
-  Direction, InteractionMode, KeyValueStorage, StepRenderContext, ThemeOverrides,
+  Density, Direction, InteractionMode, KeyValueStorage, StepRenderContext, ThemeOverrides,
   TourEvent, TourState, TutorialSpec, I18nResolver,
 } from '../types';
 
@@ -78,6 +78,22 @@ export interface TourProviderProps {
   isolate?: boolean;
   allowHtml?: boolean;
   strict?: boolean;
+  /** `compact` | `comfortable` | `spacious`. Specs and steps override it. */
+  density?: Density;
+  /** Size the popover from its content and the viewport. Default true. */
+  autoSize?: boolean;
+  /** Advance/rewind on horizontal touch swipes. Default true. */
+  swipe?: boolean;
+  /** Arrow-key and Enter navigation. Default true. */
+  keyboard?: boolean;
+  /** Let the user drag the popover by its title. Default false. */
+  draggable?: boolean;
+  /** Clickable progress dots for visited steps. Default true. */
+  dotNavigation?: boolean;
+  /** Fraction of tour runs reported through `onEvent`, 0–1. */
+  sampleRate?: number;
+  /** Called after every context change, including answers from interactive blocks. */
+  onContextChange?: (context: Record<string, unknown>, patch: Record<string, unknown>) => void;
   onNavigate?: (path: string) => void;
   beforeNext?: (ctx: { tourId: string; step: TutorialSpec['steps'][number]; index: number }) => boolean | Promise<boolean>;
   /** Replace the built-in popover with your own component. */
@@ -110,6 +126,14 @@ export function TourProvider({
   isolate,
   allowHtml,
   strict,
+  density,
+  autoSize,
+  swipe,
+  keyboard,
+  draggable,
+  dotNavigation,
+  sampleRate,
+  onContextChange,
   onNavigate,
   beforeNext,
   renderStep,
@@ -128,10 +152,12 @@ export function TourProvider({
   const onEventRef = useRef(onEvent);
   const beforeNextRef = useRef(beforeNext);
   const onNavigateRef = useRef(onNavigate);
+  const onContextChangeRef = useRef(onContextChange);
   const renderStepRef = useRef(renderStep);
   onEventRef.current = onEvent;
   beforeNextRef.current = beforeNext;
   onNavigateRef.current = onNavigate;
+  onContextChangeRef.current = onContextChange;
   renderStepRef.current = renderStep;
 
   const orchestratorRef = useRef<TourOrchestrator | null>(null);
@@ -154,9 +180,24 @@ export function TourProvider({
       isolate,
       allowHtml,
       strict,
+      density,
+      autoSize,
+      swipe,
+      keyboard,
+      draggable,
+      dotNavigation,
+      sampleRate,
       deepLinkParam,
       dev,
       debug,
+      // An answer given in an `input` / `choice` block changes the context
+      // from inside the engine. Mirror it into React state, or `useTour().context`
+      // would silently go stale. The effect below then calls `setContext` with
+      // values the orchestrator already has, which it treats as a no-op.
+      onContextChange: (ctx, patch) => {
+        setContextState((prev) => ({ ...prev, ...patch }));
+        onContextChangeRef.current?.(ctx, patch);
+      },
       onNavigate: (path) => onNavigateRef.current?.(path),
       beforeNext: beforeNextRef.current
         ? (ctx) => beforeNextRef.current!(ctx)
@@ -179,6 +220,22 @@ export function TourProvider({
   }
 
   const orchestrator = orchestratorRef.current;
+
+  // `specs` is a prop, so it should behave like one: adding, replacing or
+  // removing a spec after mount takes effect without remounting the provider.
+  // Compared by reference, the same way React compares everything else.
+  const registeredRef = useRef<Map<string, TutorialSpec>>(new Map(specs.map((s) => [s.id, s])));
+  useEffect(() => {
+    const registered = registeredRef.current;
+    const incoming = new Map(specs.map((s) => [s.id, s]));
+
+    for (const id of [...registered.keys()]) {
+      if (!incoming.has(id)) { orchestrator.removeSpec(id); registered.delete(id); }
+    }
+    for (const [id, spec] of incoming) {
+      if (registered.get(id) !== spec) { orchestrator.addSpec(spec); registered.set(id, spec); }
+    }
+  }, [specs, orchestrator]);
 
   useEffect(() => {
     orchestrator.mount();

@@ -8,7 +8,7 @@
  */
 
 import type { AdvanceOn, ContentBlock, Density, Direction, Placement } from '../types';
-import { renderBlocks } from '../content';
+import { renderBlocks, type InteractiveHandlers } from '../content';
 
 export interface PopoverLabels {
   next: string;
@@ -34,12 +34,22 @@ export interface PopoverModel {
   modal: boolean;
   allowHtml?: boolean;
   density?: Density;
+  /** The step's `nextWhen` is unmet — render Next disabled. */
+  nextDisabled?: boolean;
+  /** Per-dot flag: true when that step can be jumped back to. */
+  jumpable?: boolean[];
+  /** The theme pins a width, so auto-sizing must not override it. */
+  fixedWidth?: boolean;
 }
 
 export interface PopoverCallbacks {
   onNext: () => void;
   onPrev: () => void;
   onSkip: () => void;
+  /** Jump to the step behind a progress dot. */
+  onJump?: (index: number) => void;
+  /** Wiring for `input` / `choice` / `button` content blocks. */
+  interactive?: InteractiveHandlers;
 }
 
 export interface PopoverOptions {
@@ -47,6 +57,8 @@ export interface PopoverOptions {
   swipe?: boolean;
   /** Size the card from its content and the viewport. Default true. */
   autoSize?: boolean;
+  /** Let the user drag the card by its title. Default false. */
+  draggable?: boolean;
 }
 
 /** Width bounds for auto-sizing, before the viewport clamp. */
@@ -102,7 +114,10 @@ export class TourPopover {
   /** The last rendered model, so a swipe honours the same rules as the buttons. */
   private model: PopoverModel | null = null;
   private detachSwipe: (() => void) | null = null;
+  private detachDrag: (() => void) | null = null;
   private autoSize = true;
+  /** Set once the user has dragged the card; cleared when the step changes. */
+  private dragged = false;
 
   constructor(cbs: PopoverCallbacks, dir: Direction = 'ltr', opts: PopoverOptions = {}) {
     this.cbs = cbs;
@@ -175,6 +190,86 @@ export class TourPopover {
     this.el.appendChild(body);
 
     if (opts.swipe !== false) this.installSwipe();
+    if (opts.draggable) this.installDrag();
+  }
+
+  /**
+   * Drag the card by its title.
+   *
+   * A tour that covers the thing it is describing is a real complaint, and no
+   * placement algorithm fixes every layout. Once dragged, the card stays where
+   * the user put it until the step changes — automatic repositioning would
+   * fight them on every scroll frame otherwise.
+   */
+  private installDrag(): void {
+    this.el.classList.add('ot-popover--draggable');
+    let startX = 0;
+    let startY = 0;
+    let originLeft = 0;
+    let originTop = 0;
+    let active = false;
+
+    const onMove = (e: PointerEvent): void => {
+      if (!active) return;
+      const view = this.el.ownerDocument?.defaultView ?? window;
+      const maxLeft = Math.max(VIEWPORT_MARGIN, view.innerWidth - this.el.offsetWidth - VIEWPORT_MARGIN);
+      const maxTop = Math.max(VIEWPORT_MARGIN, view.innerHeight - this.el.offsetHeight - VIEWPORT_MARGIN);
+      const left = Math.min(Math.max(originLeft + e.clientX - startX, VIEWPORT_MARGIN), maxLeft);
+      const top = Math.min(Math.max(originTop + e.clientY - startY, VIEWPORT_MARGIN), maxTop);
+      this.el.style.left = `${left}px`;
+      this.el.style.top = `${top}px`;
+      // The arrow would now point at nothing.
+      this.arrow.style.display = 'none';
+      this.dragged = true;
+    };
+
+    const onUp = (): void => {
+      active = false;
+      this.el.classList.remove('ot-popover--dragging');
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+
+    const onDown = (e: PointerEvent): void => {
+      if (e.button !== 0) return;
+      // The mobile bottom sheet is docked; dragging it would only undock it.
+      if ((this.el.ownerDocument?.defaultView ?? window).innerWidth <= 480) return;
+      active = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      originLeft = parseFloat(this.el.style.left) || 0;
+      originTop = parseFloat(this.el.style.top) || 0;
+      this.el.classList.add('ot-popover--dragging');
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+      e.preventDefault();
+    };
+
+    this.titleEl.addEventListener('pointerdown', onDown);
+    this.detachDrag = () => {
+      this.titleEl.removeEventListener('pointerdown', onDown);
+      onUp();
+    };
+  }
+
+  /** True when the user has moved the card for the current step. */
+  isDragged(): boolean { return this.dragged; }
+
+  /** Flip the Next button without re-rendering — used as `nextWhen` changes. */
+  setNextDisabled(disabled: boolean): void {
+    this.nextBtn.disabled = disabled;
+    this.nextBtn.setAttribute('aria-disabled', String(disabled));
+    if (this.model) this.model = { ...this.model, nextDisabled: disabled };
+  }
+
+  /**
+   * True while focus is on a control inside the step body. The engine checks
+   * this before re-rendering, so typing into a field never loses the caret.
+   */
+  contentHasFocus(): boolean {
+    const root = this.el.getRootNode() as Document | ShadowRoot;
+    const active = root.activeElement ?? document.activeElement;
+    return !!active && this.contentEl.contains(active);
   }
 
   /**
@@ -223,7 +318,7 @@ export class TourPopover {
       if (!model) return;
 
       if (forward) {
-        if (model.showNext) this.cbs.onNext();
+        if (model.showNext && !model.nextDisabled) this.cbs.onNext();
       } else if (model.showBack && model.canGoBack && model.index > 0) {
         this.cbs.onPrev();
       }
@@ -249,20 +344,41 @@ export class TourPopover {
   setDir(dir: Direction): void { this.dir = dir; }
 
   render(model: PopoverModel): void {
+    // A new step gets a fresh automatic position; a re-render of the same step
+    // keeps wherever the user dragged it.
+    if (this.model?.stepId !== model.stepId) this.dragged = false;
+
     this.model = model;
     this.titleEl.textContent = model.title;
 
     this.contentEl.replaceChildren(
-      renderBlocks(model.blocks, { allowHtml: model.allowHtml }),
+      renderBlocks(model.blocks, { allowHtml: model.allowHtml, interactive: this.cbs.interactive }),
     );
 
     this.liveEl.textContent = `${model.title}. Step ${model.index + 1} of ${model.total}`;
 
     this.progressEl.replaceChildren();
+    const anyJumpable = !!this.cbs.onJump && !!model.jumpable?.some(Boolean);
+    // Purely decorative dots stay hidden from assistive tech (the live region
+    // already announces position); navigable ones are real buttons.
+    if (anyJumpable) this.progressEl.removeAttribute('aria-hidden');
+    else this.progressEl.setAttribute('aria-hidden', 'true');
+
     for (let i = 0; i < model.total; i += 1) {
-      const dot = document.createElement('span');
-      dot.className = `ot-dot${i === model.index ? ' ot-dot-active' : ''}`;
-      this.progressEl.appendChild(dot);
+      const active = i === model.index;
+      if (anyJumpable && model.jumpable?.[i] && !active) {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'ot-dot ot-dot-jump';
+        dot.setAttribute('aria-label', `Go to step ${i + 1}`);
+        dot.addEventListener('click', () => this.cbs.onJump?.(i));
+        this.progressEl.appendChild(dot);
+      } else {
+        const dot = document.createElement('span');
+        dot.className = `ot-dot${active ? ' ot-dot-active' : ''}`;
+        if (anyJumpable) dot.setAttribute('aria-hidden', 'true');
+        this.progressEl.appendChild(dot);
+      }
     }
 
     const showBack = model.showBack && model.canGoBack && model.index > 0;
@@ -271,6 +387,8 @@ export class TourPopover {
 
     this.nextBtn.style.display = model.showNext ? '' : 'none';
     this.nextBtn.textContent = model.isLast ? model.labels.done : model.labels.next;
+    this.nextBtn.disabled = !!model.nextDisabled;
+    this.nextBtn.setAttribute('aria-disabled', String(!!model.nextDisabled));
 
     this.skipBtn.style.display = model.skippable ? '' : 'none';
     this.skipBtn.setAttribute('aria-label', model.labels.skip);
@@ -309,7 +427,7 @@ export class TourPopover {
     const isSheet = vw <= 480;
     this.el.style.maxHeight = `${Math.round(vh * MAX_HEIGHT_RATIO)}px`;
 
-    if (!this.autoSize || isSheet) {
+    if (!this.autoSize || isSheet || this.model?.fixedWidth) {
       this.el.style.width = '';
       return;
     }
@@ -328,6 +446,9 @@ export class TourPopover {
 
   /** Position relative to a target rect (viewport coords), or centered when null. */
   position(target: Rect | null, placement: Placement, padding: number): void {
+    // The user put the card somewhere on purpose; leave it there.
+    if (this.dragged) return;
+
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const pw = this.el.offsetWidth;
@@ -424,6 +545,8 @@ export class TourPopover {
   destroy(): void {
     this.detachSwipe?.();
     this.detachSwipe = null;
+    this.detachDrag?.();
+    this.detachDrag = null;
     this.el.remove();
   }
 }

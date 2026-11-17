@@ -11,7 +11,7 @@
 import { TourEngine } from './engine';
 import type { PersistedRoot } from './persist';
 import { installTrigger, type TriggerHandle } from './triggers';
-import { evaluateShowIf } from './safeEval';
+import { evaluateExpression, evaluateShowIf } from './safeEval';
 import type {
   CreateTourOptions, ThemeOverrides, TourEvent, TourState, TutorialSpec,
 } from './types';
@@ -29,7 +29,16 @@ export class TourOrchestrator {
   private engines = new Map<string, TourEngine>();
   private specs: TutorialSpec[];
   private opts: OrchestratorOptions;
-  private triggers: TriggerHandle[] = [];
+  private triggers = new Map<string, TriggerHandle>();
+  /**
+   * The one shared context. Engines hold mirrors of it, kept in step through
+   * `applyContext`, so an answer given inside one tour is visible to the
+   * audience rules, triggers and branches of every other.
+   */
+  private context: Record<string, unknown>;
+  /** `context` triggers, with the last value of each expression for edge detection. */
+  private contextTriggers = new Map<string, { when: string; last: boolean; fire: () => void }>();
+  private watchers = new Set<{ expr: string; last: unknown; fn: (value: unknown, previous: unknown) => void }>();
   private disposers: Array<() => void> = [];
   private queue: QueueEntry[] = [];
   private activeId: string | null = null;
@@ -38,15 +47,76 @@ export class TourOrchestrator {
   private sessionCounts = new Map<string, number>();
 
   constructor(specs: TutorialSpec[], opts: OrchestratorOptions = {}) {
-    this.specs = specs;
+    // Copied: `addSpec` / `removeSpec` must not mutate the caller's array.
+    this.specs = [...specs];
     this.opts = opts;
+    this.context = { ...(opts.context ?? {}) };
 
-    for (const spec of specs) {
-      this.engines.set(spec.id, new TourEngine(spec, {
-        ...opts,
-        onEvent: (e) => this.handleEvent(e),
-      }));
+    for (const spec of this.specs) this.createEngine(spec);
+  }
+
+  private createEngine(spec: TutorialSpec): TourEngine {
+    const engine = new TourEngine(spec, {
+      ...this.opts,
+      // The current shared context, not the construction-time one — a spec
+      // added later must see everything set since.
+      context: this.context,
+      onEvent: (e) => this.handleEvent(e),
+      onContextChange: (_context, patch) => this.onEngineContext(spec.id, patch),
+    });
+    this.engines.set(spec.id, engine);
+    return engine;
+  }
+
+  // -------------------------------------------------------------------------
+  // Runtime spec management
+  // -------------------------------------------------------------------------
+
+  /**
+   * Register a tour after construction — one fetched from a server, built by a
+   * feature flag, or generated on the fly. Replaces any tour with the same id.
+   * Returns false when the spec fails validation (it is still registered, so
+   * `whyBlocked` can explain why it will not run).
+   */
+  addSpec(spec: TutorialSpec): boolean {
+    if (this.engines.has(spec.id)) this.removeSpec(spec.id);
+    this.specs.push(spec);
+    const engine = this.createEngine(spec);
+
+    if (this.mounted) {
+      void engine.ready.then(() => {
+        if (this.mounted && this.engines.get(spec.id) === engine) this.installTriggerFor(spec);
+      });
     }
+    this.notifyState();
+    return engine.isValid();
+  }
+
+  /** Unregister a tour, stopping it first if it is running. */
+  removeSpec(tourId: string): boolean {
+    const engine = this.engines.get(tourId);
+    if (!engine) return false;
+
+    const status = engine.getState().status;
+    if (status === 'running' || status === 'paused') engine.skip('removed');
+
+    this.triggers.get(tourId)?.dispose();
+    this.triggers.delete(tourId);
+    this.contextTriggers.delete(tourId);
+    this.queue = this.queue.filter((q) => q.tourId !== tourId);
+    this.sessionCounts.delete(tourId);
+
+    engine.destroy();
+    this.engines.delete(tourId);
+    this.specs = this.specs.filter((s) => s.id !== tourId);
+    if (this.activeId === tourId) this.activeId = null;
+    this.notifyState();
+    return true;
+  }
+
+  private notifyState(): void {
+    const state = this.activeId ? this.engines.get(this.activeId)?.getState() ?? null : null;
+    try { this.opts.onStateChange?.(this.activeId, state); } catch { /* host callback */ }
   }
 
   get ready(): Promise<void> {
@@ -176,12 +246,57 @@ export class TourOrchestrator {
   // -------------------------------------------------------------------------
 
   setContext(patch: Record<string, unknown>): void {
-    this.engines.forEach((e) => e.setContext(patch));
+    const changed: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(patch)) {
+      if (!Object.is(this.context[key], value)) changed[key] = value;
+    }
+    if (Object.keys(changed).length === 0) return;
+
+    Object.assign(this.context, changed);
+    this.engines.forEach((e) => e.applyContext(changed));
+    this.afterContextChange(changed);
   }
 
-  /** The shared tour context. Every engine holds the same keys. */
-  getContext(): Record<string, unknown> {
-    return this.engines.values().next().value?.getContext() ?? {};
+  /** The shared tour context. */
+  getContext(): Record<string, unknown> { return this.context; }
+
+  /** A change that started inside one engine — an interactive block or an action. */
+  private onEngineContext(sourceId: string, patch: Record<string, unknown>): void {
+    Object.assign(this.context, patch);
+    this.engines.forEach((engine, id) => { if (id !== sourceId) engine.applyContext(patch); });
+    this.afterContextChange(patch);
+  }
+
+  private afterContextChange(patch: Record<string, unknown>): void {
+    try { this.opts.onContextChange?.(this.context, patch); } catch { /* host callback */ }
+
+    for (const watcher of this.watchers) {
+      const value = evaluateExpression(watcher.expr, this.context);
+      if (Object.is(value, watcher.last)) continue;
+      const previous = watcher.last;
+      watcher.last = value;
+      try { watcher.fn(value, previous); } catch { /* a watcher must not break the tour */ }
+    }
+
+    // Edge-triggered: fire on false → true only. A level-triggered version
+    // would restart the tour on every unrelated context change while it held.
+    for (const entry of this.contextTriggers.values()) {
+      const now = evaluateShowIf(entry.when, this.context);
+      const rose = now && !entry.last;
+      entry.last = now;
+      if (rose) entry.fire();
+    }
+  }
+
+  /**
+   * Observe an expression over the context. `fn` runs whenever its value
+   * changes — `watch("cart.length", n => badge.update(n))`. Returns an
+   * unsubscribe function.
+   */
+  watch(expr: string, fn: (value: unknown, previous: unknown) => void): () => void {
+    const watcher = { expr, last: evaluateExpression(expr, this.context), fn };
+    this.watchers.add(watcher);
+    return () => { this.watchers.delete(watcher); };
   }
 
   setTheme(theme: ThemeOverrides): void {
@@ -243,20 +358,42 @@ export class TourOrchestrator {
   }
 
   private installTriggers(): void {
-    for (const spec of this.specs) {
-      const engine = this.engines.get(spec.id);
-      if (!engine || !engine.isValid()) continue;
-      const trigger = spec.trigger;
-      if (!trigger || trigger.type === 'manual') continue;
+    for (const spec of this.specs) this.installTriggerFor(spec);
+  }
 
-      // `once` is persisted seen-state, not just a per-page flag.
-      if ((trigger.once ?? true) && engine.hasSeen()) continue;
+  private installTriggerFor(spec: TutorialSpec): void {
+    const engine = this.engines.get(spec.id);
+    if (!engine || !engine.isValid()) return;
+    const trigger = spec.trigger;
+    if (!trigger || trigger.type === 'manual') return;
 
-      this.triggers.push(installTrigger(trigger, () => {
-        if ((trigger.once ?? true) && engine.hasSeen()) return;
-        this.request(spec.id);
-      }));
+    const once = trigger.once ?? true;
+    // `once` is persisted seen-state, not just a per-page flag.
+    if (once && engine.hasSeen()) return;
+
+    const start = (): void => {
+      if (once && engine.hasSeen()) return;
+      this.request(spec.id);
+    };
+
+    if (trigger.type === 'context') {
+      // Lives here rather than in `installTrigger`: only the orchestrator
+      // knows when the context changed.
+      let timer = 0;
+      const fire = (): void => {
+        window.clearTimeout(timer);
+        if (trigger.delay && trigger.delay > 0) timer = window.setTimeout(start, trigger.delay);
+        else start();
+      };
+      const last = evaluateShowIf(trigger.when, this.context);
+      this.contextTriggers.set(spec.id, { when: trigger.when, last, fire });
+      this.triggers.set(spec.id, { dispose: () => window.clearTimeout(timer) });
+      // Already true at mount counts as "became true".
+      if (last) fire();
+      return;
     }
+
+    this.triggers.set(spec.id, installTrigger(trigger, start));
   }
 
   private installDeepLink(): void {
@@ -317,7 +454,9 @@ export class TourOrchestrator {
     this.mounted = false;
     this.triggers.forEach((t) => t.dispose());
     this.disposers.forEach((d) => { try { d(); } catch { /* noop */ } });
-    this.triggers = [];
+    this.triggers.clear();
+    this.contextTriggers.clear();
+    this.watchers.clear();
     this.disposers = [];
     this.queue = [];
     this.engines.forEach((e) => e.destroy());

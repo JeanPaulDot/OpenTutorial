@@ -9,9 +9,9 @@ import { validateSpec } from './schema';
 import { evaluateShowIf } from './safeEval';
 import { shouldSample } from './analytics/sampling';
 import { resolveText, resolveLabel } from './i18n';
-import { normalizeContent, blocksToText } from './content';
+import { normalizeContent, blocksToText, type InteractiveHandlers } from './content';
 import type {
-  ContentBlock, CreateTourOptions, Density, InteractionMode, SpecIssue, StepAction,
+  BlockAction, ContentBlock, CreateTourOptions, Density, InteractionMode, SpecIssue, StepAction,
   StepRenderContext, ThemeOverrides, TourEvent, TourEventType, TourState, TourStatus,
   TourStep, TutorialSpec, I18nContent, StepContent,
 } from './types';
@@ -47,6 +47,15 @@ function unionRect(rects: Array<{ x: number; y: number; width: number; height: n
   return { x, y, width: right - x, height: bottom - y };
 }
 
+/** True when a step's copy reads from the context and so can go stale. */
+function usesInterpolation(step: TourStep): boolean {
+  try {
+    return JSON.stringify([step.title, step.content]).includes('{{');
+  } catch {
+    return false;
+  }
+}
+
 const PX_KEYS = new Set(['radius', 'popoverWidth', 'fontSize', 'spacing', 'arrowSize', 'overlayBlur']);
 const MS_KEYS = new Set(['animationMs']);
 const MAX_TRANSITIONS = 200;
@@ -80,6 +89,8 @@ export class TourEngine {
   private startedAt = 0;
   private advancing = false;
   private sampleDecision: boolean | null = null;
+  /** A custom `renderIndicator` surface is showing instead of the hotspot. */
+  private indicatorActive = false;
 
   constructor(spec: TutorialSpec, opts: CreateTourOptions = {}) {
     this.spec = spec;
@@ -120,8 +131,13 @@ export class TourEngine {
       total: visible.length,
       paused: this.status === 'paused',
       canGoBack: step?.canGoBack !== false && this.history.length > 0,
-      canGoNext: this.status === 'running',
+      canGoNext: this.status === 'running' && this.canAdvance(step),
     };
+  }
+
+  /** False while the step's `nextWhen` condition is unmet. */
+  private canAdvance(step: TourStep | null | undefined): boolean {
+    return !step?.nextWhen || evaluateShowIf(step.nextWhen, this.context);
   }
 
   isValid(): boolean { return this.errors.length === 0; }
@@ -164,22 +180,73 @@ export class TourEngine {
   getContext(): Record<string, unknown> { return this.context; }
 
   setContext(patch: Record<string, unknown>): void {
+    this.patchContext(patch, { reactive: true, notify: true });
+  }
+
+  /**
+   * Apply a patch that originated in another engine. Same reactive refresh as
+   * `setContext`, but without firing `onContextChange` — the orchestrator uses
+   * this to mirror one tour's answers into the others without an echo.
+   */
+  applyContext(patch: Record<string, unknown>): void {
+    this.patchContext(patch, { reactive: true, notify: false });
+  }
+
+  private patchContext(
+    patch: Record<string, unknown>,
+    opts: { reactive: boolean; notify: boolean },
+  ): void {
+    // Only genuine changes count: a host that calls `setContext` on every
+    // render must not cause a repaint (or a callback) each time.
+    const changed: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(patch)) {
+      if (!Object.is(this.context[key], value)) changed[key] = value;
+    }
+    if (Object.keys(changed).length === 0) return;
+
     const before = this.visibleSteps().length;
-    Object.assign(this.context, patch);
-    if (this.status !== 'running') return;
+    Object.assign(this.context, changed);
+
+    if (opts.notify) {
+      try { this.opts.onContextChange?.(this.context, changed); } catch { /* host callback */ }
+    }
+    if (!opts.reactive || this.status !== 'running') return;
 
     const step = this.currentStep();
+    if (!step) return;
 
     // A step whose own condition just became false must not stay on screen.
-    if (step?.showIf && !evaluateShowIf(step.showIf, this.context)) {
-      void this.next();
+    // Forced, because `nextWhen` gates the *user*, not a step that no longer applies.
+    if (step.showIf && !evaluateShowIf(step.showIf, this.context)) {
+      void this.advance(true);
       return;
     }
 
-    // Steps *ahead* may have appeared or vanished too. Nothing needs moving —
-    // `next()` recomputes the visible list every time — but the progress dots
-    // and "Step 2 of 5" are now stale, so repaint them.
-    if (this.visibleSteps().length !== before) this.rerenderCurrent();
+    this.refreshReactive(step, this.visibleSteps().length !== before);
+  }
+
+  /**
+   * Bring the visible step in line with a context change.
+   *
+   * Three things can be stale: the Next button (`nextWhen`), the step count
+   * (a later step appeared or vanished), and interpolated copy (`{{name}}`).
+   * The body is only rebuilt when it has to be, and never while the user is
+   * typing in it — replacing the field under the caret would eat keystrokes.
+   */
+  private refreshReactive(step: TourStep, countChanged: boolean): void {
+    if (this.indicatorActive || this.hotspot) return;
+
+    const root = this.layer?.root.getRootNode() as Document | ShadowRoot | undefined;
+    const active = root?.activeElement ?? document.activeElement;
+    const typing =
+      !!this.popover?.contentHasFocus() || (!!this.customHost && !!active && this.customHost.contains(active));
+
+    const needsBody = countChanged || !!this.opts.renderStep || usesInterpolation(step);
+    if (needsBody && !typing) {
+      this.rerenderCurrent();
+      return;
+    }
+    this.popover?.setNextDisabled(!this.canAdvance(step));
   }
 
   setGlobalTheme(theme: ThemeOverrides): void {
@@ -248,9 +315,15 @@ export class TourEngine {
   }
 
   async next(): Promise<void> {
+    return this.advance(false);
+  }
+
+  /** `force` skips the `nextWhen` gate — for steps leaving on their own account. */
+  private async advance(force: boolean): Promise<void> {
     if (this.status !== 'running' || this.advancing) return;
     const step = this.currentStep();
     if (!step) return;
+    if (!force && !this.canAdvance(step)) return;
 
     if (this.opts.beforeNext) {
       this.advancing = true;
@@ -395,9 +468,11 @@ export class TourEngine {
           onNext: () => void this.next(),
           onPrev: () => this.prev(),
           onSkip: () => this.skip('user'),
+          onJump: (index) => this.jumpTo(index),
+          interactive: this.interactiveHandlers(),
         },
         this.opts.dir ?? 'ltr',
-        { swipe: this.opts.swipe, autoSize: this.opts.autoSize },
+        { swipe: this.opts.swipe, autoSize: this.opts.autoSize, draggable: this.opts.draggable },
       );
       this.layer.mountPopover(this.popover.el);
     }
@@ -524,6 +599,7 @@ export class TourEngine {
 
     this.hotspot?.destroy();
     this.hotspot = null;
+    this.resetIndicatorHost();
     this.layer.updateSpotlight(null);
     this.layer.setInteraction(this.interactionFor(step));
 
@@ -541,8 +617,12 @@ export class TourEngine {
         this.releaseFocus = trapFocus(surface, {
           trap: blocking,
           onEscape: () => { if (step.skippable !== false) this.skip('escape'); },
-          onArrowNext: () => void this.next(),
-          onArrowPrev: () => this.prev(),
+          // Escape is never optional — a tour must always be dismissible from
+          // the keyboard — but arrow/Enter navigation can be turned off for
+          // hosts whose own shortcuts would collide.
+          ...(this.opts.keyboard !== false
+            ? { onArrowNext: () => void this.next(), onArrowPrev: () => this.prev() }
+            : {}),
         });
       }
     }
@@ -567,6 +647,7 @@ export class TourEngine {
     // of hosts replace the popover but are happy with the built-in beacon, and
     // silently routing indicator steps through `renderStep` would break them.
     if (this.opts.renderIndicator && this.customHost) {
+      this.indicatorActive = true;
       this.customHost.style.display = '';
       this.customHost.classList.add('ot-custom-indicator');
       this.customHost.style.position = 'fixed';
@@ -651,12 +732,80 @@ export class TourEngine {
       prev: () => this.prev(),
       skip: () => this.skip('user'),
       goTo: (id: string) => this.goTo(id),
+      context: this.context,
+      setValue: (name: string, value: unknown) => this.setContext({ [name]: value }),
+      canGoNext: this.canAdvance(step),
     };
+  }
+
+  /** Undo what `showIndicator` did to the shared custom host. */
+  private resetIndicatorHost(): void {
+    if (!this.indicatorActive) return;
+    this.indicatorActive = false;
+    if (!this.customHost) return;
+    this.customHost.classList.remove('ot-custom-indicator');
+    this.customHost.style.position = '';
+    this.customHost.style.left = '';
+    this.customHost.style.top = '';
+    if (!this.opts.renderStep) this.customHost.style.display = 'none';
+  }
+
+  private interactiveHandlers(): InteractiveHandlers {
+    return {
+      getValue: (name) => this.context[name],
+      setValue: (name, value, kind) => {
+        // Free-text answers are routinely personal (an email, a name), so the
+        // event carries the field name only. A choice is one of the author's
+        // own options, which is what a funnel actually wants to split on.
+        this.emit('interaction', {
+          stepId: this.currentId ?? undefined,
+          meta: kind === 'choice' ? { name, value } : { name },
+        });
+        this.setContext({ [name]: value });
+      },
+      runAction: (action, label) => {
+        this.emit('interaction', { stepId: this.currentId ?? undefined, meta: { button: label } });
+        this.runBlockAction(action);
+      },
+    };
+  }
+
+  private runBlockAction(action: BlockAction): void {
+    if (action === 'next') { void this.next(); return; }
+    if (action === 'prev') { this.prev(); return; }
+    if (action === 'skip') { this.skip('user'); return; }
+    if (action === 'complete') { this.complete('user'); return; }
+    if (action && typeof action === 'object' && !Array.isArray(action) && 'goTo' in action) {
+      this.goTo(action.goTo);
+      return;
+    }
+    this.runActions(Array.isArray(action) ? action : [action as StepAction]);
+  }
+
+  /** Jump back to an already-visited step from its progress dot. */
+  private jumpTo(index: number): void {
+    if (this.status !== 'running') return;
+    const visible = this.visibleSteps();
+    const target = visible[index];
+    const current = visible.findIndex((s) => s.id === this.currentId);
+    // Backwards only: jumping ahead would skip `nextWhen` gates and branch rules.
+    if (!target || index >= current) return;
+    if (this.currentStep()?.canGoBack === false) return;
+
+    // Unwind history to that point, so Back afterwards behaves as if the user
+    // had pressed it the right number of times.
+    const at = this.history.lastIndexOf(target.id);
+    if (at >= 0) this.history.length = at;
+    this.emit('back', { stepId: target.id });
+    void this.goToInternal(target.id, false);
   }
 
   private rerenderCurrent(): void {
     const step = this.currentStep();
     if (!step) return;
+    // An indicator step has no popover to repaint, and re-rendering one would
+    // pop the hidden card back into view.
+    if (this.indicatorActive || this.hotspot) return;
     const visible = this.visibleSteps();
     const index = Math.max(0, visible.findIndex((s) => s.id === step.id));
     this.renderStep(step, index, visible.length);
@@ -695,6 +844,11 @@ export class TourEngine {
       modal: (step.display ?? 'spotlight') === 'modal' || this.interactionFor(step) === 'blocked',
       allowHtml: this.opts.allowHtml,
       density: this.densityFor(step),
+      nextDisabled: !this.canAdvance(step),
+      jumpable: Array.from({ length: total }, (_, i) =>
+        this.opts.dotNavigation !== false && step.canGoBack !== false && i < index),
+      // An explicit width in the theme is a decision; auto-sizing must not undo it.
+      fixedWidth: ({ ...this.opts.theme, ...this.spec.theme, ...step.theme }).popoverWidth !== undefined,
     };
   }
 
@@ -728,7 +882,12 @@ export class TourEngine {
         if (again) this.resolved = again;
       }
       const rect = this.viewportRect(this.resolved);
-      if (this.hotspot) {
+      if (this.indicatorActive && this.customHost) {
+        // A custom indicator follows its target exactly like the built-in one.
+        this.customHost.style.left = `${rect.x + rect.width / 2}px`;
+        this.customHost.style.top = `${rect.y + rect.height / 2}px`;
+        this.layer.setInteraction(this.interactionFor(step));
+      } else if (this.hotspot) {
         this.hotspot.reposition(rect);
         this.layer.setInteraction(this.interactionFor(step));
       } else {
@@ -924,7 +1083,11 @@ export class TourEngine {
             }
             this.navigate(a.path);
             break;
-          case 'setContext': this.context[a.key] = a.value; break;
+          case 'setContext':
+            // Notifies, so context triggers and other tours see it — but does
+            // not refresh, because actions run mid-transition.
+            this.patchContext({ [a.key]: a.value }, { reactive: false, notify: true });
+            break;
           case 'scrollTo': {
             const target = resolveTarget({ selector: a.selector });
             target?.element.scrollIntoView({ block: 'center', behavior: 'smooth' });

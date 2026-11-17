@@ -27,7 +27,7 @@ export { renderInline, renderMarkdown, hasBlockMarkdown, escapeHtml } from './ma
 export type { InlineOptions } from './markdown';
 
 export { normalizeContent, renderBlocks, blocksToText } from './content';
-export type { RenderBlocksOptions } from './content';
+export type { RenderBlocksOptions, InteractiveHandlers } from './content';
 
 // Experiments — variant assignment for A/B testing tours
 export { assignVariant, assignAll } from './experiments';
@@ -52,7 +52,9 @@ export { currentPath, matchPath, onLocationChange } from './dom/navigation';
 
 // Vanilla adapter — no framework required
 export { createTutorialLayer } from './adapters/vanilla';
-export type { VanillaTutorialLayer, VanillaOptions, VanillaEventName } from './adapters/vanilla';
+export type {
+  VanillaTutorialLayer, VanillaOptions, VanillaEventName, LayerSnapshot, LayerCommand,
+} from './adapters/vanilla';
 
 // Guidance surfaces — framework-free factories, usable from any adapter
 export {
@@ -114,6 +116,8 @@ export { CSS } from './styles';
 export type {
   AdvanceOn,
   AnalyticsAdapter,
+  BlockAction,
+  ChoiceOption,
   ContentBlock,
   CreateTourOptions,
   Density,

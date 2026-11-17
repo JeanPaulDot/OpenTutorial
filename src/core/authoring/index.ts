@@ -6,3 +6,6 @@ export type { SelectorCandidate, BestSelector } from './selector';
 
 export { createDebugPanel, logEvents } from './debug';
 export type { DebugPanelOptions, DebugPanelHandle } from './debug';
+
+export { collectAnchors, describeSpec, createAuthoringPrompt, extractSpec } from './ai';
+export type { PageAnchor, CollectAnchorsOptions, AuthoringPromptOptions } from './ai';

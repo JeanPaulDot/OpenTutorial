@@ -16,7 +16,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // Capped locally: five browser projects at the default worker count starve
+  // WebKit on a laptop, and it crashes outright rather than slowing down.
+  workers: process.env.CI ? 1 : 3,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: 'http://127.0.0.1:4173',

@@ -219,6 +219,86 @@
 .ot-html { font-size: var(--ot-font-size); line-height: 1.55; color: var(--ot-muted); margin-bottom: 10px; }
 
 /* --------------------------------------------------------------------- */
+/* Interactive blocks                                                     */
+/* --------------------------------------------------------------------- */
+
+.ot-field, .ot-choice { margin: 0 0 10px; }
+
+.ot-field-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: calc(var(--ot-font-size) - 1px);
+  font-weight: 600;
+  color: var(--ot-fg);
+}
+
+.ot-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: var(--ot-font-size);
+  color: var(--ot-fg);
+  background: var(--ot-bg);
+  border: 1px solid var(--ot-border);
+  border-radius: calc(var(--ot-radius) * 0.5);
+  padding: 8px 10px;
+}
+
+textarea.ot-input { min-height: 64px; resize: vertical; }
+.ot-input::placeholder { color: var(--ot-muted); opacity: 0.8; }
+.ot-input:focus-visible { outline: 2px solid var(--ot-accent); outline-offset: 1px; }
+
+.ot-choice-options { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.ot-choice-option {
+  font-family: inherit;
+  font-size: calc(var(--ot-font-size) - 0.5px);
+  color: var(--ot-fg);
+  background: transparent;
+  border: 1px solid var(--ot-border);
+  border-radius: calc(var(--ot-radius) * 0.5);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.ot-choice-option:hover { border-color: var(--ot-accent); }
+.ot-choice-option:focus-visible { outline: 2px solid var(--ot-accent); outline-offset: 2px; }
+
+/*
+ * Selected is a border and a tint, with the text left at full foreground
+ * contrast — accent-on-tint text would fail AA on most palettes.
+ */
+.ot-choice-option--selected {
+  border-color: var(--ot-accent);
+  background: color-mix(in srgb, var(--ot-accent) 14%, transparent);
+  box-shadow: inset 0 0 0 1px var(--ot-accent);
+  font-weight: 600;
+}
+
+.ot-block-btn { margin: 0 0 10px; }
+
+.ot-btn:disabled,
+.ot-btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; filter: none; }
+
+/* Dots for visited steps are real buttons with a comfortable hit area. */
+.ot-dot-jump {
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  background: color-mix(in srgb, var(--ot-accent) 55%, transparent);
+}
+.ot-dot-jump::after { content: ""; position: absolute; inset: -9px -4px; }
+.ot-dot-jump:hover { background: var(--ot-accent); }
+.ot-dot-jump:focus-visible { outline: 2px solid var(--ot-accent); outline-offset: 3px; }
+
+.ot-popover--draggable .ot-title { cursor: grab; touch-action: none; user-select: none; }
+.ot-popover--dragging { transition: none; }
+.ot-popover--dragging .ot-title { cursor: grabbing; }
+
+/* --------------------------------------------------------------------- */
 /* Block markdown                                                         */
 /* --------------------------------------------------------------------- */
 

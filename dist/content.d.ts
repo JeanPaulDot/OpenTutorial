@@ -6,7 +6,7 @@
  * checklist) consumes the normalized block list, so there is exactly one shape
  * to handle.
  */
-import type { ContentBlock, I18nContent, StepContent } from './types';
+import type { BlockAction, ContentBlock, I18nContent, StepContent } from './types';
 export type TextResolver = (content: I18nContent) => string;
 /** Collapse any accepted content shape into a block list with i18n resolved. */
 export declare function normalizeContent(content: StepContent, resolve: TextResolver): ContentBlock[];
@@ -21,7 +21,20 @@ export interface RenderBlocksOptions {
      * a step's copy legitimately starts lines with `-` or `1.`.
      */
     markdown?: 'block' | 'inline';
+    /**
+     * Wiring for `input`, `choice` and `button` blocks. Without it those blocks
+     * are skipped: a field that silently goes nowhere is worse than no field.
+     */
+    interactive?: InteractiveHandlers;
     doc?: Document;
+}
+export interface InteractiveHandlers {
+    /** Current value for a named field, so a re-render keeps what was typed. */
+    getValue: (name: string) => unknown;
+    /** Called on every change. */
+    setValue: (name: string, value: unknown, kind: 'input' | 'choice') => void;
+    /** Called when a `button` block is pressed. */
+    runAction: (action: BlockAction, label: string) => void;
 }
 /** Build the DOM for a block list. Nothing here inserts unescaped author text. */
 export declare function renderBlocks(blocks: ContentBlock[], opts?: RenderBlocksOptions): DocumentFragment;

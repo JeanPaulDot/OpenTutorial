@@ -54,7 +54,13 @@ export type TourTrigger =
   /** Fires after `ms` without pointer/key input. */
   | ({ type: 'idle'; ms: number } & TriggerBase)
   /** Fires once the page has been scrolled `percent` (0-100) of the way down. */
-  | ({ type: 'scroll'; percent: number } & TriggerBase);
+  | ({ type: 'scroll'; percent: number } & TriggerBase)
+  /**
+   * Fires when `when` becomes true against the tour context — "the cart just
+   * got its first item". Edge-triggered: it fires on the false → true change,
+   * not continuously while the expression holds.
+   */
+  | ({ type: 'context'; when: string } & TriggerBase);
 
 /** How often a tour may be shown. Evaluated before a trigger is allowed to start it. */
 export interface FrequencyRule {
@@ -114,7 +120,48 @@ export type ContentBlock =
   | { type: 'code'; value: string; lang?: string }
   | { type: 'divider' }
   /** Raw HTML. Ignored unless the host opts in with `allowHtml: true`. */
-  | { type: 'html'; value: string };
+  | { type: 'html'; value: string }
+  /**
+   * A field whose value is written to the tour context under `name` as the
+   * user types. Pair with `nextWhen` to gate the step, or with `next` rules to
+   * branch on the answer.
+   */
+  | {
+      type: 'input';
+      name: string;
+      label?: I18nContent;
+      placeholder?: I18nContent;
+      inputType?: 'text' | 'email' | 'number' | 'url' | 'tel';
+      multiline?: boolean;
+    }
+  /**
+   * Pick one (or several, with `multiple`) of a set of options. The choice is
+   * written to the tour context under `name`.
+   */
+  | {
+      type: 'choice';
+      name: string;
+      label?: I18nContent;
+      options: Array<string | ChoiceOption>;
+      multiple?: boolean;
+    }
+  /** A button inside the step body that runs an action. */
+  | { type: 'button'; label: I18nContent; action: BlockAction; variant?: 'primary' | 'ghost' };
+
+export interface ChoiceOption {
+  label: I18nContent;
+  value: string | number | boolean;
+}
+
+/**
+ * What an in-content button does. The string forms drive the tour; an object
+ * with `goTo` jumps to a step; anything else is an ordinary step action.
+ */
+export type BlockAction =
+  | 'next' | 'prev' | 'skip' | 'complete'
+  | { goTo: string }
+  | StepAction
+  | StepAction[];
 
 export type StepContent = I18nContent | { blocks: ContentBlock[] };
 
@@ -202,6 +249,12 @@ export interface TourStep {
   canGoBack?: boolean;
   next?: NextSpec;
   showIf?: string;
+  /**
+   * Expression that must hold before the step can be advanced. The Next button
+   * stays disabled until it does, and re-evaluates as the context changes —
+   * "enter your email to continue" without a line of host code.
+   */
+  nextWhen?: string;
   theme?: ThemeOverrides;
   onEnter?: StepAction[];
   onExit?: StepAction[];
@@ -263,6 +316,8 @@ export type TourEventType =
   | 'dismissed'
   | 'completed'
   | 'target-not-found'
+  /** The user answered an in-step `input`, `choice` or `button` block. */
+  | 'interaction'
   | 'error';
 
 export interface TourEvent {
@@ -337,6 +392,12 @@ export interface StepRenderContext {
   prev: () => void;
   skip: () => void;
   goTo: (stepId: string) => void;
+  /** Live tour context — read answers from `input` / `choice` blocks here. */
+  context: Record<string, unknown>;
+  /** Patch the tour context, exactly as an interactive block would. */
+  setValue: (name: string, value: unknown) => void;
+  /** False while the step's `nextWhen` condition is unmet. */
+  canGoNext: boolean;
 }
 
 export interface CreateTourOptions {
@@ -377,6 +438,17 @@ export interface CreateTourOptions {
   allowHtml?: boolean;
   /** Advance/rewind on horizontal touch swipes. Default true. */
   swipe?: boolean;
+  /** Arrow-key and Enter navigation. Escape always works. Default true. */
+  keyboard?: boolean;
+  /** Let the user drag the popover by its title when it covers something. Default false. */
+  draggable?: boolean;
+  /** Make the progress dots of already-visited steps clickable. Default true. */
+  dotNavigation?: boolean;
+  /**
+   * Called after every context change — from `setContext`, a `setContext`
+   * action, or an interactive content block. `patch` holds only what changed.
+   */
+  onContextChange?: (context: Record<string, unknown>, patch: Record<string, unknown>) => void;
   /** Reject specs that only produced warnings. Default false. */
   strict?: boolean;
   /** Called instead of `location.assign` for `navigate` actions — hand off to your router. */

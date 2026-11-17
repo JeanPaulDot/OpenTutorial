@@ -76,6 +76,7 @@ Impressions are counted when a tour actually starts, and persist per user.
 | `canGoBack` | `boolean` | `true` | Shows the back button. |
 | `next` | `NextSpec` | — | A step id, or a list of `{ if, to }` branch rules. |
 | `showIf` | `string` | — | Expression; a false step is skipped entirely. |
+| `nextWhen` | `string` | — | Expression that must hold before the step can be advanced. Next stays disabled until it does. |
 | `theme` | `ThemeOverrides` | — | Overrides the spec theme for this step. |
 | `onEnter` | `StepAction[]` | — | Runs when the step is shown. |
 | `onExit` | `StepAction[]` | — | Runs when the step is left. |
@@ -172,11 +173,18 @@ Either a string (inline markdown), an i18n object, or a block list.
       { "type": "list",  "items": ["First", "Second"], "ordered": true },
       { "type": "code",  "value": "npm i @opentutorial/core", "lang": "bash" },
       { "type": "divider" },
-      { "type": "html",  "value": "<b>only with allowHtml</b>" }
+      { "type": "html",  "value": "<b>only with allowHtml</b>" },
+      { "type": "input",  "name": "email", "label": "Work email", "inputType": "email" },
+      { "type": "choice", "name": "role", "options": ["Developer", "Designer"] },
+      { "type": "button", "label": "Skip the basics", "action": { "goTo": "advanced" } }
     ]
   }
 }
 ```
+
+`input`, `choice` and `button` make a step interactive: answers are written to
+the tour context, where `nextWhen`, `next` branches and `{{interpolation}}` can
+read them. See [Interactivity & reactivity](guides/interactivity.md).
 
 Text content is **full markdown**: headings, ordered and unordered lists,
 blockquotes, fenced code, horizontal rules, images and inline emphasis.

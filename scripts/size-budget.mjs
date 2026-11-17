@@ -21,11 +21,16 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 /**
  * file → max gzipped bytes.
  *
- * Set at roughly 20% headroom over the 0.3.0 measurements, so ordinary work
- * does not trip the gate but a new dependency-sized addition does.
+ * Set at roughly 15–20% headroom over the measurements of the release named in
+ * the comment beside each group, so ordinary work does not trip the gate but a
+ * new dependency-sized addition does.
+ *
+ * Raised for 1.1.0: interactive content blocks, the shared reactive context
+ * and runtime spec management added ~5 kB to the core, and the AI authoring
+ * helpers ~2.4 kB to `authoring`. Both were deliberate.
  */
 const BUDGETS = {
-  'dist/index.js': 36_000,
+  'dist/index.js': 41_000,
   'dist/react.js': 8_500,
   'dist/vue.js': 2_000,
   'dist/svelte.js': 2_000,
@@ -33,11 +38,11 @@ const BUDGETS = {
   'dist/solid.js': 2_000,
   'dist/webcomponent.js': 3_400,
   'dist/analytics.js': 3_400,
-  'dist/authoring.js': 5_200,
+  'dist/authoring.js': 7_800,
   // Larger than the sum of its parts: the global build inlines everything,
   // including the guidance surfaces and the authoring tools.
-  'dist/opentutorial.global.js': 44_000,
-  'dist/styles.css': 6_000,
+  'dist/opentutorial.global.js': 51_000,
+  'dist/styles.css': 7_000,
 };
 
 const format = (bytes) => `${(bytes / 1024).toFixed(1)} kB`;

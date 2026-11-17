@@ -14,9 +14,14 @@ const ADVANCE = new Set([
   'button', 'target-click', 'event', 'auto',
   'input-match', 'form-submit', 'element-appears', 'element-disappears', 'url-match',
 ]);
-const TRIGGER_TYPES = new Set(['manual', 'auto', 'event', 'route', 'element', 'idle', 'scroll']);
+const TRIGGER_TYPES = new Set(['manual', 'auto', 'event', 'route', 'element', 'idle', 'scroll', 'context']);
 const ACTION_TYPES = new Set(['emit', 'click', 'focus', 'navigate', 'setContext', 'scrollTo', 'wait']);
-const BLOCK_TYPES = new Set(['text', 'image', 'video', 'list', 'code', 'divider', 'html']);
+const BLOCK_TYPES = new Set([
+  'text', 'image', 'video', 'list', 'code', 'divider', 'html', 'input', 'choice', 'button',
+]);
+const INPUT_TYPES = new Set(['text', 'email', 'number', 'url', 'tel']);
+/** Context keys an expression can read back: plain identifiers only. */
+const FIELD_NAME = /^[A-Za-z_$][\w$]*$/;
 const INTERACTION_MODES = new Set(['free', 'target-only', 'blocked']);
 const DENSITIES = new Set(['compact', 'comfortable', 'spacious']);
 
@@ -27,7 +32,7 @@ const TOP_LEVEL_KEYS = new Set([
 const STEP_KEYS = new Set([
   'id', 'target', 'placement', 'display', 'title', 'content', 'buttons', 'advanceOn',
   'event', 'duration', 'match', 'watch', 'urlPattern', 'interaction', 'density', 'skippable',
-  'canGoBack', 'next', 'showIf', 'theme', 'onEnter', 'onExit',
+  'canGoBack', 'next', 'showIf', 'nextWhen', 'theme', 'onEnter', 'onExit',
 ]);
 const TARGET_KEYS = new Set([
   'selector', 'text', 'index', 'all', 'shadow', 'iframe', 'waitFor', 'timeout', 'visible',
@@ -142,6 +147,44 @@ function contentLength(v: unknown, path: string, out: Issues): number | undefine
           if (typeof block.value !== 'string') out.error(`${p}.value`, 'html block requires a string "value"');
           else out.warn(p, 'html blocks render only when the host sets allowHtml: true');
           break;
+        case 'input':
+        case 'choice':
+          if (typeof block.name !== 'string' || !FIELD_NAME.test(block.name)) {
+            // The value lands in the context under this name, and expressions
+            // can only read identifiers — `first-name` would be unreachable.
+            out.error(`${p}.name`, `${String(block.type)} block requires a "name" that is a valid identifier (e.g. "teamSize")`);
+          }
+          if (block.type === 'input' && block.inputType !== undefined && !INPUT_TYPES.has(block.inputType as string)) {
+            out.error(`${p}.inputType`, `must be one of: ${[...INPUT_TYPES].join(' | ')}`);
+          }
+          if (block.type === 'choice') {
+            if (!Array.isArray(block.options) || block.options.length === 0) {
+              out.error(`${p}.options`, 'choice block requires a non-empty "options" array');
+            } else {
+              block.options.forEach((option, j) => {
+                const ok = typeof option === 'string'
+                  || (isObj(option) && option.label !== undefined && option.value !== undefined);
+                if (!ok) out.error(`${p}.options[${j}]`, 'option must be a string or { label, value }');
+              });
+            }
+          }
+          break;
+        case 'button':
+          if (typeof block.label !== 'string' && !(isObj(block.label) && typeof block.label.key === 'string')) {
+            out.error(`${p}.label`, 'button block requires a "label"');
+          }
+          if (block.action === undefined) {
+            out.error(`${p}.action`, 'button block requires an "action"');
+          } else if (typeof block.action === 'string') {
+            if (!['next', 'prev', 'skip', 'complete'].includes(block.action)) {
+              out.error(`${p}.action`, 'must be "next" | "prev" | "skip" | "complete", { goTo }, or a step action');
+            }
+          } else if (isObj(block.action) && 'goTo' in block.action) {
+            if (typeof block.action.goTo !== 'string') out.error(`${p}.action.goTo`, 'must be a step id');
+          } else {
+            checkActions(Array.isArray(block.action) ? block.action : [block.action], `${p}.action`, out);
+          }
+          break;
       }
     });
     return total;
@@ -165,6 +208,7 @@ function checkTrigger(trigger: unknown, out: Issues): void {
   if (type === 'event' && typeof trigger.event !== 'string') {
     out.error('$.trigger.event', 'required when trigger.type === "event"');
   }
+  if (type === 'context') checkExpr(trigger.when ?? null, '$.trigger.when', out);
   if (type === 'route' && typeof trigger.path !== 'string') {
     out.error('$.trigger.path', 'required when trigger.type === "route"');
   }
@@ -417,6 +461,7 @@ export function validateSpec(input: unknown): ValidationResult {
     }
 
     checkExpr(raw.showIf, `${p}.showIf`, out);
+    checkExpr(raw.nextWhen, `${p}.nextWhen`, out);
     checkTheme(raw.theme, `${p}.theme`, out);
     checkActions(raw.onEnter, `${p}.onEnter`, out);
     checkActions(raw.onExit, `${p}.onExit`, out);

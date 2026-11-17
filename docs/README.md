@@ -31,6 +31,8 @@ an issue.
 | [Triggers & orchestration](guides/triggers-and-orchestration.md) | When tours fire, queueing, audience, frequency, chaining |
 | [Targeting](guides/targeting.md) | Selectors, fallbacks, text, shadow DOM, iframes |
 | [Content & theming](guides/content-and-theming.md) | Content blocks, the 20 CSS tokens, dark mode, RTL |
+| [Interactivity & reactivity](guides/interactivity.md) | Input, choice and button blocks, `nextWhen`, context triggers, the store, commands |
+| [AI & agents](guides/ai.md) | Generating tours with a model, the MCP server, grounding and safety |
 | [Guidance surfaces](guides/surfaces.md) | Banner, announcement, survey, checklist, hub, hints, changelog |
 | [Persistence & identity](guides/persistence.md) | Storage adapters, `userId`, export/import, the REST contract |
 | [Analytics](guides/analytics.md) | Adapters, funnels, batching, sampling |

@@ -1,6 +1,6 @@
 # OpenTutorial — Roadmap
 
-**Current version: 1.0.0. The API is stable.** Everything documented in
+**Current version: 1.1.0. The API is stable.** Everything documented in
 [docs/](docs/README.md) is covered by semantic versioning: no breaking change
 without a major release.
 
@@ -17,10 +17,13 @@ running the suites, not from assumptions.
 | Adapters | React, Vue 3, Svelte, Angular, Solid, `<open-tutorial>` Web Component, vanilla JS |
 | State machine | `TourEngine` — start/next/prev/goTo/pause/resume/skip/complete/destroy, history stack |
 | Orchestration | `TourOrchestrator` — one active tour, priority queue, `audience` rules, `frequency` capping, chaining |
-| Triggers | `manual`, `auto`, `event`, `route`, `element`, `idle`, `scroll`, plus `?tour=` deep links |
+| Triggers | `manual`, `auto`, `event`, `route`, `element`, `idle`, `scroll`, `context`, plus `?tour=` deep links |
 | Cross-page | `autoResume` rehydration; `onNavigate` for SPA routers |
 | Display modes | `spotlight`, `hotspot`, `beacon`, `modal`, `banner`, plus `renderStep` and `renderIndicator` |
 | Content | Full markdown (headings, lists, quotes, fences, rules, images) plus typed content blocks |
+| Interactivity | `input` / `choice` / `button` blocks, `nextWhen` gating, clickable progress dots, draggable popover |
+| Reactivity | Live interpolation, one shared context across tours, `onContextChange`, `watchContext`, `layer.store`, runtime `addSpec` / `removeSpec`, serializable `dispatch` commands |
+| AI | MCP server (`opentutorial mcp`), `collectAnchors`, `createAuthoringPrompt`, `describeSpec`, `llms.txt` |
 | Layout | Auto-sizing width, viewport-capped scrolling height, three density levels, mobile bottom sheet with swipe |
 | Targeting | Fallback lists, text matching, shadow DOM, iframes, `index`, `all` (multi-highlight), visibility waits |
 | Interaction | `free` \| `target-only` \| `blocked` pointer gating |
@@ -32,11 +35,11 @@ running the suites, not from assumptions.
 | Analytics | 10 vendor adapters, batched HTTP with offline queue, run-level sampling, funnel reports |
 | Experiments | Hash-based variant assignment with weights and holdouts |
 | Surfaces | Banner, announcement, survey/NPS, hint, checklist, resource centre, changelog — framework-free factories plus React wrappers |
-| Authoring | Recorder with selector scoring, debug overlay, JSON Schema, CLI (`validate`, `lint-selectors`, `preview`) |
+| Authoring | Recorder with selector scoring, debug overlay, JSON Schema, CLI (`validate`, `lint-selectors`, `preview`, `describe`, `mcp`) |
 | i18n | Key + locale resolvers, interpolation, ICU-style plurals, RTL, direction detection |
 | Theming | 20 `--ot-*` tokens, 3-level cascade, dark mode, reduced motion, shadow-DOM isolation, portal |
-| Docs | 27 pages shipped inside the package and rendered at [the docs site](https://jeanpauldot.github.io/OpenTutorial/docs/) |
-| Tests | 601 unit + 94 browser tests across Chromium, Firefox, WebKit and two mobile profiles, with an axe a11y gate |
+| Docs | 29 pages shipped inside the package and rendered at [the docs site](https://jeanpauldot.github.io/opentutorial-web/docs/) |
+| Tests | 670+ unit and 140+ browser tests across Chromium, Firefox, WebKit and two mobile profiles, with an axe a11y gate |
 | CI/Release | Lint, coverage thresholds, size budgets, `dist/` drift check, multi-browser E2E; changesets → tag-triggered npm publish with provenance |
 
 ---
@@ -66,12 +69,15 @@ optional.
 | # | Item | Notes |
 |---|---|---|
 | X-1 | **SchemaStore submission** | `spec.schema.json` ships with an `$id`, but is not in the [SchemaStore](https://www.schemastore.org/) catalog, so `*.tour.json` files still need a `$schema` line. Needs a pull request against their repo. |
-| X-2 | **`examples/` directory** | The [docs site](https://jeanpauldot.github.io/OpenTutorial/docs/) and the landing-page demo cover this in practice; a per-framework starter repo would still help. |
+| X-2 | **`examples/` directory** | The [docs site](https://jeanpauldot.github.io/opentutorial-web/docs/) and the landing-page demo cover this in practice; a per-framework starter repo would still help. |
 | X-3 | **Playground** | A live spec editor with a preview pane. `opentutorial preview` covers the local case. |
 | X-4 | **Migration codemods** | The migration guides carry converter functions as snippets; `opentutorial migrate` would run them. |
 | X-5 | **Visual regression** | Popover placement across the 13 `Placement` values is asserted on geometry, not screenshots. |
 | X-6 | **Nested lists in markdown** | Deliberately excluded — see [Content & theming](docs/guides/content-and-theming.md#markdown). Revisit if it comes up. |
 | X-7 | **Mutually exclusive experiments** | `assignVariant` assigns independently; exclusive slots are a layer above it. |
+| X-8 | **More interactive blocks** | `input`, `choice` and `button` cover quizzes and branching. A slider, a date field and a file drop are plausible next ones — wait for a real request. |
+| X-9 | **MCP over HTTP** | `opentutorial mcp` speaks stdio, which is what local coding agents use. A streamable-HTTP transport would let a hosted agent use it. |
+| X-10 | **Forward dot navigation** | Progress dots jump backwards only, so `nextWhen` gates and branches cannot be skipped. Allowing forward jumps on ungated linear tours is possible but needs care. |
 
 Branch coverage sits at ~78%; the remainder is concentrated in `engine.ts` error
 paths and `indexeddb.ts`, which needs a fake IDB to exercise properly.

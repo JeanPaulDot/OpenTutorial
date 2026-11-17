@@ -96,15 +96,19 @@ and react-joyride.
 ### Features
 
 - **Tour orchestration** — one tour at a time, priority queue, audience rules, frequency capping, tour chaining
-- **Triggers** — `manual`, `auto`, `event`, `route`, `element`, `idle`, `scroll`, plus `?tour=<id>` deep links
+- **Triggers** — `manual`, `auto`, `event`, `route`, `element`, `idle`, `scroll`, `context`, plus `?tour=<id>` deep links
 - **Display modes** — `spotlight`, `hotspot`, and `beacon`
 - **Cross-page tours** — `autoResume` rehydrates a tour after full page navigations; `onNavigate` hooks SPA routers
-- **Rich content** — text, image, video, list, code and (opt-in) HTML blocks, not just inline markdown
-- **Resilient targeting** — fallback selector lists, text matching, shadow-DOM piercing, iframe support, visibility waits
+- **Rich content** — full markdown, plus image, video, list, code and (opt-in) HTML blocks
+- **Adaptive layout** — the popover sizes itself to its content and viewport, with three density levels and a draggable card
+- **Resilient targeting** — fallback selector lists, text matching, multi-element highlight, shadow-DOM piercing, iframe support, visibility waits
 - **Interaction gating** — `free`, `target-only` or `blocked` pointer handling per spec or step
 - **Advance conditions** — `button`, `target-click`, `event`, `auto`, `input-match`, `form-submit`, `element-appears`, `element-disappears`, `url-match`, plus a `beforeNext` guard
 - **Branching** — `next: [{ if: "plan === 'pro'", to: 'pro-step' }]` rule lists
-- **Custom rendering** — replace the built-in popover with your own component via `renderStep`
+- **Interactive steps** — `input`, `choice` and `button` content blocks that write to the tour context; `nextWhen` gates a step until the answer is in
+- **Reactive** — live `{{interpolation}}`, context triggers, `watchContext`, a framework-neutral store, and tours added or removed at runtime
+- **AI-ready** — an MCP server (`npx opentutorial mcp`), `collectAnchors()` and `createAuthoringPrompt()` to ground a model, serializable commands to drive a tour, `llms.txt`
+- **Custom rendering** — replace the built-in popover with your own component via `renderStep`, or the beacon via `renderIndicator`
 - **Persistence** — sync or async storage; ships localStorage, cookie, IndexedDB and remote (REST) adapters, per-user namespacing via `userId`, and progress export/import
 - **Analytics** — PostHog, Mixpanel, Amplitude, Segment, RudderStack, Heap, GA4, Datadog RUM, a batched HTTP adapter with offline queue, run-level sampling, and `createFunnelReport` for drop-off analysis
 - **Guidance surfaces** — announcement, banner, survey/NPS, resource centre, hint, changelog and a self-managing checklist — as framework-free factories *and* React components
@@ -148,10 +152,17 @@ React is an optional peer dependency — install it only if you use the React
 adapter. The root entry, the Web Component and the vanilla adapter need nothing
 beyond the package itself.
 
-Validate your specs in CI with the bundled CLI:
+The bundled CLI validates specs in CI, previews them against a running app, and
+serves an MCP server for AI agents:
 
 ```sh
 npx opentutorial validate specs/**/*.json --strict
+```
+```sh
+npx opentutorial preview http://localhost:3000 specs/
+```
+```sh
+npx opentutorial mcp
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the build commands and project layout.

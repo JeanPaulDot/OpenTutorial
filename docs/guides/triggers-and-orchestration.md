@@ -13,6 +13,7 @@ it actually may — and guarantees that at most one tour is on screen at a time.
 { "trigger": { "type": "element", "selector": "[data-tour='chart']" } }
 { "trigger": { "type": "idle", "ms": 30000 } }
 { "trigger": { "type": "scroll", "percent": 60 } }
+{ "trigger": { "type": "context", "when": "cart.length > 0" } }
 ```
 
 | Type | Fires when | Extra fields |
@@ -24,6 +25,7 @@ it actually may — and guarantees that at most one tour is on screen at a time.
 | `element` | A matching element enters the DOM. | `selector` (required), `timeout` |
 | `idle` | No pointer or key input for `ms`. | `ms` (required) |
 | `scroll` | The page is scrolled `percent` of the way down. | `percent` (required) |
+| `context` | An expression over the tour context **becomes** true. | `when` (required) |
 
 Every trigger also takes:
 
@@ -31,6 +33,13 @@ Every trigger also takes:
 |---|---|---|
 | `delay` | `0` | Milliseconds to wait after the condition is met. |
 | `once` | `true` | `true` means "not if this tour has already been seen" — persisted, not per-page. |
+
+### Context triggers
+
+`context` is edge-triggered: it fires on the false → true change, not
+continuously while the expression holds. Already true at mount counts as having
+become true. With `once: false` it fires again each time the expression falls
+and rises. See [Interactivity & reactivity](interactivity.md#context-triggers).
 
 ### Route patterns
 

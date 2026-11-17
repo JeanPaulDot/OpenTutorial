@@ -1,7 +1,7 @@
-var E = Object.defineProperty;
-var S = (o, t, e) => t in o ? E(o, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[t] = e;
-var h = (o, t, e) => S(o, typeof t != "symbol" ? t + "" : t, e);
-const _ = `
+var P = Object.defineProperty;
+var V = (e, t, o) => t in e ? P(e, t, { enumerable: !0, configurable: !0, writable: !0, value: o }) : e[t] = o;
+var v = (e, t, o) => V(e, typeof t != "symbol" ? t + "" : t, o);
+const nt = `
 /*
  * OpenTutorial styles. Everything is driven by --ot-* custom properties set on
  * .ot-root — override them from host CSS or via spec \`theme\` objects.
@@ -221,6 +221,86 @@ const _ = `
 }
 
 .ot-html { font-size: var(--ot-font-size); line-height: 1.55; color: var(--ot-muted); margin-bottom: 10px; }
+
+/* --------------------------------------------------------------------- */
+/* Interactive blocks                                                     */
+/* --------------------------------------------------------------------- */
+
+.ot-field, .ot-choice { margin: 0 0 10px; }
+
+.ot-field-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: calc(var(--ot-font-size) - 1px);
+  font-weight: 600;
+  color: var(--ot-fg);
+}
+
+.ot-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: var(--ot-font-size);
+  color: var(--ot-fg);
+  background: var(--ot-bg);
+  border: 1px solid var(--ot-border);
+  border-radius: calc(var(--ot-radius) * 0.5);
+  padding: 8px 10px;
+}
+
+textarea.ot-input { min-height: 64px; resize: vertical; }
+.ot-input::placeholder { color: var(--ot-muted); opacity: 0.8; }
+.ot-input:focus-visible { outline: 2px solid var(--ot-accent); outline-offset: 1px; }
+
+.ot-choice-options { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.ot-choice-option {
+  font-family: inherit;
+  font-size: calc(var(--ot-font-size) - 0.5px);
+  color: var(--ot-fg);
+  background: transparent;
+  border: 1px solid var(--ot-border);
+  border-radius: calc(var(--ot-radius) * 0.5);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.ot-choice-option:hover { border-color: var(--ot-accent); }
+.ot-choice-option:focus-visible { outline: 2px solid var(--ot-accent); outline-offset: 2px; }
+
+/*
+ * Selected is a border and a tint, with the text left at full foreground
+ * contrast — accent-on-tint text would fail AA on most palettes.
+ */
+.ot-choice-option--selected {
+  border-color: var(--ot-accent);
+  background: color-mix(in srgb, var(--ot-accent) 14%, transparent);
+  box-shadow: inset 0 0 0 1px var(--ot-accent);
+  font-weight: 600;
+}
+
+.ot-block-btn { margin: 0 0 10px; }
+
+.ot-btn:disabled,
+.ot-btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; filter: none; }
+
+/* Dots for visited steps are real buttons with a comfortable hit area. */
+.ot-dot-jump {
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  background: color-mix(in srgb, var(--ot-accent) 55%, transparent);
+}
+.ot-dot-jump::after { content: ""; position: absolute; inset: -9px -4px; }
+.ot-dot-jump:hover { background: var(--ot-accent); }
+.ot-dot-jump:focus-visible { outline: 2px solid var(--ot-accent); outline-offset: 3px; }
+
+.ot-popover--draggable .ot-title { cursor: grab; touch-action: none; user-select: none; }
+.ot-popover--dragging { transition: none; }
+.ot-popover--dragging .ot-title { cursor: grabbing; }
 
 /* --------------------------------------------------------------------- */
 /* Block markdown                                                         */
@@ -1036,150 +1116,426 @@ const _ = `
   .ot-beacon--beacon { animation: none; }
   .ot-popover { animation: none; }
 }
-`.trim(), A = "button, a, [role], label, summary, h1, h2, h3, h4, h5, h6, p, li, td, th, span, div";
-function T(o, t = document) {
+`.trim(), W = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+};
+function z(e) {
+  return e.replace(/[&<>"']/g, (t) => W[t] ?? t);
+}
+const D = /^(javascript|vbscript|data|file|blob)\s*:/i;
+function L(e) {
+  let t = "";
+  for (const o of e)
+    o.charCodeAt(0) > 32 && (t += o);
+  return t;
+}
+function K(e) {
+  const t = e.trim();
+  return D.test(L(t)) ? null : t;
+}
+function Q(e) {
+  const t = L(e.trim());
+  return /^data:image\/(png|jpe?g|gif|webp|avif);/i.test(t) ? e.trim() : D.test(t) ? null : e.trim();
+}
+function S(e, t = {}) {
+  if (typeof e != "string") return "";
+  let o = z(e);
+  const a = [];
+  return o = o.replace(/`([^`]+)`/g, (n, r) => (a.push(r), `${a.length - 1}`)), o = o.replace(
+    /!\[([^\]]*)\]\(([^\s)]+)\)/g,
+    (n, r, i) => {
+      const s = Q(i);
+      return s ? `<img class="ot-inline-img" src="${s}" alt="${r}">` : n;
+    }
+  ), o = o.replace(
+    /\[([^\]]+)\]\(([^\s)]+)\)/g,
+    (n, r, i) => {
+      const s = K(i);
+      if (!s) return n;
+      const c = /^(https?:)?\/\//i.test(s) ? ' target="_blank" rel="noopener noreferrer"' : "";
+      return `<a href="${s}"${c}>${r}</a>`;
+    }
+  ), o = o.replace(/\*\*([^\s*][^*]*?[^\s*]|[^\s*])\*\*/g, "<strong>$1</strong>"), o = o.replace(/(^|[^*])\*([^\s*][^*\n]*?[^\s*]|[^\s*])\*/g, "$1<em>$2</em>"), o = o.replace(/~~([^~]+)~~/g, "<s>$1</s>"), o = o.replace(/(\d+)/g, (n, r) => `<code>${a[Number(r)]}</code>`), t.breaks !== !1 && (o = o.replace(/\r?\n/g, "<br>")), o;
+}
+const M = /^(#{1,6})\s+(.*)$/, q = /^\s*(`{3,}|~{3,})\s*([\w+-]*)\s*$/, _ = /^\s*(-{3,}|\*{3,}|_{3,})\s*$/, A = /^\s*[-*+]\s+(.*)$/, b = /^\s*(\d+)\.\s+(.*)$/, w = /^\s*>\s?(.*)$/, O = (e) => S(e, { breaks: !1 });
+function F(e) {
+  if (typeof e != "string" || e === "") return "";
+  const t = e.replace(/\r\n?/g, `
+`).split(`
+`), o = [];
+  let a = [];
+  const n = () => {
+    a.length !== 0 && (o.push(`<p class="ot-content">${O(a.join(`
+`)).replace(/\n/g, "<br>")}</p>`), a = []);
+  };
+  for (let r = 0; r < t.length; r += 1) {
+    const i = t[r], s = q.exec(i);
+    if (s) {
+      n();
+      const c = s[1][0], d = s[2], u = [];
+      for (r += 1; r < t.length && !new RegExp(`^\\s*${c}{3,}\\s*$`).test(t[r]); )
+        u.push(t[r]), r += 1;
+      const l = d ? ` class="language-${z(d)}"` : "";
+      o.push(`<pre class="ot-code"><code${l}>${z(u.join(`
+`))}</code></pre>`);
+      continue;
+    }
+    if (_.test(i)) {
+      n(), o.push('<hr class="ot-divider">');
+      continue;
+    }
+    const p = M.exec(i);
+    if (p) {
+      n();
+      const c = p[1].length;
+      o.push(`<h${c} class="ot-heading ot-heading--${c}">${O(p[2])}</h${c}>`);
+      continue;
+    }
+    if (w.test(i)) {
+      n();
+      const c = [];
+      for (; r < t.length && w.test(t[r]); )
+        c.push(w.exec(t[r])[1]), r += 1;
+      r -= 1, o.push(`<blockquote class="ot-quote">${F(c.join(`
+`))}</blockquote>`);
+      continue;
+    }
+    if (A.test(i) || b.test(i)) {
+      n();
+      const c = b.test(i), d = [];
+      for (; r < t.length; ) {
+        const x = t[r], g = c ? b.exec(x) : A.exec(x);
+        if (!g) break;
+        d.push(`<li>${O(c ? g[2] : g[1])}</li>`), r += 1;
+      }
+      r -= 1;
+      const u = c ? "ol" : "ul", l = c ? Number(b.exec(i)[1]) : 1, h = c && l !== 1 ? ` start="${l}"` : "";
+      o.push(`<${u} class="ot-list"${h}>${d.join("")}</${u}>`);
+      continue;
+    }
+    if (i.trim() === "") {
+      n();
+      continue;
+    }
+    a.push(i);
+  }
+  return n(), o.join("");
+}
+function G(e) {
+  return typeof e != "string" ? !1 : e.split(/\r?\n/).some(
+    (t) => M.test(t) || q.test(t) || _.test(t) || A.test(t) || b.test(t) || w.test(t)
+  );
+}
+function it(e, t) {
+  return e && typeof e == "object" && "blocks" in e && Array.isArray(e.blocks) ? e.blocks.map((o) => {
+    switch (o.type) {
+      case "text":
+        return { type: "text", value: t(o.value) };
+      case "list":
+        return { ...o, items: o.items.map((a) => t(a)) };
+      case "input":
+        return {
+          ...o,
+          ...o.label !== void 0 ? { label: t(o.label) } : {},
+          ...o.placeholder !== void 0 ? { placeholder: t(o.placeholder) } : {}
+        };
+      case "choice":
+        return {
+          ...o,
+          ...o.label !== void 0 ? { label: t(o.label) } : {},
+          options: o.options.map((a) => typeof a == "string" ? { label: a, value: a } : { label: t(a.label), value: a.value })
+        };
+      case "button":
+        return { ...o, label: t(o.label) };
+      default:
+        return o;
+    }
+  }) : [{ type: "text", value: t(e) }];
+}
+function at(e) {
+  return e.map((t) => {
+    switch (t.type) {
+      case "text":
+        return typeof t.value == "string" ? t.value : "";
+      case "list":
+        return t.items.filter((o) => typeof o == "string").join(", ");
+      case "code":
+        return t.value;
+      case "image":
+        return t.alt;
+      case "input":
+      case "choice":
+      case "button":
+        return typeof t.label == "string" ? t.label : "";
+      default:
+        return "";
+    }
+  }).filter(Boolean).join(" ");
+}
+let y = 0;
+function st(e, t = {}) {
+  const o = t.doc ?? document, a = o.createDocumentFragment();
+  for (const n of e)
+    switch (n.type) {
+      case "text": {
+        const r = typeof n.value == "string" ? n.value : "";
+        if (t.markdown !== "inline" && G(r)) {
+          const i = o.createElement("div");
+          i.className = "ot-prose", i.innerHTML = F(r), a.appendChild(i);
+        } else {
+          const i = o.createElement("p");
+          i.className = "ot-content", i.innerHTML = S(r), a.appendChild(i);
+        }
+        break;
+      }
+      case "image": {
+        const r = o.createElement("img");
+        r.className = "ot-media ot-media-image", r.src = n.src, r.alt = n.alt, r.loading = "lazy", n.width && (r.width = n.width), n.height && (r.height = n.height), a.appendChild(r);
+        break;
+      }
+      case "video": {
+        const r = o.createElement("video");
+        r.className = "ot-media ot-media-video", r.src = n.src, n.poster && (r.poster = n.poster), r.controls = n.controls ?? !0, r.loop = n.loop ?? !1, r.muted = n.muted ?? n.autoplay ?? !1, r.playsInline = !0, n.autoplay && (r.autoplay = !0, r.muted = !0), a.appendChild(r);
+        break;
+      }
+      case "list": {
+        const r = o.createElement(n.ordered ? "ol" : "ul");
+        r.className = "ot-list";
+        for (const i of n.items) {
+          const s = o.createElement("li");
+          s.innerHTML = S(typeof i == "string" ? i : ""), r.appendChild(s);
+        }
+        a.appendChild(r);
+        break;
+      }
+      case "code": {
+        const r = o.createElement("pre");
+        r.className = "ot-code";
+        const i = o.createElement("code");
+        n.lang && (i.dataset.lang = n.lang), i.textContent = n.value, r.appendChild(i), a.appendChild(r);
+        break;
+      }
+      case "divider": {
+        const r = o.createElement("hr");
+        r.className = "ot-divider", a.appendChild(r);
+        break;
+      }
+      case "html": {
+        const r = o.createElement("div");
+        r.className = "ot-html", r.innerHTML = t.allowHtml ? n.value : z(n.value), a.appendChild(r);
+        break;
+      }
+      case "input": {
+        const r = t.interactive;
+        if (!r) break;
+        y += 1;
+        const i = `ot-field-${y}`, s = typeof n.label == "string" && n.label !== "", p = o.createElement("div");
+        if (p.className = "ot-field", s) {
+          const u = o.createElement("label");
+          u.className = "ot-field-label", u.htmlFor = i, u.textContent = n.label, p.appendChild(u);
+        }
+        const c = n.multiline ? o.createElement("textarea") : o.createElement("input");
+        c.className = "ot-input", c.id = i, c.name = n.name, c.dataset.otName = n.name, n.multiline || (c.type = n.inputType ?? "text"), typeof n.placeholder == "string" && (c.placeholder = n.placeholder), s || c.setAttribute(
+          "aria-label",
+          typeof n.placeholder == "string" && n.placeholder ? n.placeholder : n.name
+        );
+        const d = r.getValue(n.name);
+        d != null && (c.value = String(d)), c.addEventListener("input", () => {
+          const u = c.value, l = n.inputType === "number" && u.trim() !== "" && Number.isFinite(Number(u)) ? Number(u) : u;
+          r.setValue(n.name, l, "input");
+        }), p.appendChild(c), a.appendChild(p);
+        break;
+      }
+      case "choice": {
+        const r = t.interactive;
+        if (!r) break;
+        const i = o.createElement("div");
+        if (i.className = "ot-choice", i.dataset.otName = n.name, i.setAttribute("role", n.multiple ? "group" : "radiogroup"), typeof n.label == "string" && n.label) {
+          const l = o.createElement("div");
+          l.className = "ot-field-label", l.textContent = n.label, y += 1, l.id = `ot-field-${y}`, i.setAttribute("aria-labelledby", l.id), i.appendChild(l);
+        } else
+          i.setAttribute("aria-label", n.name);
+        const s = n.options.map((l) => typeof l == "string" ? { label: l, value: l } : l), p = () => {
+          const l = r.getValue(n.name);
+          return n.multiple ? Array.isArray(l) ? l : [] : l === void 0 ? [] : [l];
+        }, c = [], d = () => {
+          const l = p();
+          c.forEach((h, x) => {
+            const g = l.includes(s[x].value);
+            h.classList.toggle("ot-choice-option--selected", g), h.setAttribute("aria-checked", String(g));
+          });
+        }, u = o.createElement("div");
+        u.className = "ot-choice-options", s.forEach((l) => {
+          const h = o.createElement("button");
+          h.type = "button", h.className = "ot-choice-option", h.setAttribute("role", n.multiple ? "checkbox" : "radio"), h.textContent = typeof l.label == "string" ? l.label : String(l.value), h.addEventListener("click", () => {
+            if (n.multiple) {
+              const x = p(), g = x.includes(l.value) ? x.filter((I) => I !== l.value) : [...x, l.value];
+              r.setValue(n.name, g, "choice");
+            } else
+              r.setValue(n.name, l.value, "choice");
+            d();
+          }), c.push(h), u.appendChild(h);
+        }), d(), i.appendChild(u), a.appendChild(i);
+        break;
+      }
+      case "button": {
+        const r = t.interactive;
+        if (!r) break;
+        const i = typeof n.label == "string" ? n.label : "", s = o.createElement("button");
+        s.type = "button", s.className = `ot-btn ot-block-btn ${n.variant === "primary" ? "ot-btn-primary" : "ot-btn-ghost"}`, s.textContent = i, s.addEventListener("click", () => r.runAction(n.action, i)), a.appendChild(s);
+        break;
+      }
+    }
+  return a;
+}
+const X = "button, a, [role], label, summary, h1, h2, h3, h4, h5, h6, p, li, td, th, span, div";
+function Y(e, t = document) {
   try {
-    return t.querySelector(o);
+    return t.querySelector(e);
   } catch {
     return null;
   }
 }
-function f(o, t = document) {
+function m(e, t = document) {
   try {
-    return Array.from(t.querySelectorAll(o));
+    return Array.from(t.querySelectorAll(e));
   } catch {
     return [];
   }
 }
-function k(o, t = document) {
-  const e = f(o, t), r = /* @__PURE__ */ new Set(), c = (n) => {
-    for (const i of f("*", n)) {
-      const a = i.shadowRoot;
-      !a || r.has(a) || (r.add(a), e.push(...f(o, a)), c(a));
+function H(e, t = document) {
+  const o = m(e, t), a = /* @__PURE__ */ new Set(), n = (r) => {
+    for (const i of m("*", r)) {
+      const s = i.shadowRoot;
+      !s || a.has(s) || (a.add(s), o.push(...m(e, s)), n(s));
     }
   };
-  return c(t), [...new Set(e)];
+  return n(t), [...new Set(o)];
 }
-function u(o) {
-  const t = o.getBoundingClientRect();
+function k(e) {
+  const t = e.getBoundingClientRect();
   if (t.width === 0 && t.height === 0) return !1;
-  const e = o.ownerDocument?.defaultView;
-  if (!e) return !0;
-  const r = e.getComputedStyle(o);
-  return r.visibility !== "hidden" && r.display !== "none" && r.opacity !== "0";
+  const o = e.ownerDocument?.defaultView;
+  if (!o) return !0;
+  const a = o.getComputedStyle(e);
+  return a.visibility !== "hidden" && a.display !== "none" && a.opacity !== "0";
 }
-function g(o) {
-  return o.replace(/\s+/g, " ").trim().toLowerCase();
+function $(e) {
+  return e.replace(/\s+/g, " ").trim().toLowerCase();
 }
-function v(o, t, e) {
-  const r = g(o);
-  if (!r) return null;
-  const n = (t ?? f(A, e)).filter((p) => g(p.textContent ?? "").includes(r));
-  if (n.length === 0) return null;
-  const i = n.filter((p) => g(p.textContent ?? "") === r);
-  return (i.length ? i : n).reduce((p, l) => p.contains(l) ? l : p);
+function T(e, t, o) {
+  const a = $(e);
+  if (!a) return null;
+  const r = (t ?? m(X, o)).filter((p) => $(p.textContent ?? "").includes(a));
+  if (r.length === 0) return null;
+  const i = r.filter((p) => $(p.textContent ?? "") === a);
+  return (i.length ? i : r).reduce((p, c) => p.contains(c) ? c : p);
 }
-function m(o) {
-  if (!o.iframe) return { doc: document, offset: { x: 0, y: 0 } };
-  const t = T(o.iframe);
+function N(e) {
+  if (!e.iframe) return { doc: document, offset: { x: 0, y: 0 } };
+  const t = Y(e.iframe);
   if (!t) return null;
   try {
-    const e = t.contentDocument;
-    if (!e) return null;
-    const r = t.getBoundingClientRect();
-    return { doc: e, offset: { x: r.x, y: r.y } };
+    const o = t.contentDocument;
+    if (!o) return null;
+    const a = t.getBoundingClientRect();
+    return { doc: o, offset: { x: a.x, y: a.y } };
   } catch {
     return null;
   }
 }
-function x(o) {
-  const t = m(o);
+function E(e) {
+  const t = N(e);
   if (!t) return null;
-  const { doc: e, offset: r } = t, c = o.selector ? Array.isArray(o.selector) ? o.selector : [o.selector] : [], n = (i) => {
-    const a = o.visible ? i.filter(u) : i;
-    return a.length === 0 ? null : a[o.index ?? 0] ?? null;
+  const { doc: o, offset: a } = t, n = e.selector ? Array.isArray(e.selector) ? e.selector : [e.selector] : [], r = (i) => {
+    const s = e.visible ? i.filter(k) : i;
+    return s.length === 0 ? null : s[e.index ?? 0] ?? null;
   };
-  for (const i of c) {
-    const a = o.shadow ? k(i, e) : f(i, e);
-    if (o.text) {
-      const l = v(o.text, o.visible ? a.filter(u) : a, e);
-      if (l) return { element: l, doc: e, frameOffset: r, matched: i };
+  for (const i of n) {
+    const s = e.shadow ? H(i, o) : m(i, o);
+    if (e.text) {
+      const c = T(e.text, e.visible ? s.filter(k) : s, o);
+      if (c) return { element: c, doc: o, frameOffset: a, matched: i };
       continue;
     }
-    const p = n(a);
-    if (p) return { element: p, doc: e, frameOffset: r, matched: i };
+    const p = r(s);
+    if (p) return { element: p, doc: o, frameOffset: a, matched: i };
   }
-  if (c.length === 0 && o.text) {
-    const i = v(o.text, null, e);
-    if (i && (!o.visible || u(i)))
-      return { element: i, doc: e, frameOffset: r, matched: `text:${o.text}` };
+  if (n.length === 0 && e.text) {
+    const i = T(e.text, null, o);
+    if (i && (!e.visible || k(i)))
+      return { element: i, doc: o, frameOffset: a, matched: `text:${e.text}` };
   }
   return null;
 }
-function $(o) {
-  if (!o.all) {
-    const i = x(o);
+function ct(e) {
+  if (!e.all) {
+    const i = E(e);
     return i ? [i] : [];
   }
-  const t = m(o);
+  const t = N(e);
   if (!t) return [];
-  const { doc: e, offset: r } = t, c = o.selector ? Array.isArray(o.selector) ? o.selector : [o.selector] : [];
-  for (const i of c) {
-    const a = o.shadow ? k(i, e) : f(i, e), p = o.visible ? a.filter(u) : a;
+  const { doc: o, offset: a } = t, n = e.selector ? Array.isArray(e.selector) ? e.selector : [e.selector] : [];
+  for (const i of n) {
+    const s = e.shadow ? H(i, o) : m(i, o), p = e.visible ? s.filter(k) : s;
     if (p.length > 0)
-      return p.map((l) => ({ element: l, doc: e, frameOffset: r, matched: i }));
+      return p.map((c) => ({ element: c, doc: o, frameOffset: a, matched: i }));
   }
-  const n = x(o);
-  return n ? [n] : [];
+  const r = E(e);
+  return r ? [r] : [];
 }
-function F(o) {
+function lt(e) {
   const t = [];
-  return o.selector && t.push(Array.isArray(o.selector) ? o.selector.join(" | ") : o.selector), o.text && t.push(`text "${o.text}"`), o.iframe && t.push(`in iframe ${o.iframe}`), t.join(" + ") || "(no selector)";
+  return e.selector && t.push(Array.isArray(e.selector) ? e.selector.join(" | ") : e.selector), e.text && t.push(`text "${e.text}"`), e.iframe && t.push(`in iframe ${e.iframe}`), t.join(" + ") || "(no selector)";
 }
-function C(o, t = 5e3) {
-  return new Promise((e) => {
-    const r = x(o);
-    if (r) {
-      e(r);
+function Z(e, t = 5e3) {
+  return new Promise((o) => {
+    const a = E(e);
+    if (a) {
+      o(a);
       return;
     }
-    let c = !1, n = null;
+    let n = !1, r = null;
     const i = (d) => {
-      c || (c = !0, n?.disconnect(), clearInterval(p), clearTimeout(l), e(d));
-    }, a = () => {
-      const d = x(o);
+      n || (n = !0, r?.disconnect(), clearInterval(p), clearTimeout(c), o(d));
+    }, s = () => {
+      const d = E(e);
       d && i(d);
     };
     try {
-      n = new MutationObserver(a);
-      const d = o.iframe ? m(o)?.doc.documentElement ?? document.documentElement : document.documentElement;
-      n.observe(d, { childList: !0, subtree: !0, attributes: !0 });
+      r = new MutationObserver(s);
+      const d = e.iframe ? N(e)?.doc.documentElement ?? document.documentElement : document.documentElement;
+      r.observe(d, { childList: !0, subtree: !0, attributes: !0 });
     } catch {
     }
-    const p = setInterval(a, 100), l = setTimeout(() => i(null), t);
+    const p = setInterval(s, 100), c = setTimeout(() => i(null), t);
   });
 }
-function L(o, t = 5e3) {
-  return C({ selector: o }, t).then((e) => e?.element ?? null);
+function pt(e, t = 5e3) {
+  return Z({ selector: e }, t).then((o) => o?.element ?? null);
 }
-const R = 500, j = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototype"]), y = {
-  includes: (o, t) => typeof o == "string" ? o.includes(String(t[0])) : Array.isArray(o) ? o.includes(t[0]) : !1,
-  startsWith: (o, t) => typeof o == "string" ? o.startsWith(String(t[0])) : !1,
-  endsWith: (o, t) => typeof o == "string" ? o.endsWith(String(t[0])) : !1,
-  toLowerCase: (o) => typeof o == "string" ? o.toLowerCase() : o,
-  toUpperCase: (o) => typeof o == "string" ? o.toUpperCase() : o,
-  trim: (o) => typeof o == "string" ? o.trim() : o,
-  indexOf: (o, t) => typeof o == "string" ? o.indexOf(String(t[0])) : Array.isArray(o) ? o.indexOf(t[0]) : -1,
+const J = 500, tt = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototype"]), j = {
+  includes: (e, t) => typeof e == "string" ? e.includes(String(t[0])) : Array.isArray(e) ? e.includes(t[0]) : !1,
+  startsWith: (e, t) => typeof e == "string" ? e.startsWith(String(t[0])) : !1,
+  endsWith: (e, t) => typeof e == "string" ? e.endsWith(String(t[0])) : !1,
+  toLowerCase: (e) => typeof e == "string" ? e.toLowerCase() : e,
+  toUpperCase: (e) => typeof e == "string" ? e.toUpperCase() : e,
+  trim: (e) => typeof e == "string" ? e.trim() : e,
+  indexOf: (e, t) => typeof e == "string" ? e.indexOf(String(t[0])) : Array.isArray(e) ? e.indexOf(t[0]) : -1,
   /** `value.matches('^pro')` — regex test against the resolved string. */
-  matches: (o, t) => {
-    if (typeof o != "string") return !1;
+  matches: (e, t) => {
+    if (typeof e != "string") return !1;
     try {
-      return new RegExp(String(t[0])).test(o);
+      return new RegExp(String(t[0])).test(e);
     } catch {
       return !1;
     }
   }
-}, q = [
+}, et = [
   "===",
   "!==",
   "==",
@@ -1204,75 +1560,75 @@ const R = 500, j = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototy
   "?",
   ":"
 ];
-function z(o) {
+function U(e) {
   const t = [];
-  let e = 0;
-  for (; e < o.length; ) {
-    const r = o.slice(e);
-    if (/^\s/.test(r)) {
-      e += 1;
+  let o = 0;
+  for (; o < e.length; ) {
+    const a = e.slice(o);
+    if (/^\s/.test(a)) {
+      o += 1;
       continue;
     }
-    const c = q.find((i) => r.startsWith(i));
-    if (c) {
-      t.push({ t: "op", v: c }), e += c.length;
-      continue;
-    }
-    if (r[0] === ".") {
-      t.push({ t: "dot" }), e += 1;
-      continue;
-    }
-    let n = r.match(/^'((?:[^'\\]|\\.)*)'/) ?? r.match(/^"((?:[^"\\]|\\.)*)"/);
+    const n = et.find((i) => a.startsWith(i));
     if (n) {
-      t.push({ t: "str", v: n[1].replace(/\\(.)/g, "$1") }), e += n[0].length;
+      t.push({ t: "op", v: n }), o += n.length;
       continue;
     }
-    if (n = r.match(/^\d+(\.\d+)?/), n) {
-      t.push({ t: "num", v: Number(n[0]) }), e += n[0].length;
+    if (a[0] === ".") {
+      t.push({ t: "dot" }), o += 1;
       continue;
     }
-    if (n = r.match(/^(true|false)\b/), n) {
-      t.push({ t: "bool", v: n[1] === "true" }), e += n[0].length;
+    let r = a.match(/^'((?:[^'\\]|\\.)*)'/) ?? a.match(/^"((?:[^"\\]|\\.)*)"/);
+    if (r) {
+      t.push({ t: "str", v: r[1].replace(/\\(.)/g, "$1") }), o += r[0].length;
       continue;
     }
-    if (n = r.match(/^null\b/), n) {
-      t.push({ t: "null" }), e += n[0].length;
+    if (r = a.match(/^\d+(\.\d+)?/), r) {
+      t.push({ t: "num", v: Number(r[0]) }), o += r[0].length;
       continue;
     }
-    if (n = r.match(/^undefined\b/), n) {
-      t.push({ t: "undef" }), e += n[0].length;
+    if (r = a.match(/^(true|false)\b/), r) {
+      t.push({ t: "bool", v: r[1] === "true" }), o += r[0].length;
       continue;
     }
-    if (n = r.match(/^[A-Za-z_$][\w$]*/), n) {
-      t.push({ t: "ident", v: n[0] }), e += n[0].length;
+    if (r = a.match(/^null\b/), r) {
+      t.push({ t: "null" }), o += r[0].length;
       continue;
     }
-    throw new Error(`Unexpected character "${r[0]}" at ${e}`);
+    if (r = a.match(/^undefined\b/), r) {
+      t.push({ t: "undef" }), o += r[0].length;
+      continue;
+    }
+    if (r = a.match(/^[A-Za-z_$][\w$]*/), r) {
+      t.push({ t: "ident", v: r[0] }), o += r[0].length;
+      continue;
+    }
+    throw new Error(`Unexpected character "${a[0]}" at ${o}`);
   }
   return t;
 }
-function b(o, t) {
-  if (o != null && !(typeof t == "string" && j.has(t))) {
-    if (typeof o == "string")
-      return t === "length" ? o.length : typeof t == "number" ? o[t] : void 0;
-    if (Array.isArray(o))
-      return t === "length" ? o.length : o[t];
-    if (typeof o == "object")
-      return o[String(t)];
+function C(e, t) {
+  if (e != null && !(typeof t == "string" && tt.has(t))) {
+    if (typeof e == "string")
+      return t === "length" ? e.length : typeof t == "number" ? e[t] : void 0;
+    if (Array.isArray(e))
+      return t === "length" ? e.length : e[t];
+    if (typeof e == "object")
+      return e[String(t)];
   }
 }
-function w(o, t) {
-  return o === t ? !0 : o == null ? t == null : typeof o == "number" || typeof t == "number" ? Number(o) === Number(t) : String(o) === String(t);
+function R(e, t) {
+  return e === t ? !0 : e == null ? t == null : typeof e == "number" || typeof t == "number" ? Number(e) === Number(t) : String(e) === String(t);
 }
-function s(o) {
-  return typeof o == "number" ? o : Number(o);
+function f(e) {
+  return typeof e == "number" ? e : Number(e);
 }
-class O {
-  constructor(t, e) {
-    h(this, "pos", 0);
-    h(this, "tokens");
-    h(this, "ctx");
-    this.tokens = t, this.ctx = e;
+class B {
+  constructor(t, o) {
+    v(this, "pos", 0);
+    v(this, "tokens");
+    v(this, "ctx");
+    this.tokens = t, this.ctx = o;
   }
   parse() {
     const t = this.ternary();
@@ -1283,8 +1639,8 @@ class O {
     return this.tokens[this.pos];
   }
   isOp(t) {
-    const e = this.peek();
-    return !!e && e.t === "op" && e.v === t;
+    const o = this.peek();
+    return !!o && o.t === "op" && o.v === t;
   }
   eatOp(t) {
     return this.isOp(t) ? (this.pos += 1, !0) : !1;
@@ -1295,24 +1651,24 @@ class O {
   ternary() {
     const t = this.orExpr();
     if (!this.eatOp("?")) return t;
-    const e = this.ternary();
+    const o = this.ternary();
     this.expectOp(":");
-    const r = this.ternary();
-    return t ? e : r;
+    const a = this.ternary();
+    return t ? o : a;
   }
   orExpr() {
     let t = this.andExpr();
     for (; this.eatOp("||"); ) {
-      const e = this.andExpr();
-      t = t || e;
+      const o = this.andExpr();
+      t = t || o;
     }
     return t;
   }
   andExpr() {
     let t = this.equality();
     for (; this.eatOp("&&"); ) {
-      const e = this.equality();
-      t = t && e;
+      const o = this.equality();
+      t = t && o;
     }
     return t;
   }
@@ -1328,11 +1684,11 @@ class O {
         continue;
       }
       if (this.eatOp("==")) {
-        t = w(t, this.relational());
+        t = R(t, this.relational());
         continue;
       }
       if (this.eatOp("!=")) {
-        t = !w(t, this.relational());
+        t = !R(t, this.relational());
         continue;
       }
       return t;
@@ -1342,19 +1698,19 @@ class O {
     let t = this.additive();
     for (; ; ) {
       if (this.eatOp("<=")) {
-        t = s(t) <= s(this.additive());
+        t = f(t) <= f(this.additive());
         continue;
       }
       if (this.eatOp(">=")) {
-        t = s(t) >= s(this.additive());
+        t = f(t) >= f(this.additive());
         continue;
       }
       if (this.eatOp("<")) {
-        t = s(t) < s(this.additive());
+        t = f(t) < f(this.additive());
         continue;
       }
       if (this.eatOp(">")) {
-        t = s(t) > s(this.additive());
+        t = f(t) > f(this.additive());
         continue;
       }
       return t;
@@ -1364,12 +1720,12 @@ class O {
     let t = this.multiplicative();
     for (; ; ) {
       if (this.eatOp("+")) {
-        const e = this.multiplicative();
-        t = typeof t == "string" || typeof e == "string" ? String(t) + String(e) : s(t) + s(e);
+        const o = this.multiplicative();
+        t = typeof t == "string" || typeof o == "string" ? String(t) + String(o) : f(t) + f(o);
         continue;
       }
       if (this.eatOp("-")) {
-        t = s(t) - s(this.multiplicative());
+        t = f(t) - f(this.multiplicative());
         continue;
       }
       return t;
@@ -1379,49 +1735,49 @@ class O {
     let t = this.unary();
     for (; ; ) {
       if (this.eatOp("*")) {
-        t = s(t) * s(this.unary());
+        t = f(t) * f(this.unary());
         continue;
       }
       if (this.eatOp("/")) {
-        t = s(t) / s(this.unary());
+        t = f(t) / f(this.unary());
         continue;
       }
       if (this.eatOp("%")) {
-        t = s(t) % s(this.unary());
+        t = f(t) % f(this.unary());
         continue;
       }
       return t;
     }
   }
   unary() {
-    return this.eatOp("!") ? !this.unary() : this.eatOp("-") ? -s(this.unary()) : this.postfix();
+    return this.eatOp("!") ? !this.unary() : this.eatOp("-") ? -f(this.unary()) : this.postfix();
   }
   postfix() {
     let t = this.primary();
     for (; ; ) {
       if (this.peek()?.t === "dot") {
         this.pos += 1;
-        const e = this.peek();
-        if (!e || e.t !== "ident") throw new Error('Expected identifier after "."');
+        const o = this.peek();
+        if (!o || o.t !== "ident") throw new Error('Expected identifier after "."');
         if (this.pos += 1, this.isOp("(")) {
           this.pos += 1;
-          const r = [];
+          const a = [];
           if (!this.isOp(")"))
             do
-              r.push(this.ternary());
+              a.push(this.ternary());
             while (this.eatOp(","));
           this.expectOp(")");
-          const c = Object.prototype.hasOwnProperty.call(y, e.v) ? y[e.v] : void 0;
-          if (typeof c != "function") throw new Error(`Method "${e.v}" is not allowed`);
-          t = c(t, r);
+          const n = Object.prototype.hasOwnProperty.call(j, o.v) ? j[o.v] : void 0;
+          if (typeof n != "function") throw new Error(`Method "${o.v}" is not allowed`);
+          t = n(t, a);
           continue;
         }
-        t = b(t, e.v);
+        t = C(t, o.v);
         continue;
       }
       if (this.eatOp("[")) {
-        const e = this.ternary();
-        this.expectOp("]"), t = b(t, typeof e == "number" ? e : String(e));
+        const o = this.ternary();
+        this.expectOp("]"), t = C(t, typeof o == "number" ? o : String(o));
         continue;
       }
       return t;
@@ -1432,17 +1788,17 @@ class O {
     if (!t) throw new Error("Unexpected end of expression");
     if (t.t === "op" && t.v === "(") {
       this.pos += 1;
-      const e = this.ternary();
-      return this.expectOp(")"), e;
+      const o = this.ternary();
+      return this.expectOp(")"), o;
     }
     if (t.t === "op" && t.v === "[") {
       this.pos += 1;
-      const e = [];
+      const o = [];
       if (!this.isOp("]"))
         do
-          e.push(this.ternary());
+          o.push(this.ternary());
         while (this.eatOp(","));
-      return this.expectOp("]"), e;
+      return this.expectOp("]"), o;
     }
     switch (this.pos += 1, t.t) {
       case "str":
@@ -1456,47 +1812,54 @@ class O {
       case "undef":
         return;
       case "ident":
-        return b(this.ctx, t.v);
+        return C(this.ctx, t.v);
       default:
         throw new Error("Unexpected token");
     }
   }
 }
-function D(o, t, e = {}) {
+function ot(e, t, o = {}) {
   try {
-    if (typeof o != "string") return;
-    if (o.length > (e.maxLength ?? R)) {
-      e.onError?.("expression exceeds the maximum length", o);
+    if (typeof e != "string") return;
+    if (e.length > (o.maxLength ?? J)) {
+      o.onError?.("expression exceeds the maximum length", e);
       return;
     }
-    return new O(z(o), t).parse();
-  } catch (r) {
-    e.onError?.(r instanceof Error ? r.message : "invalid expression", o);
+    return new B(U(e), t).parse();
+  } catch (a) {
+    o.onError?.(a instanceof Error ? a.message : "invalid expression", e);
     return;
   }
 }
-function N(o, t, e = {}) {
-  return !!D(o, t, e);
+function dt(e, t, o = {}) {
+  return !!ot(e, t, o);
 }
-function B(o) {
+function ut(e) {
   try {
-    return new O(z(o), {}).parse(), { ok: !0 };
+    return new B(U(e), {}).parse(), { ok: !0 };
   } catch (t) {
     return { ok: !1, message: t instanceof Error ? t.message : "invalid expression" };
   }
 }
 export {
-  _ as C,
-  N as a,
-  $ as b,
-  B as c,
-  F as d,
-  D as e,
-  C as f,
-  u as i,
-  k as q,
-  x as r,
-  T as s,
-  L as w
+  nt as C,
+  ot as a,
+  at as b,
+  ut as c,
+  lt as d,
+  z as e,
+  dt as f,
+  S as g,
+  G as h,
+  k as i,
+  F as j,
+  E as k,
+  ct as l,
+  Z as m,
+  it as n,
+  H as q,
+  st as r,
+  Y as s,
+  pt as w
 };
 //# sourceMappingURL=safeEval.es.js.map

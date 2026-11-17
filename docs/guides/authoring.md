@@ -120,7 +120,9 @@ npx opentutorial <command>
 |---|---|
 | `validate [paths…]` | Validate spec JSON. Defaults to the current directory. |
 | `lint-selectors <url> [paths…]` | Check every step selector against a live page. |
-| `preview <url> [paths…]` | Serve a page that runs your specs against a URL. |
+| `preview <url> [paths…]` | Proxy a running app with your specs injected. |
+| `describe [paths…]` | Summarise specs in plain language. |
+| `mcp` | Start an MCP server on stdio for AI agents. See [AI & agents](ai.md#mcp-server). |
 | `schema` | Print the path to `spec.schema.json`. |
 | `version` | Print the package version. |
 
@@ -183,13 +185,23 @@ Run it against a staging deploy in CI and you find broken tours before users do.
 npx opentutorial preview http://localhost:3000 specs/
 ```
 
-Serves a page at `http://127.0.0.1:4180` that frames your app and runs the specs
-against it, with a picker for which tour to start. The loop becomes *edit JSON →
-refresh* instead of *edit JSON → rebuild → click to the right screen → start*.
+Starts a reverse proxy at `http://127.0.0.1:4180` in front of your app, with the
+library and your specs injected into every HTML page and a small control bar to
+pick and start a tour. Specs are re-read from disk on each page load, so the
+loop becomes *edit JSON → refresh* instead of *edit JSON → rebuild → click to
+the right screen → start*.
 
-The target must be **same-origin** with the preview server for selectors to
-resolve — a cross-origin frame cannot be inspected by anyone, and the page says
-so when that happens.
+It is a proxy rather than an iframe on purpose: a page framed from another port
+is cross-origin, and nothing can read into a cross-origin frame. Through the
+proxy the app is same-origin with the injected tour, so selectors resolve
+exactly as they will in production. Redirects stay inside the proxy, and
+hot-reload WebSockets are passed through for `http://` targets.
+
+```bash
+npx opentutorial preview http://localhost:5173 specs/ --port 4200
+```
+
+JSON files in the folder that are not specs (no `"specVersion": 1`) are ignored.
 
 ## Typed authoring
 

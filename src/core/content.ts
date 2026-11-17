@@ -7,7 +7,7 @@
  * to handle.
  */
 
-import type { ContentBlock, I18nContent, StepContent } from './types';
+import type { BlockAction, ContentBlock, I18nContent, StepContent } from './types';
 import { renderInline, renderMarkdown, hasBlockMarkdown, escapeHtml } from './markdown';
 
 export type TextResolver = (content: I18nContent) => string;
@@ -21,6 +21,23 @@ export function normalizeContent(content: StepContent, resolve: TextResolver): C
           return { type: 'text', value: resolve(block.value) };
         case 'list':
           return { ...block, items: block.items.map((item) => resolve(item)) };
+        case 'input':
+          return {
+            ...block,
+            ...(block.label !== undefined ? { label: resolve(block.label) } : {}),
+            ...(block.placeholder !== undefined ? { placeholder: resolve(block.placeholder) } : {}),
+          };
+        case 'choice':
+          return {
+            ...block,
+            ...(block.label !== undefined ? { label: resolve(block.label) } : {}),
+            options: block.options.map((option) =>
+              (typeof option === 'string'
+                ? { label: option, value: option }
+                : { label: resolve(option.label), value: option.value })),
+          };
+        case 'button':
+          return { ...block, label: resolve(block.label) };
         default:
           return block;
       }
@@ -38,6 +55,9 @@ export function blocksToText(blocks: ContentBlock[]): string {
         case 'list': return b.items.filter((i): i is string => typeof i === 'string').join(', ');
         case 'code': return b.value;
         case 'image': return b.alt;
+        case 'input':
+        case 'choice':
+        case 'button': return typeof b.label === 'string' ? b.label : '';
         default: return '';
       }
     })
@@ -54,8 +74,24 @@ export interface RenderBlocksOptions {
    * a step's copy legitimately starts lines with `-` or `1.`.
    */
   markdown?: 'block' | 'inline';
+  /**
+   * Wiring for `input`, `choice` and `button` blocks. Without it those blocks
+   * are skipped: a field that silently goes nowhere is worse than no field.
+   */
+  interactive?: InteractiveHandlers;
   doc?: Document;
 }
+
+export interface InteractiveHandlers {
+  /** Current value for a named field, so a re-render keeps what was typed. */
+  getValue: (name: string) => unknown;
+  /** Called on every change. */
+  setValue: (name: string, value: unknown, kind: 'input' | 'choice') => void;
+  /** Called when a `button` block is pressed. */
+  runAction: (action: BlockAction, label: string) => void;
+}
+
+let fieldUid = 0;
 
 /** Build the DOM for a block list. Nothing here inserts unescaped author text. */
 export function renderBlocks(blocks: ContentBlock[], opts: RenderBlocksOptions = {}): DocumentFragment {
@@ -153,6 +189,143 @@ export function renderBlocks(blocks: ContentBlock[], opts: RenderBlocksOptions =
         // than silently dropped, so a misconfiguration is visible in review.
         div.innerHTML = opts.allowHtml ? block.value : escapeHtml(block.value);
         frag.appendChild(div);
+        break;
+      }
+
+      case 'input': {
+        const io = opts.interactive;
+        if (!io) break;
+        fieldUid += 1;
+        const id = `ot-field-${fieldUid}`;
+        const hasLabel = typeof block.label === 'string' && block.label !== '';
+
+        const wrap = doc.createElement('div');
+        wrap.className = 'ot-field';
+
+        if (hasLabel) {
+          const label = doc.createElement('label');
+          label.className = 'ot-field-label';
+          label.htmlFor = id;
+          label.textContent = block.label as string;
+          wrap.appendChild(label);
+        }
+
+        const field = block.multiline ? doc.createElement('textarea') : doc.createElement('input');
+        field.className = 'ot-input';
+        field.id = id;
+        field.name = block.name;
+        field.dataset.otName = block.name;
+        if (!block.multiline) (field as HTMLInputElement).type = block.inputType ?? 'text';
+        if (typeof block.placeholder === 'string') field.placeholder = block.placeholder;
+        // Without a visible label, the placeholder (or the name) is the only
+        // thing a screen reader can announce.
+        if (!hasLabel) {
+          field.setAttribute(
+            'aria-label',
+            typeof block.placeholder === 'string' && block.placeholder ? block.placeholder : block.name,
+          );
+        }
+
+        const current = io.getValue(block.name);
+        if (current !== undefined && current !== null) field.value = String(current);
+
+        field.addEventListener('input', () => {
+          const raw = field.value;
+          // A number field writes a number, so `seats > 3` works in an
+          // expression without the author remembering to coerce.
+          const value = block.inputType === 'number' && raw.trim() !== '' && Number.isFinite(Number(raw))
+            ? Number(raw)
+            : raw;
+          io.setValue(block.name, value, 'input');
+        });
+
+        wrap.appendChild(field);
+        frag.appendChild(wrap);
+        break;
+      }
+
+      case 'choice': {
+        const io = opts.interactive;
+        if (!io) break;
+
+        const group = doc.createElement('div');
+        group.className = 'ot-choice';
+        group.dataset.otName = block.name;
+        group.setAttribute('role', block.multiple ? 'group' : 'radiogroup');
+        if (typeof block.label === 'string' && block.label) {
+          const label = doc.createElement('div');
+          label.className = 'ot-field-label';
+          label.textContent = block.label;
+          fieldUid += 1;
+          label.id = `ot-field-${fieldUid}`;
+          group.setAttribute('aria-labelledby', label.id);
+          group.appendChild(label);
+        } else {
+          group.setAttribute('aria-label', block.name);
+        }
+
+        const options = block.options.map((option) =>
+          (typeof option === 'string' ? { label: option, value: option } : option));
+
+        const selected = (): unknown[] => {
+          const value = io.getValue(block.name);
+          if (block.multiple) return Array.isArray(value) ? value : [];
+          return value === undefined ? [] : [value];
+        };
+
+        const buttons: HTMLButtonElement[] = [];
+        const paint = (): void => {
+          const now = selected();
+          buttons.forEach((btn, i) => {
+            const on = now.includes(options[i].value);
+            btn.classList.toggle('ot-choice-option--selected', on);
+            btn.setAttribute('aria-checked', String(on));
+          });
+        };
+
+        const list = doc.createElement('div');
+        list.className = 'ot-choice-options';
+        options.forEach((option) => {
+          const btn = doc.createElement('button');
+          btn.type = 'button';
+          btn.className = 'ot-choice-option';
+          btn.setAttribute('role', block.multiple ? 'checkbox' : 'radio');
+          btn.textContent = typeof option.label === 'string' ? option.label : String(option.value);
+          btn.addEventListener('click', () => {
+            if (block.multiple) {
+              const now = selected();
+              const next = now.includes(option.value)
+                ? now.filter((v) => v !== option.value)
+                : [...now, option.value];
+              io.setValue(block.name, next, 'choice');
+            } else {
+              io.setValue(block.name, option.value, 'choice');
+            }
+            // Painted locally: the engine deliberately does not re-render the
+            // body while focus is inside it, or the pressed button would be
+            // replaced mid-click.
+            paint();
+          });
+          buttons.push(btn);
+          list.appendChild(btn);
+        });
+
+        paint();
+        group.appendChild(list);
+        frag.appendChild(group);
+        break;
+      }
+
+      case 'button': {
+        const io = opts.interactive;
+        if (!io) break;
+        const label = typeof block.label === 'string' ? block.label : '';
+        const btn = doc.createElement('button');
+        btn.type = 'button';
+        btn.className = `ot-btn ot-block-btn ${block.variant === 'primary' ? 'ot-btn-primary' : 'ot-btn-ghost'}`;
+        btn.textContent = label;
+        btn.addEventListener('click', () => io.runAction(block.action, label));
+        frag.appendChild(btn);
         break;
       }
     }

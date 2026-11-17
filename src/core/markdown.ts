@@ -68,6 +68,16 @@ export function renderInline(src: string, opts: InlineOptions = {}): string {
   if (typeof src !== 'string') return '';
   let out = escapeHtml(src);
 
+  // Lift code spans out before anything else runs. Their contents are literal:
+  // `a * b * c` and `[not](a-link)` inside backticks must come through
+  // untouched, which they did not while code was the *last* substitution.
+  // Private-use characters make a placeholder no author text can collide with.
+  const spans: string[] = [];
+  out = out.replace(/`([^`]+)`/g, (_match, code: string) => {
+    spans.push(code);
+    return `${spans.length - 1}`;
+  });
+
   // Images before links: `![alt](src)` also matches the link pattern.
   out = out.replace(
     /!\[([^\]]*)\]\(([^\s)]+)\)/g,
@@ -97,7 +107,7 @@ export function renderInline(src: string, opts: InlineOptions = {}): string {
   out = out.replace(/\*\*([^\s*][^*]*?[^\s*]|[^\s*])\*\*/g, '<strong>$1</strong>');
   out = out.replace(/(^|[^*])\*([^\s*][^*\n]*?[^\s*]|[^\s*])\*/g, '$1<em>$2</em>');
   out = out.replace(/~~([^~]+)~~/g, '<s>$1</s>');
-  out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
+  out = out.replace(/(\d+)/g, (_match, i: string) => `<code>${spans[Number(i)]}</code>`);
 
   if (opts.breaks !== false) out = out.replace(/\r?\n/g, '<br>');
   return out;

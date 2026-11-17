@@ -23,7 +23,7 @@ npm install
 
 | Command | Description |
 |---------|-------------|
-| `npm test` | Run the unit tests (Vitest, jsdom) — 529 at time of writing |
+| `npm test` | Run the unit tests (Vitest, jsdom) — 670+ at time of writing |
 | `npm run test:watch` | Run tests in watch mode |
 | `npm run test:coverage` | Run tests with coverage thresholds enforced |
 | `npm run e2e` | Run the Playwright E2E and accessibility suites |
@@ -70,7 +70,8 @@ src/core/
                         angular.ts, solid.ts, webcomponent.ts
   analytics/          ← common.ts, vendors.ts, http.ts (batched), funnel.ts,
                         sampling.ts (run-level)
-  authoring/          ← recorder.ts, selector.ts (stability scoring), debug.ts
+  authoring/          ← recorder.ts, selector.ts (stability scoring), debug.ts,
+                        ai.ts (collectAnchors, createAuthoringPrompt, describeSpec)
   components/         ← React wrappers: TourChecklist, Banner, Announcement,
                         Survey, ResourceCenter, Hint, Changelog
   surfaces/           ← framework-free factories the React wrappers build on:
@@ -98,13 +99,14 @@ src/core/
                       ← published framework entries
   global.ts           ← IIFE entry for the <script>-tag bundle
 bin/
-  opentutorial.mjs    ← the CLI (validate, lint-selectors, schema)
+  opentutorial.mjs    ← the CLI (validate, lint-selectors, preview, describe, mcp, schema)
 scripts/
   build.mjs           ← the three-pass build
   size-budget.mjs     ← gzipped size budgets
 e2e/
   fixtures/           ← static pages served against the built dist/
   tour.spec.ts        ← browser behaviour (placement, gating, resume, swipe)
+  interactive.spec.ts ← input/choice blocks, nextWhen, drag, context triggers
   a11y.spec.ts        ← axe-core gate
   serve.mjs           ← dependency-free static server
 docs/                 ← the documentation set
@@ -159,5 +161,9 @@ framework concept leaks into the engine.
   `dependencies` empty and avoids pinning a major version.
 - Run `npm run lint && npm test` before opening a pull request, and commit a
   rebuilt `dist/` if you touched `src/`.
+- A new spec field must land in three places together: `types.ts`, the
+  validator in `schema.ts`, and `schema/spec.schema.json`. The JSON Schema is
+  `additionalProperties: false`, so a field missing there is an editor error
+  on a valid spec. `ai-tooling.test.ts` checks the three agree.
 - Add a changeset (`npx changeset`) for anything that changes shipped behaviour.
   See [.changeset/README.md](.changeset/README.md).

@@ -21,6 +21,15 @@ export declare class TourOrchestrator {
     private specs;
     private opts;
     private triggers;
+    /**
+     * The one shared context. Engines hold mirrors of it, kept in step through
+     * `applyContext`, so an answer given inside one tour is visible to the
+     * audience rules, triggers and branches of every other.
+     */
+    private context;
+    /** `context` triggers, with the last value of each expression for edge detection. */
+    private contextTriggers;
+    private watchers;
     private disposers;
     private queue;
     private activeId;
@@ -28,6 +37,17 @@ export declare class TourOrchestrator {
     /** Impressions in this page session, for `frequency.perSession`. */
     private sessionCounts;
     constructor(specs: TutorialSpec[], opts?: OrchestratorOptions);
+    private createEngine;
+    /**
+     * Register a tour after construction — one fetched from a server, built by a
+     * feature flag, or generated on the fly. Replaces any tour with the same id.
+     * Returns false when the spec fails validation (it is still registered, so
+     * `whyBlocked` can explain why it will not run).
+     */
+    addSpec(spec: TutorialSpec): boolean;
+    /** Unregister a tour, stopping it first if it is running. */
+    removeSpec(tourId: string): boolean;
+    private notifyState;
     get ready(): Promise<void>;
     getEngine(tourId: string): TourEngine | undefined;
     getEngines(): TourEngine[];
@@ -53,8 +73,17 @@ export declare class TourOrchestrator {
     pause(): void;
     resume(): void;
     setContext(patch: Record<string, unknown>): void;
-    /** The shared tour context. Every engine holds the same keys. */
+    /** The shared tour context. */
     getContext(): Record<string, unknown>;
+    /** A change that started inside one engine — an interactive block or an action. */
+    private onEngineContext;
+    private afterContextChange;
+    /**
+     * Observe an expression over the context. `fn` runs whenever its value
+     * changes — `watch("cart.length", n => badge.update(n))`. Returns an
+     * unsubscribe function.
+     */
+    watch(expr: string, fn: (value: unknown, previous: unknown) => void): () => void;
     setTheme(theme: ThemeOverrides): void;
     setLocale(locale: string): void;
     setUser(userId: string | undefined): Promise<void>;
@@ -69,6 +98,7 @@ export declare class TourOrchestrator {
     /** Install triggers, deep-link handling, chaining and cross-page resume. */
     mount(): void;
     private installTriggers;
+    private installTriggerFor;
     private installDeepLink;
     private installAutoResume;
     private installChainListener;
